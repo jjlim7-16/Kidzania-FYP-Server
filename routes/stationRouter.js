@@ -154,5 +154,16 @@ router.get('/seedData', (req, res) => {
 
   //connection.connect()
 })
-
+router.get('/getAvailableTimeSlots', (req, res) => {
+  res.statusCode = 200
+  res.setHeader('Content-Type', 'text/plain')
+  let result = {
+    station_name: 'Aviation',
+    role_name: 'Crew',
+    noBooked: 0,
+    capacity: 8,
+    timeslot: ['1000-1030', '1030-1100', '1100-1130', '1130-1200']
+  }
+  res.json(result)
+})
 module.exports = router
