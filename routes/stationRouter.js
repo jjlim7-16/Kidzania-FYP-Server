@@ -39,7 +39,7 @@ let connection = mysql.createConnection({
 connection.connect(function(err) {
   if (err) throw err;
   console.log("Connected!");
-}); 
+});
 
 router.use(cors())
 
@@ -90,9 +90,9 @@ router.post('/addFile', upload.any(), async (req, res) => {
   let imagePath = 'images/uploads'
   let sql = 'INSERT INTO stations (station_name, durationInMins, ' +
             'description, noOfReservedSlots, station_start, station_end) VALUES ?'
-  let station_val = [[stationData.name, stationData.duration, 'Empty...', 
+  let station_val = [[stationData.name, stationData.duration, 'Empty...',
                 stationData.noRSlots, 1000, 1800]]
-                
+
   connection.query(sql, [station_val], function (err, result, fields) {
     // Throw error if any error met when executing above query
     if (err) throw err;
@@ -102,7 +102,7 @@ router.post('/addFile', upload.any(), async (req, res) => {
     let rolesData = stationData.roles[0]
     sql = 'INSERT INTO station_roles (station_id, role_name, capacity) VALUES ?'
     let roles_val = [[ stationId, rolesData.roleName, rolesData.capacity ]]
-    
+
     connection.query(sql, [roles_val], function (err, result, fields) {
       // Throw error if any error met when executing above query
       if (err) throw err;
@@ -121,7 +121,7 @@ router.get('/seedData', (req, res) => {
     if (err) throw err
     //res.json(results)
     station = results
-    
+
     let stationList = []
     for (var x in station) {
       let currStation = station[x]
@@ -154,16 +154,30 @@ router.get('/seedData', (req, res) => {
 
   //connection.connect()
 })
+
 router.get('/getAvailableTimeSlots', (req, res) => {
   res.statusCode = 200
   res.setHeader('Content-Type', 'text/plain')
   let result = {
     station_name: 'Aviation',
     role_name: 'Crew',
-    noBooked: 0,
     capacity: 8,
-    timeslot: ['1000-1030', '1030-1100', '1100-1130', '1130-1200']
+    timeslots: [
+      { noBooked: 5,
+        time: '1000-1030' },
+      { noBooked: 8,
+        time: '1100-1240' },
+      { noBooked: 0,
+        time: '1900-1030' },
+        { noBooked: 0,
+          time: '1900-1030' },
+          { noBooked: 0,
+            time: '1900-1030' },
+      { noBooked: 0,
+        time: '1100-1030' }
+    ]
   }
   res.json(result)
 })
+
 module.exports = router
