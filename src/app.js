@@ -8,6 +8,7 @@ const router = express.Router()
 router.use(bodyParser.json())
 
 const stationRouter = require('../routes/stationRouter')
+const roleRouter = require('../routes/roleRouter')
 const hostname = 'localhost'
 const port = 8000;
 
@@ -16,6 +17,7 @@ app.use(morgan('dev'))
 app.use(bodyParser.json())
 app.use(express.static(__dirname + '/public'))
 app.use('/stations', stationRouter)
+app.use('/roles', roleRouter)
 stationRouter.options('*', cors())
 
 let connection = mysql.createConnection({
