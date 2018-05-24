@@ -42,4 +42,14 @@ router.route('/')
     })
   })
 
+router.get('/availableSessions', (req, res) => {
+  let date = new Date()
+  date = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate()
+  let sql = `Select * From available_booking_slots where session_date = ` + date
+  connection.query(sql, function(err, results) {
+    if (err) throw err
+    res.json(results)
+  })
+})
+
 module.exports = router

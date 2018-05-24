@@ -7,6 +7,8 @@ const cors = require('cors')
 const router = express.Router()
 router.use(bodyParser.json())
 
+const sessionRouter = require('../routes/sessionRouter')
+const bookingRouter = require('../routes/bookingRouter')
 const stationRouter = require('../routes/stationRouter')
 const roleRouter = require('../routes/roleRouter')
 const hostname = 'localhost'
