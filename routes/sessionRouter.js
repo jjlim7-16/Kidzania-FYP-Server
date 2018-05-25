@@ -6,50 +6,54 @@ const cors = require('cors')
 
 const router = express.Router()
 router.use(bodyParser.urlencoded({
-  limit: '50mb',
-  extended: true,
-  parameterLimit: 100000
+	limit: '50mb',
+	extended: true,
+	parameterLimit: 100000
 }))
-router.use(bodyParser.json({limit: '50mb'}))
+router.use(bodyParser.json({
+	limit: '50mb'
+}))
 
 router.options('*', cors())
 
 let connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '12345',
-  database: 'kidzania_fyp',
-  multipleStatements: true
+	host: 'localhost',
+	user: 'root',
+	password: '12345',
+	database: 'kidzania_fyp',
+	multipleStatements: true
 })
 
-connection.connect(function (err) {
-  if (err) throw err
+connection.connect(function(err) {
+	if (err) throw err
 })
 
 router.use(cors())
 
 router.route('/')
-  .all((req, res, next) => {
-    res.statusCode = 200
-    res.setHeader('Content-Type', 'text/plain')
-    next() //Continue on to the next method -> .get(...)
-  })
-  .get((req, res) => {
-    let sql = `Select * From sessions`
-    connection.query(sql, function(err, results) {
-      if (err) throw err
-      res.json(results)
-    })
-  })
+	.all((req, res, next) => {
+		res.statusCode = 200
+		res.setHeader('Content-Type', 'text/plain')
+		next() //Continue on to the next method -> .get(...)
+	})
+	.get((req, res) => {
+		let sql = `Select * From sessions`
+		connection.query(sql, function(err, results) {
+			if (err) throw err
+			res.json(results)
+		})
+	})
 
 router.get('/availableSessions', (req, res) => {
-  let date = new Date()
-  date = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate()
-  let sql = `Select * From available_booking_slots where session_date = ` + date
-  connection.query(sql, function(err, results) {
-    if (err) throw err
-    res.json(results)
-  })
+	let date = new Date()
+	date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+	let bookingSpecifics = JSON.parse(req.body.webFormData)
+	let sql = `SELECT * FROM available_booking_slots WHERE station_id = ?, role_name = ?, session_date = ` + date
+	let booking_val = [bookingSpecifics.stationId, bookingSpecifics.roleName]
+	connection.query(sql, [booking_val], function(err, results) {
+		if (err) throw err
+		res.json(results)
+	})
 })
 
 module.exports = router
