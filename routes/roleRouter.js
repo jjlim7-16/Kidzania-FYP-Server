@@ -20,7 +20,7 @@ router.options('*', cors())
 let connection = mysql.createConnection({
 	host: 'localhost',
 	user: 'root',
-	password: '12345',
+	password: '',
 	database: 'kidzania_fyp',
 	multipleStatements: true
 })
@@ -46,9 +46,12 @@ router.route('/')
 		})
 	})
 	.post((req, res) => {
-		let roleData = JSON.parse(req.body.webFormData)
+		console.dir(req.body)
+		let roleData = req.body
 		let sql = 'INSERT INTO station_roles (station_id, role_name, capacity) VALUES ?'
-		let role_val = [roleData.stationId, roleData.roleName, roleData.capacity]
+		let role_val = [
+			[roleData.stationId, roleData.roleName, roleData.capacity]
+		]
 		connection.query(sql, [role_val], function(err, results, fields) {
 			if (err) throw err
 			res.json(results)
@@ -63,10 +66,11 @@ router.get('/:stationID', (req, res) => {
 		})
 	})
 	.put('/:stationID', (req, res) => {
-		let roleData = JSON.parse(req.body.webFormData)
-		let sql = 'UPDATE station_roles SET role_name = ?, capacity = ? WHERE station_id = ' + req.params.stationID
-		let role_val = [roleData.roleName, roleData.capacity]
-		connection.query(sql, [role_val], function(err, results, fields) {
+		let roleData = req.body
+		let sql = 'UPDATE station_roles SET role_name = ?, capacity = ? WHERE station_id = ?'
+		let role_val = [roleData.roleName, roleData.capacity, req.params.stationID]
+		console.dir(role_val)
+		connection.query(sql, role_val, function(err, results, fields) {
 			if (err) throw err
 			res.json(results)
 		})

@@ -23,10 +23,10 @@ app.use('/roles', roleRouter)
 stationRouter.options('*', cors())
 
 let connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "12345",
-  database: "kidzania_fyp"
+	host: "localhost",
+	user: "root",
+	password: "12345",
+	database: "kidzania_fyp"
 })
 
 /*
@@ -39,5 +39,5 @@ connection.connect(function(err) {
 const server = http.createServer(app);
 
 server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}`);
+	console.log(`Server running at http://${hostname}:${port}`);
 })
