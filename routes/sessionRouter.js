@@ -37,24 +37,13 @@ router.route('/')
 router.get('/:stationID/:roleName', (req, res) => {
 	let date = new Date()
 	date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-	let sql = `SELECT * FROM available_booking_slots WHERE station_id = ?, role_name = ?, session_date = ?`
-	let val = [req.params.stationID, req.params.roleName, date]
+	let sql = `SELECT s.session_id, a.session_date, s.session_start, s.session_end, a.capacity, a.noBooked
+		FROM sessions s, available_sessions a WHERE s.session_id = a.session_id`
+	let val = [parseInt(req.params.stationID), req.params.roleName, date]
 	pool.getConnection().then(function (connection) {
-		connection.query(sql, val).then(results => {
-			res.json(results)
-		})
-	})
-})
-
-router.get('/availableSessions', (req, res) => {
-	let date = new Date()
-	date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-	let bookingSpecifics = JSON.parse(req.body.webFormData)
-	let sql = `SELECT * FROM available_booking_slots WHERE station_id = ?, role_name = ?, session_date = ?`
-	let val = [bookingSpecifics.stationId, bookingSpecifics.roleName, date]
-	pool.getConnection().then(function(connection) {
-		connection.query(sql, val).then(results => {
-			res.json(results)
+		connection.query(sql, val)
+		.then((rows) => {
+			res.json(rows)
 		})
 	})
 })

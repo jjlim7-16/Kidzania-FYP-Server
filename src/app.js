@@ -7,6 +7,7 @@ const cors = require('cors')
 const router = express.Router()
 router.use(bodyParser.json())
 
+const seedData = require('./seedData')
 const sessionRouter = require('../routes/sessionRouter')
 const bookingRouter = require('../routes/bookingRouter')
 const stationRouter = require('../routes/stationRouter')
@@ -41,5 +42,6 @@ connection.connect(function(err) {
 const server = http.createServer(app);
 
 server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}`);
+  seedData.seedAvailableSessions()
+  console.log(`Server running at http://${hostname}:${port}`);
 })
