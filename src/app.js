@@ -20,8 +20,11 @@ app.use(bodyParser.json())
 app.use(express.static(__dirname + '/public'))
 app.use('/stations', stationRouter)
 app.use('/roles', roleRouter)
+app.use('/sessions', sessionRouter)
+app.use('/bookings', bookingRouter)
 stationRouter.options('*', cors())
 
+/*
 let connection = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -29,7 +32,6 @@ let connection = mysql.createConnection({
   database: "kidzania_fyp"
 })
 
-/*
 connection.connect(function(err) {
   if (err) throw err;
   console.log("Connected!");

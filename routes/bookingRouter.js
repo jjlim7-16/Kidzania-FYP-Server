@@ -1,8 +1,10 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const mysql = require('mysql')
 const moment = require('moment')
 const cors = require('cors')
+const db = require('../src/databasePool')
+const pool = db.getPool()
+// Re-uses existing if already created, else creates a new one
 
 const router = express.Router()
 router.use(bodyParser.urlencoded({
@@ -15,19 +17,6 @@ router.use(bodyParser.json({
 }))
 
 router.options('*', cors())
-
-let connection = mysql.createConnection({
-	host: 'localhost',
-	user: 'root',
-	password: '12345',
-	database: 'kidzania_fyp',
-	multipleStatements: true
-})
-
-connection.connect(function(err) {
-	if (err) throw err
-})
-
 router.use(cors())
 
 router.route('/')
@@ -38,9 +27,10 @@ router.route('/')
 	})
 	.get((req, res) => {
 		let sql = `Select * From booking_details`
-		connection.query(sql, function(err, results) {
-			if (err) throw err
-			res.json(results)
+		pool.getConnection(function(err, connection) {
+			connection.query(sql, (err, rows) => {
+				res.json(rows)
+			})
 		})
 	})
 
@@ -53,9 +43,10 @@ router.post('/makeBooking', (req, res) => {
 	let bookingDetails_val = [bookingData.session_id, date, bookingData.stationId,
 		bookingData.roleName, bookingData.rfid, bookingData.status
 	]
-	connection.query(sql, [bookingDetails_val], function(err, results, fields) {
-		if (err) throw err
-		res.json(results)
+	pool.getConnection(function(err, connection) {
+		connection.query(sql, [bookingDetails_val], (err, rows) => {
+			res.json(rows)
+		})
 	})
 })
 
