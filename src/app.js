@@ -7,6 +7,7 @@ const cors = require('cors')
 const router = express.Router()
 router.use(bodyParser.json())
 
+const seedData = require('./seedData')
 const sessionRouter = require('../routes/sessionRouter')
 const bookingRouter = require('../routes/bookingRouter')
 const stationRouter = require('../routes/stationRouter')
@@ -20,8 +21,11 @@ app.use(bodyParser.json())
 app.use(express.static(__dirname + '/public'))
 app.use('/stations', stationRouter)
 app.use('/roles', roleRouter)
+app.use('/sessions', sessionRouter)
+app.use('/bookings', bookingRouter)
 stationRouter.options('*', cors())
 
+/*
 let connection = mysql.createConnection({
 	host: "localhost",
 	user: "root",
@@ -29,7 +33,6 @@ let connection = mysql.createConnection({
 	database: "kidzania_fyp"
 })
 
-/*
 connection.connect(function(err) {
   if (err) throw err;
   console.log("Connected!");
@@ -39,5 +42,6 @@ connection.connect(function(err) {
 const server = http.createServer(app);
 
 server.listen(port, hostname, () => {
-	console.log(`Server running at http://${hostname}:${port}`);
+  seedData.seedAvailableSessions()
+  console.log(`Server running at http://${hostname}:${port}`);
 })

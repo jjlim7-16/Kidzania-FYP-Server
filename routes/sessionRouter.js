@@ -1,8 +1,10 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const mysql = require('mysql')
 const moment = require('moment')
 const cors = require('cors')
+const db = require('../src/databasePool')
+const pool = db.getPool()
+// Re-uses existing if already created, else creates a new one
 
 const router = express.Router()
 router.use(bodyParser.urlencoded({
@@ -15,19 +17,6 @@ router.use(bodyParser.json({
 }))
 
 router.options('*', cors())
-
-let connection = mysql.createConnection({
-	host: 'localhost',
-	user: 'root',
-	password: '',
-	database: 'kidzania_fyp',
-	multipleStatements: true
-})
-
-connection.connect(function(err) {
-	if (err) throw err
-})
-
 router.use(cors())
 
 router.route('/')
@@ -38,21 +27,24 @@ router.route('/')
 	})
 	.get((req, res) => {
 		let sql = `Select * From sessions`
-		connection.query(sql, function(err, results) {
-			if (err) throw err
-			res.json(results)
+		pool.getConnection().then(function (connection) {
+			connection.query(sql).then(results => {
+				res.json(results)
+			})
 		})
 	})
 
-router.get('/availableSessions', (req, res) => {
+router.get('/:stationID/:roleName', (req, res) => {
 	let date = new Date()
 	date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-	let bookingSpecifics = JSON.parse(req.body.webFormData)
-	let sql = `SELECT * FROM available_booking_slots WHERE station_id = ?, role_name = ?, session_date = ` + date
-	let booking_val = [bookingSpecifics.stationId, bookingSpecifics.roleName]
-	connection.query(sql, [booking_val], function(err, results) {
-		if (err) throw err
-		res.json(results)
+	let sql = `SELECT s.session_id, a.session_date, s.session_start, s.session_end, a.capacity, a.noBooked
+		FROM sessions s, available_sessions a WHERE s.session_id = a.session_id`
+	let val = [parseInt(req.params.stationID), req.params.roleName, date]
+	pool.getConnection().then(function (connection) {
+		connection.query(sql, val)
+		.then((rows) => {
+			res.json(rows)
+		})
 	})
 })
 
