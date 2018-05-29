@@ -28,9 +28,14 @@ router.route('/')
 	})
 	.get((req, res) => {
 		let sql = `Select * From station_roles`
-		connection.query(sql, function(err, results) {
-			if (err) throw err
-			res.json(results)
+		pool.getConnection().then(function(connection) {
+			connection.query(sql)
+				.then((rows) => {
+					res.json(rows)
+				})
+				.catch((err) => {
+					throw err
+				})
 		})
 	})
 	.post((req, res) => {
@@ -50,9 +55,9 @@ router.get('/:stationID', (req, res) => {
 		let sql = 'SELECT * FROM station_roles where station_id = ' + req.params.stationID
 		pool.getConnection().then(function(connection) {
 			connection.query(sql)
-			.then(results => {
-				res.json(results)
-			})
+				.then(results => {
+					res.json(results)
+				})
 		})
 	})
 	.put('/:stationID', (req, res) => {

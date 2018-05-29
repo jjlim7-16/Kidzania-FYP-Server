@@ -2,7 +2,7 @@ CREATE TABLE `stations` (
   `station_id` int(11) NOT NULL AUTO_INCREMENT,
   `station_name` varchar(45) NOT NULL,
   `durationInMins` int(11) NOT NULL,
-  `description` varchar(200) NOT NULL,
+  `description` varchar(500) NOT NULL,
   `noOfReservedSlots` int(11) DEFAULT NULL,
   `station_start` time DEFAULT NULL,
   `station_end` time DEFAULT NULL,
@@ -64,4 +64,3 @@ CREATE TABLE `booking_details` (
   KEY `available_booking_fk_idx` (`session_id`,`station_id`,`role_name`,`booking_date`),
   CONSTRAINT `available_booking_fk` FOREIGN KEY (`session_id`, `station_id`, `role_name`, `booking_date`) REFERENCES `available_booking_slots` (`session_id`, `station_id`, `role_name`, `session_date`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-

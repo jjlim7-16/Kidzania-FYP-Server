@@ -27,7 +27,7 @@ router.route('/')
 	})
 	.get((req, res) => {
 		let sql = `Select * From sessions`
-		pool.getConnection().then(function (connection) {
+		pool.getConnection().then(function(connection) {
 			connection.query(sql).then(results => {
 				res.json(results)
 			})
@@ -40,11 +40,11 @@ router.get('/:stationID/:roleName', (req, res) => {
 	let sql = `SELECT s.session_id, a.session_date, s.session_start, s.session_end, a.capacity, a.noBooked
 		FROM sessions s, available_sessions a WHERE s.session_id = a.session_id`
 	let val = [parseInt(req.params.stationID), req.params.roleName, date]
-	pool.getConnection().then(function (connection) {
+	pool.getConnection().then(function(connection) {
 		connection.query(sql, val)
-		.then((rows) => {
-			res.json(rows)
-		})
+			.then((rows) => {
+				res.json(rows)
+			})
 	})
 })
 
