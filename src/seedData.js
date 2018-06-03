@@ -54,18 +54,21 @@ module.exports = {
         let sessionList = []
         for (var x in rows) {
           let session = rows[x]
+          console.log(session)
           sessionList.push([session.session_id, date, session.station_id, session.role_name,
-          session.session_start, session.session_end, session.capacity, 0
+          session.capacity, 0, 0
           ])
         }
-        sql = 'INSERT INTO available_sessions (session_id, session_date, station_id, role_name, ' +
-          'capacity, noBooked) VALUES ?'
+        console.log(sessionList)
+        sql = 'INSERT INTO available_booking_slots (session_id, session_date, station_id, role_name, ' +
+          'capacity, noBooked, noOfVip) VALUES ?'
         return connection.query(sql, [sessionList])
       })
       .then((rows) => {
         console.log(rows)
       })
       .catch((err) => {
+        console.log(err)
         console.log('Sessions Data Is Seeded')
       })
     })
