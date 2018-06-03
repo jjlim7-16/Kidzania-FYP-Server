@@ -42,14 +42,7 @@ connection.connect(function(err) {
 const server = http.createServer(app);
 
 server.listen(port, hostname, () => {
-<<<<<<< HEAD
-	//seedData.seedSessions();
+	//seedData.seedSessions()
 	seedData.seedAvailableSessions()
 	console.log(`Server running at http://${hostname}:${port}`);
 })
-=======
-  //seedData.seedSessions()
-  seedData.seedAvailableSessions()
-  console.log(`Server running at http://${hostname}:${port}`);
-})
->>>>>>> 3707276ca86d6a08488bee04be67ba33aa45295f
