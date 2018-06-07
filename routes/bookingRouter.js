@@ -50,4 +50,16 @@ router.post('/makeBooking', (req, res) => {
 	})
 })
 
+
+router.get('/:rfid', function (req, res) {
+	    var rfid = req.params.rfid
+	    let sql = 'SELECT bd.booking_details_id,bd.session_id, bd.booking_date, bd.station_id, bd.role_name, bd.rfid, bd.queue_no, bd.booking_status, s.station_name, ss.session_start,ss.session_end FROM booking_details bd inner join stations s on bd.station_id = s.station_id inner join sessions ss on bd.session_id = ss.session_id  where bd.rfid = ?'
+	  	//database query havent filter by date
+	    pool.getConnection (function(err, connection) {
+	        connection.query(sql, rfid, (err, rows) => {
+	            res.json(rows)
+	        })
+	    })
+	});
+
 module.exports = router
