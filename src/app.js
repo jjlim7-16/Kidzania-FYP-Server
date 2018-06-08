@@ -4,6 +4,7 @@ const morgan = require('morgan')
 const bodyParser = require('body-parser')
 const mysql = require('mysql')
 const cors = require('cors')
+const moment = require('moment')
 const router = express.Router()
 router.use(bodyParser.json())
 
@@ -27,10 +28,10 @@ stationRouter.options('*', cors())
 
 /*
 let connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "12345",
-  database: "kidzania_fyp"
+	host: "localhost",
+	user: "root",
+	password: "",
+	database: "kidzania_fyp"
 })
 
 connection.connect(function(err) {
@@ -42,6 +43,7 @@ connection.connect(function(err) {
 const server = http.createServer(app);
 
 server.listen(port, hostname, () => {
-  seedData.seedAvailableSessions()
-  console.log(`Server running at http://${hostname}:${port}`);
+	//seedData.seedSessions()
+	seedData.seedAvailableSessions()
+	console.log(`Server running at http://${hostname}:${port}`);
 })

@@ -1,10 +1,10 @@
 const mysql = require('promise-mysql')
 let pool
 module.exports = {
-	getPool: function () {
+	getPool: function() {
 		if (pool) return pool
 		pool = mysql.createPool({
-			connectionLimit: 10,
+			connectionLimit: 100,
 			host: 'localhost',
 			user: 'root',
 			password: '12345',
