@@ -34,63 +34,41 @@ router.route('/')
 		})
 	})
 
-router.get('/:stationID/:roleName', (req, res) => {
-	let sql = "SELECT stations.durationInMins, stations.station_start, stations.station_end FROM stations WHERE stations.station_id = " + parseInt(req.params.stationID)
-	pool.getConnection().then(function(connection) {
-		connection.query(sql)
-			.then((rows) => {
-				durationInMins = parseInt(rows[0].durationInMins)
-				sStartTime = moment(rows[0].station_start, 'HH:mm:ss')
-				myTime = sStartTime
-				sEndTime = moment(rows[0].station_end, 'HH:mm:ss')
-				let currTime = moment()
-				let noOfTimePeriods = Math.round(parseInt(moment.duration(sEndTime.diff(sStartTime)).asMinutes()) / durationInMins / 6)
-				let timePeriodList = []
-				let currTimePeriod = {
-					earliestStartTime: sStartTime,
-					latestEndTime: myTime
-				}
-				for (let i = 0; i < noOfTimePeriods; i++) {
-					let prevTimePeriod
-					if (timePeriodList.length >= 1) { //Check if there is at least one time period
-						prevTimePeriod = timePeriodList[i - 1] //Holds the time for the earliest timeslot in this period
-						console.log(timePeriodList[i - 1])
-						currTimePeriod.earliestStartTime = prevTimePeriod.latestEndTime
-						currTimePeriod.latestEndTime = currTimePeriod.earliestStartTime
-						let tmpLatestEndTime = moment(currTimePeriod.latestEndTime, 'HH:mm:ss')
-						tmpLatestEndTime.add(durationInMins * 6, 'minutes')
-						currTimePeriod.latestEndTime = tmpLatestEndTime
-					} else {
-						let tmpLatestEndTime = moment(currTimePeriod.latestEndTime, 'HH:mm:ss')
-						tmpLatestEndTime.add(durationInMins * 6, 'minutes')
-						currTimePeriod.latestEndTime = tmpLatestEndTime
-					}
-					timePeriodList.push(currTimePeriod)
-				}
+router.get('/:stationID/:roleID', (req, res) => {
+	// Get Today's Date & Time
+	let date = new Date()
+	let time = date.getHours() + ':' + date.getMinutes()
+	date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+	let sql = `SELECT a.session_date, a.session_id, session_start, session_end, a.noBooked
+		FROM sessions s, available_sessions a WHERE s.session_id = a.session_id 
+		AND a.role_id = s.role_id AND a.role_id = ? AND a.session_date = current_date() 
+		ORDER BY 3 ASC`
+	let val = [parseInt(req.params.roleID)]
+	pool.getConnection().then(function (connection) {
+		connection.query(sql, val)
+		.then((rows) => {
+			//res.json(rows)
+			console.log(moment(rows[0].session_date).format('YYYY-MM-DD'))
+			time = moment(time, 'HH:mm')
 
+			if (time.minutes() >= 30) {
+				time.add(1,'hour')
+				time.minutes(0)
+			}
 
-				for (let timePeriod in timePeriodList) {
-					if (currTime.isBefore(timePeriod.latestEndTime) && currTime.isAfter(timePeriod.earliestStartTime)) {
-						currTimePeriod = timePeriod
+			let session_list = []
+			for (i=0; i<rows.length; i+=6) {
+				let session_start = moment(rows[i].session_start, 'HH:mm')
+				if (time.isSameOrAfter(session_start) && time.isBefore(session_start.add(duration, 'minutes'))) {
+					for (j=i; j<i+6, j<rows.length; j++) {
+						session_list.push(rows[j])
 					}
+					break
 				}
-				let date = new Date()
-				date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-				sql = `SELECT s.session_id, a.session_date, s.session_start, s.session_end, a.capacity, a.noBooked
-					FROM sessions s, available_booking_slots a WHERE s.session_id = a.session_id && s.station_id = ? && s.role_name = ?
-          && s.session_start >= ? && s.session_end <= ? && a.session_date = ?`
-				val = [parseInt(req.params.stationID), decodeURI(req.params.roleName), moment(currTimePeriod.earliestStartTime).format('HH:mm:ss'),
-					moment(currTimePeriod.latestEndTime).format('HH:mm:ss'), date
-				]
-				return connection.query(sql, val)
-			})
-			.then((rows) => {
-				console.log('The rows retrieved are' + rows)
-				res.json(rows)
-			})
-			.catch((err) => {
-				console.log(err)
-			})
+				continue
+			}
+			res.json(session_list)
+		})
 	})
 })
 

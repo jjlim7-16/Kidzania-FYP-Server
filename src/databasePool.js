@@ -7,7 +7,7 @@ module.exports = {
 			connectionLimit: 100,
 			host: 'localhost',
 			user: 'root',
-			password: '',
+			password: '12345',
 			database: 'kidzania_fyp'
 		})
 		return pool
