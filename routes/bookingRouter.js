@@ -26,27 +26,41 @@ router.route('/')
 		next() //Continue on to the next method -> .get(...)
 	})
 	.get((req, res) => {
-		let sql = `Select * From booking_details`
-		pool.getConnection(function(err, connection) {
-			connection.query(sql, (err, rows) => {
+		let sql = `Select booking_id, session_date, se.session_start, se.session_end, st.station_name,
+			sr.role_name From booking_details b, sessions se, stations st, station_roles sr 
+			where b.session_id = se.session_id and st.station_id = sr.station_id and sr.role_id = b.role_id`
+		pool.getConnection().then(function(connection) {
+			connection.query(sql)
+			.then((rows) => {
 				res.json(rows)
 			})
 		})
 	})
 
 router.post('/makeBooking', (req, res) => {
-	let bookingData = JSON.parse(req.body.webFormData)
-	let sql = 'INSERT INTO booking_details (session_id, booking_date, station_id, ' +
-		'role_name, rfid, queue_no, booking_status) VALUES ?'
-	let date = new Date()
-	date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-	let bookingDetails_val = [bookingData.session_id, date, bookingData.stationId,
-		bookingData.roleName, bookingData.rfid, bookingData.status
-	]
-	pool.getConnection(function(err, connection) {
-		connection.query(sql, [bookingDetails_val], (err, rows) => {
-			res.json(rows)
-		})
+	let sql = 'SELECT COUNT(booking_details_id) AS qNum FROM booking_details'
+	let bookingData = req.body
+	pool.getConnection().then(function(connection) {
+		connection.query(sql)
+			.then((rows) => {
+				let qNum = parseInt(rows[0].qNum) + 1
+				sql = 'INSERT INTO booking_details (session_id, session_date, station_id, ' +
+					'role_id, rfid, queue_no, booking_status) VALUES ?'
+				let date = new Date()
+				date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+				let bookingDetails_val = [parseInt(bookingData.session_id), date, parseInt(bookingData.station_id),
+					bookingData.role_id, bookingData.rfid, qNum, bookingData.status
+				]
+				return connection.query(sql, [
+					[bookingDetails_val]
+				])
+			})
+			.then((rows) => {
+				res.status(200)
+			})
+			.catch((err) => {
+				console.log(err)
+			})
 	})
 })
 

@@ -36,94 +36,96 @@ router.options('*', cors())
 router.use(cors())
 
 router.route('/')
-.all((req, res, next) => {
-	res.statusCode = 200
-	res.setHeader('Content-Type', 'text/plain')
-	next()
-})
-.get((req, res) => {
-	let sql = `Select * From stations`
-	pool.getConnection().then(function(connection) {
-		connection.query(sql)
-		.then((rows) => {
-			res.json(rows)
-		})
-		.catch((err) => {
-			throw err
+	.all((req, res, next) => {
+		res.statusCode = 200
+		res.setHeader('Content-Type', 'text/plain')
+		next()
+	})
+	.get((req, res) => {
+		let sql = `Select * From stations`
+		pool.getConnection().then(function(connection) {
+			connection.query(sql)
+				.then((rows) => {
+					res.json(rows)
+				})
+				.catch((err) => {
+					throw err
+				})
 		})
 	})
-})
-.post(upload.any(), async(req, res) => {
-	console.log(req.files)
-	console.log((req.body.webFormData))
-	let stationData = JSON.parse(req.body.webFormData)
-	let imagePath = 'images/uploads/' + req.files.filename
-	let date = new Date()
-	date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-	let sql = 'INSERT INTO stations (station_name, durationInMins, description, ' +
-		'noOfReservedSlots, station_start, station_end, date_added, date_updated, imagepath) VALUES ?'
-	let stationVal = [stationData.name, stationData.duration, 'Empty...',
-		stationData.noRSlots, '10:00', '18:00', date, date, imagepath]
-	pool.getConnection().then(function (connection) {
-		connection.query(sql, [stationVal])
-		.then((rows) => {
-			let stationId = rows.insertId
-			if (stationData.roles) {
-				let rolesData = stationData.roles
-				sql = 'INSERT INTO station_roles (station_id, role_name, capacity, ' +
-					'date_added, date_updated) VALUES ?'
-				let rolesVal = []
-				for (role in rolesData) {
-					rolesVal.push([stationId, role.roleName, role.capacity, date, date])
-				}
-			}
-			return connection.query(sql, [rolesVal])
-		})
-		.then((rows) => {
-			res.json({
-				message: 'File Uploaded Successfully'
-			})
-		})
-		.catch((err) => {
-			throw err
+	.post(upload.any(), async (req, res) => {
+		console.log(req.files)
+		console.log((req.body.webFormData))
+		let stationData = JSON.parse(req.body.webFormData)
+		let imagePath = 'images/uploads/' + req.files.filename
+		let date = new Date()
+		date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+		let sql = 'INSERT INTO stations (station_name, durationInMins, description, ' +
+			'noOfReservedSlots, station_start, station_end, date_added, date_updated, imagepath) VALUES ?'
+		let stationVal = [stationData.name, stationData.duration, 'Empty...',
+			stationData.noRSlots, '10:00', '18:00', date, date, imagepath
+		]
+		pool.getConnection().then(function(connection) {
+			connection.query(sql, [stationVal])
+				.then((rows) => {
+					let stationId = rows.insertId
+					if (stationData.roles) {
+						let rolesData = stationData.roles
+						sql = 'INSERT INTO station_roles (station_id, role_name, capacity, ' +
+							'date_added, date_updated) VALUES ?'
+						let rolesVal = []
+						for (role in rolesData) {
+							rolesVal.push([stationId, role.roleName, role.capacity, date, date])
+						}
+					}
+					return connection.query(sql, [rolesVal])
+				})
+				.then((rows) => {
+					res.json({
+						message: 'File Uploaded Successfully'
+					})
+				})
+				.catch((err) => {
+					throw err
+				})
 		})
 	})
-})
 
 router.route('/:stationID')
-.all((req, res, next) => {
-	res.statusCode = 200
-	res.setHeader('Content-Type', 'text/plain')
-	next()
-})
-.get((req, res) => {
-	let sql = `Select * From stations Where station_id = ?`
-	pool.getConnection().then(function(connection) {
-		connection.query(sql, [req.params.stationID])
-		.then((rows) => {
-			res.json(rows)
-		})
-		.catch((err) => {
-			throw err
+	.all((req, res, next) => {
+		res.statusCode = 200
+		res.setHeader('Content-Type', 'text/plain')
+		next()
+	})
+	.get((req, res) => {
+		let sql = `Select * From stations Where station_id = ?`
+		pool.getConnection().then(function(connection) {
+			connection.query(sql, [req.params.stationID])
+				.then((rows) => {
+					res.json(rows)
+				})
+				.catch((err) => {
+					throw err
+				})
 		})
 	})
-})
-.put(upload.any(), (req, res) => {
-	let stationData = JSON.parse(req.body.webFormData)
-	let imagepath = 'images/uploads' + req.files.filename
-	let sql = `Update stations Set station_name=?, description=?, durationInMins=?, noOfReservedSlots=?,
+	.put(upload.any(), (req, res) => {
+		let stationData = JSON.parse(req.body.webFormData)
+		let imagepath = 'images/uploads' + req.files.filename
+		let sql = `Update stations Set station_name=?, description=?, durationInMins=?, noOfReservedSlots=?,
 		station_start=?, station_end=?, imagepath=? Where station_id = ?`
-	let val = [stationData.stationName, stationData.description, stationData.duration, 
-		stationData.noOfRSlots, stationData.start, stationData.end, imagepath, req.params.stationID]
-	pool.getConnection().then(function(connection) {
-		connection.query(sql, val)
-		.then((rows) => {
-			res.json(rows)
-		})
-		.catch((err) => {
-			throw err
+		let val = [stationData.stationName, stationData.description, stationData.duration,
+			stationData.noOfRSlots, stationData.start, stationData.end, imagepath, req.params.stationID
+		]
+		pool.getConnection().then(function(connection) {
+			connection.query(sql, val)
+				.then((rows) => {
+					res.json(rows)
+				})
+				.catch((err) => {
+					throw err
+				})
 		})
 	})
-})
 
 module.exports = router
