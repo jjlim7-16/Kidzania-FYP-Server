@@ -9,6 +9,7 @@ const db = require('../src/databasePool')
 const pool = db.getPool()
 // Re-uses existing if already created, else creates a new one
 
+const seedData = require('../src/seedData')
 const router = express.Router()
 router.use(bodyParser.urlencoded({
 	limit: '50mb',
@@ -57,33 +58,40 @@ router.route('/')
 		console.log(req.files)
 		console.log((req.body.webFormData))
 		let stationData = JSON.parse(req.body.webFormData)
-		let imagePath = 'images/uploads/' + req.files.filename
+		let imagepath = 'images/uploads/' + req.files[0].filename
 		let date = new Date()
 		date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-		let sql = 'INSERT INTO stations (station_name, durationInMins, description, ' +
-			'noOfReservedSlots, station_start, station_end, date_added, date_updated, imagepath) VALUES ?'
-		let stationVal = [stationData.name, stationData.duration, 'Empty...',
-			stationData.noRSlots, '10:00', '18:00', date, date, imagepath
-		]
+		// console.log(moment(stationData.startTime, 'HH:mm').format('HH:mm'))
+		let sql = `INSERT INTO stations (station_name, description, 
+			noOfReservedSlots, station_start, station_end, date_added, date_updated, imagepath) VALUES ?`
+		let stationVal = [[stationData.name, stationData.description, stationData.noRSlots, 
+			stationData.startTime, stationData.endTime, date, date, imagepath
+		]]
+		let stationID
+		console.log(stationVal)
+		// console.log(stationData.roles[0])
 		pool.getConnection().then(function(connection) {
 			connection.query(sql, [stationVal])
 				.then((rows) => {
-					let stationId = rows.insertId
-					if (stationData.roles) {
+					stationID = rows.insertId
+					let rolesVal = []
+					if (stationData.roles.length > 0) {
 						let rolesData = stationData.roles
 						sql = 'INSERT INTO station_roles (station_id, role_name, capacity, ' +
-							'date_added, date_updated) VALUES ?'
-						let rolesVal = []
-						for (role in rolesData) {
-							rolesVal.push([stationId, role.roleName, role.capacity, date, date])
+							'durationInMins, date_added, date_updated) VALUES ?'
+						for (var i=0; i<rolesData.length; i++) {
+							rolesVal.push([stationID, rolesData[i].roleName, rolesData[i].capacity, 
+								rolesData[i].duration, date, date])
 						}
 					}
 					return connection.query(sql, [rolesVal])
 				})
 				.then((rows) => {
-					res.json({
-						message: 'File Uploaded Successfully'
-					})
+					console.log('Station-Roles Successfully Added')
+					return seedData.seedNewSessions(stationID)
+				})
+				.then((results) => {
+					res.json(results)
 				})
 				.catch((err) => {
 					throw err
@@ -111,14 +119,28 @@ router.route('/:stationID')
 	})
 	.put(upload.any(), (req, res) => {
 		let stationData = JSON.parse(req.body.webFormData)
-		let imagepath = 'images/uploads' + req.files.filename
-		let sql = `Update stations Set station_name=?, description=?, durationInMins=?, noOfReservedSlots=?,
+		console.log(stationData)
+		let imagepath = 'images/uploads/' + req.files[0].filename
+		let sql = `Update stations Set station_name=?, description=?, noOfReservedSlots=?,
 		station_start=?, station_end=?, imagepath=? Where station_id = ?`
-		let val = [stationData.stationName, stationData.description, stationData.duration,
-			stationData.noOfRSlots, stationData.start, stationData.end, imagepath, req.params.stationID
+		let val = [stationData.name, stationData.description, stationData.noOfRSlots,
+			stationData.startTime, stationData.endTime, imagepath, req.params.stationID
 		]
 		pool.getConnection().then(function(connection) {
 			connection.query(sql, val)
+				.then((rows) => {
+					// console.log(rows)
+					res.json('Success')
+				})
+				.catch((err) => {
+					throw err
+				})
+		})
+	})
+	.delete((req, res) => {
+		let sql = `Delete From stations where station_id = ?`
+		pool.getConnection().then(function(connection) {
+			connection.query(sql, req.params.stationID)
 				.then((rows) => {
 					res.json(rows)
 				})

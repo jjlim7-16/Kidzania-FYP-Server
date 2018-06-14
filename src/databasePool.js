@@ -5,6 +5,7 @@ module.exports = {
 		if (pool) return pool
 		pool = mysql.createPool({
 			connectionLimit: 100,
+			multipleStatements: true,
 			host: 'localhost',
 			user: 'root',
 			password: '12345',

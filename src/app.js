@@ -4,7 +4,7 @@ const morgan = require('morgan')
 const bodyParser = require('body-parser')
 const mysql = require('mysql')
 const cors = require('cors')
-const moment = require('moment')
+const socketIo = require('socket.io')
 const router = express.Router()
 router.use(bodyParser.json())
 
@@ -26,10 +26,12 @@ app.use('/sessions', sessionRouter)
 app.use('/bookings', bookingRouter)
 stationRouter.options('*', cors())
 
-const server = http.createServer(app);
+const server = http.createServer(app)
 
 server.listen(port, hostname, () => {
-	// seedData.seedSessions()
-	seedData.seedAvailableSessions()
+	seedData.seedSessions()
+	.then(() => {
+		seedData.seedAvailableSessions()
+	})
 	console.log(`Server running at http://${hostname}:${port}`);
 })
