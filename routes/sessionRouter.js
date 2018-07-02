@@ -31,6 +31,7 @@ router.route('/')
 			connection.query(sql).then(results => {
 				res.json(results)
 			})
+			connection.release()
 		})
 	})
 
@@ -67,10 +68,10 @@ router.get('/:stationID/:roleID', (req, res) => {
 					}
 					break
 				}
-				continue
 			}
 			res.json(session_list)
 		})
+		connection.release()
 	})
 })
 

@@ -12,7 +12,6 @@ module.exports = {
 		let sql = `Select s.station_id, role_id, s.station_start, s.station_end, 
 			sr.durationInMins, capacity From stations s, station_roles sr where s.station_id = sr.station_id 
 			AND s.station_id = ?;`
-		console.log('stationID: ' + stationID)
 		pool.getConnection().then(function (connection) {
 			connection.query(sql, stationID)
 				.then((results) => {
@@ -35,11 +34,12 @@ module.exports = {
 					return connection.query(sql, [sessionList])
 				})
 				.then((results) => {
-					connection.release()
+					console.log('Successfully Seed New Sessions Data')
 				})
 				.catch((err) => {
 					console.log(err.code)
 				})
+				connection.release()
 		})
 		return Promise.resolve('Success')
 	},
@@ -73,12 +73,12 @@ module.exports = {
 					return connection.query(sql, [sessionList])
 				})
 				.then(() => {
-					connection.release()
 					console.log('Sessions Data Is Seeded')
 				})
 				.catch((err) => {
 					console.log(err)
 				})
+				connection.release()
 		})
 		return delay(500)
 	},
@@ -98,11 +98,14 @@ module.exports = {
 				})
 				.then((results) => {
 					console.log('Successfully Seed Available Sessions For Today')
-					connection.release()
 				})
 				.catch((err) => {
 					console.log(err)
 				})
+				connection.release()
+				// console.log(pool.pool._allConnections.length)
+				// console.log(pool.pool._acquiringConnections.length)
+				// console.log(pool.pool._freeConnections.length)
 		})
 	}
 }

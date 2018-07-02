@@ -5,6 +5,9 @@ const moment = require('moment')
 const cors = require('cors')
 // const stationData = require('form-data')
 const multer = require('multer')
+const mkdirp = require('mkdirp')
+const fs = require('fs')
+const path = require('path')
 const db = require('../src/databasePool')
 const pool = db.getPool()
 // Re-uses existing if already created, else creates a new one
@@ -22,7 +25,8 @@ router.use(bodyParser.json({
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		cb(null, 'images/uploads')
+		const dir = '/images/' + file.fieldname.split('-')[0]
+		mkdirp(dir, err => cb(err, dir))
 	},
 	filename: (req, file, cb) => {
 		cb(null, file.fieldname + '.' + file.mimetype.split('/')[1])
@@ -32,6 +36,20 @@ const upload = multer({
 	storage: storage
 })
 // const upload = multer({dest: 'images/uploads'})
+
+var deleteFolderRecursive = function(path) {
+  if (fs.existsSync(path)) {
+    fs.readdirSync(path).forEach(function(file, index){
+      var curPath = path + "/" + file;
+      if (fs.lstatSync(curPath).isDirectory()) { // recurse
+        deleteFolderRecursive(curPath);
+      } else { // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(path);
+  }
+}
 
 router.options('*', cors())
 router.use(cors())
@@ -46,30 +64,28 @@ router.route('/')
 		let sql = `Select * From stations`
 		pool.getConnection().then(function(connection) {
 			connection.query(sql)
-				.then((rows) => {
+				.then(rows => {
 					res.json(rows)
 				})
-				.catch((err) => {
+				.catch(err => {
 					throw err
 				})
+				connection.release()
 		})
 	})
-	.post(upload.any(), async (req, res) => {
-		console.log(req.files)
-		console.log((req.body.webFormData))
+	.post((req, res) => {
+		// console.log(req.files)
+		// console.log((req.body.webFormData))
 		let stationData = JSON.parse(req.body.webFormData)
-		let imagepath = 'images/uploads/' + req.files[0].filename
+		let imagepath = req.files[0].destination + '/' + req.files[0].filename
 		let date = new Date()
 		date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-		// console.log(moment(stationData.startTime, 'HH:mm').format('HH:mm'))
-		let sql = `INSERT INTO stations (station_name, description, 
-			noOfReservedSlots, station_start, station_end, date_added, date_updated, imagepath) VALUES ?`
-		let stationVal = [[stationData.name, stationData.description, stationData.noRSlots, 
+		let sql = `INSERT INTO stations (station_name, description, noOfReservedSlots, 
+			station_start, station_end, date_added, date_updated, imagepath) VALUES ?`
+		let stationVal = [[stationData.name, stationData.description, stationData.noOfRSlots, 
 			stationData.startTime, stationData.endTime, date, date, imagepath
 		]]
 		let stationID
-		console.log(stationVal)
-		// console.log(stationData.roles[0])
 		pool.getConnection().then(function(connection) {
 			connection.query(sql, [stationVal])
 				.then((rows) => {
@@ -78,10 +94,11 @@ router.route('/')
 					if (stationData.roles.length > 0) {
 						let rolesData = stationData.roles
 						sql = 'INSERT INTO station_roles (station_id, role_name, capacity, ' +
-							'durationInMins, date_added, date_updated) VALUES ?'
+							'durationInMins, date_added, date_updated, imagepath) VALUES ?'
 						for (var i=0; i<rolesData.length; i++) {
+							imagepath = req.files[i+1].destination + '/' + req.files[i+1].filename
 							rolesVal.push([stationID, rolesData[i].roleName, rolesData[i].capacity, 
-								rolesData[i].duration, date, date])
+								rolesData[i].duration, date, date, imagepath])
 						}
 					}
 					return connection.query(sql, [rolesVal])
@@ -94,10 +111,27 @@ router.route('/')
 					res.json(results)
 				})
 				.catch((err) => {
-					throw err
+					console.log(err)
+					res.statusMessage = err
+					res.status(400).end(err.code)
 				})
+				connection.release()
 		})
 	})
+
+// router.route('/image')
+// .get((req, res) => {
+// 	let imagepath = '../images/Clinic/Clinic.jpeg'
+// 	let filepath = path.join(__dirname, imagepath)
+// 	console.log(filepath)
+// 	let stat = fs.statSync(filepath)
+// 	res.writeHead(200, {
+// 		'Content-Type': 'image/jpeg',
+// 		'Content-Length': stat.size
+// 	})
+// 	let readstream = fs.createReadStream(filepath)
+// 	readstream.pipe(res)
+// })
 
 router.route('/:stationID')
 	.all((req, res, next) => {
@@ -110,17 +144,20 @@ router.route('/:stationID')
 		pool.getConnection().then(function(connection) {
 			connection.query(sql, [req.params.stationID])
 				.then((rows) => {
+					console.log(rows)
 					res.json(rows)
 				})
 				.catch((err) => {
-					throw err
+					res.statusMessage = err
+					res.status(400).end()
 				})
+				connection.release()
 		})
 	})
 	.put(upload.any(), (req, res) => {
 		let stationData = JSON.parse(req.body.webFormData)
 		console.log(stationData)
-		let imagepath = 'images/uploads/' + req.files[0].filename
+		let imagepath = req.files[0].destination + '/' + req.files[0].filename
 		let sql = `Update stations Set station_name=?, description=?, noOfReservedSlots=?,
 		station_start=?, station_end=?, imagepath=? Where station_id = ?`
 		let val = [stationData.name, stationData.description, stationData.noOfRSlots,
@@ -130,23 +167,28 @@ router.route('/:stationID')
 			connection.query(sql, val)
 				.then((rows) => {
 					// console.log(rows)
-					res.json('Success')
+					res.end('Success')
 				})
 				.catch((err) => {
-					throw err
+					res.statusMessage = err
+					res.status(400).end()
 				})
+				connection.release()
 		})
 	})
 	.delete((req, res) => {
-		let sql = `Delete From stations where station_id = ?`
+		let sql = 'Select station_name From stations where station_id = ' + req.params.stationID + ';'
+		sql += 'Delete From stations where station_id = ' + req.params.stationID
 		pool.getConnection().then(function(connection) {
-			connection.query(sql, req.params.stationID)
-				.then((rows) => {
-					res.json(rows)
+			connection.query(sql)
+				.then(results => {
+					deleteFolderRecursive('./images/' + results[0][0].station_name + '/')
+					res.json(results)
 				})
-				.catch((err) => {
-					throw err
+				.catch(err => {
+					console.log(err)
 				})
+				connection.release()
 		})
 	})
 

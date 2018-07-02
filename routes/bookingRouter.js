@@ -26,7 +26,7 @@ router.route('/')
 	next() //Continue on to the next method -> .get(...)
 })
 .get((req, res) => {
-	let sql = `Select booking_id, session_date, se.session_start, se.session_end, st.station_name,
+	let sql = `Select booking_id, b.session_date, se.session_start, se.session_end, st.station_name,
 		sr.role_name From booking_details b, sessions se, stations st, station_roles sr 
 		where b.session_id = se.session_id and b.station_id = st.station_id and 
 		st.station_id = sr.station_id and sr.role_id = b.role_id`
@@ -34,6 +34,10 @@ router.route('/')
 		connection.query(sql)
 			.then((rows) => {
 				res.json(rows)
+			})
+			.catch(err => {
+				res.statusMessage = err
+				res.status(400).end()
 			})
 	})
 })
@@ -45,7 +49,7 @@ router.route('/getBookingDetails')
 	next() //Continue on to the next method -> .get(...)
 })
 .get((req, res) => {
-	let sql = `Select booking_id, session_date, se.session_start, se.session_end, st.station_name,
+	let sql = `Select booking_id, b.session_date, se.session_start, se.session_end, st.station_name,
 	sr.role_name, queue_no From booking_details b, sessions se, stations st, station_roles sr 
 	where b.session_id = se.session_id and b.station_id = st.station_id and 
 	st.station_id = sr.station_id and sr.role_id = b.role_id and session_date = current_date() 
@@ -55,6 +59,10 @@ router.route('/getBookingDetails')
 		connection.query(sql)
 			.then((rows) => {
 				res.json(rows)
+			})
+			.catch(err => {
+				res.statusMessage = err
+				res.status(400).end()
 			})
 	})
 })
@@ -81,7 +89,8 @@ router.post('/makeBooking', (req, res) => {
 				res.status(200)
 			})
 			.catch((err) => {
-				console.log(err)
+				res.statusMessage = err
+				res.status(400).end()
 			})
 	})
 })
@@ -98,6 +107,10 @@ router.get('/:rfid', function (req, res) {
 		connection.query(sql, rfid)
 		.then((rows) => {
 			res.json(rows)
+		})
+		.catch(err => {
+			res.statusMessage = err
+			res.status(400).end()
 		})
 	})
 })
