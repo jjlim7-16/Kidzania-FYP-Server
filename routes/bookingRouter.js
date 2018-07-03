@@ -37,8 +37,9 @@ router.route('/')
 			})
 			.catch(err => {
 				res.statusMessage = err
-				res.status(400).end()
+				res.status(400).end(err.code)
 			})
+		connection.release()
 	})
 })
 
@@ -62,8 +63,9 @@ router.route('/getBookingDetails')
 			})
 			.catch(err => {
 				res.statusMessage = err
-				res.status(400).end()
+				res.status(400).end(err.code)
 			})
+		connection.release()
 	})
 })
 

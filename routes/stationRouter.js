@@ -80,9 +80,9 @@ router.route('/')
 		let imagepath = req.files[0].destination + '/' + req.files[0].filename
 		let date = new Date()
 		date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-		let sql = `INSERT INTO stations (station_name, description, noOfReservedSlots, 
-			station_start, station_end, date_added, date_updated, imagepath) VALUES ?`
-		let stationVal = [[stationData.name, stationData.description, stationData.noOfRSlots, 
+		let sql = `INSERT INTO stations (station_name, description, station_start, station_end,
+			date_added, date_updated, imagepath) VALUES ?`
+		let stationVal = [[stationData.name, stationData.description, 
 			stationData.startTime, stationData.endTime, date, date, imagepath
 		]]
 		let stationID
@@ -94,11 +94,11 @@ router.route('/')
 					if (stationData.roles.length > 0) {
 						let rolesData = stationData.roles
 						sql = 'INSERT INTO station_roles (station_id, role_name, capacity, ' +
-							'durationInMins, date_added, date_updated, imagepath) VALUES ?'
+							'durationInMins, noOfReservedSlots, date_added, date_updated, imagepath) VALUES ?'
 						for (var i=0; i<rolesData.length; i++) {
 							imagepath = req.files[i+1].destination + '/' + req.files[i+1].filename
 							rolesVal.push([stationID, rolesData[i].roleName, rolesData[i].capacity, 
-								rolesData[i].duration, date, date, imagepath])
+								rolesData[i].duration, rolesData[i].noOfRSlots, date, date, imagepath])
 						}
 					}
 					return connection.query(sql, [rolesVal])
@@ -158,10 +158,10 @@ router.route('/:stationID')
 		let stationData = JSON.parse(req.body.webFormData)
 		console.log(stationData)
 		let imagepath = req.files[0].destination + '/' + req.files[0].filename
-		let sql = `Update stations Set station_name=?, description=?, noOfReservedSlots=?,
+		let sql = `Update stations Set station_name=?, description=?, 
 		station_start=?, station_end=?, imagepath=? Where station_id = ?`
-		let val = [stationData.name, stationData.description, stationData.noOfRSlots,
-			stationData.startTime, stationData.endTime, imagepath, req.params.stationID
+		let val = [ stationData.name, stationData.description, stationData.startTime, 
+			stationData.endTime, imagepath, req.params.stationID
 		]
 		pool.getConnection().then(function(connection) {
 			connection.query(sql, val)

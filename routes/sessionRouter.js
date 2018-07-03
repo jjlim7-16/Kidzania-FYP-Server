@@ -28,7 +28,8 @@ router.route('/')
 	.get((req, res) => {
 		let sql = `Select * From sessions`
 		pool.getConnection().then(function(connection) {
-			connection.query(sql).then(results => {
+			connection.query(sql)
+			.then(results => {
 				res.json(results)
 			})
 			connection.release()

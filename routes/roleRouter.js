@@ -68,9 +68,10 @@ router.route('/')
 	console.log(req.files)
 	let roleData = JSON.parse(req.body.webFormData)
 	let imagepath = req.files[0].destination + '/' + req.files[0].filename
-	let sql = 'INSERT INTO station_roles (station_id, role_name, durationInMins, capacity, imagepath) VALUES ?'
+	let sql = 'INSERT INTO station_roles (station_id, role_name, noOfReservedSlots, durationInMins, ' + 
+	'capacity, imagepath) VALUES ?'
 	let role_val = []
-	role_val.push([roleData.stationId, roleData.roleName, roleData.duration, roleData.capacity, imagepath])
+	role_val.push([roleData.stationId, roleData.roleName, roleData.noOfRSlots, roleData.duration, roleData.capacity, imagepath])
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, [role_val])
 		.then((results) => {
@@ -114,7 +115,7 @@ router.route('/:roleID')
 					console.log('Successfully deleted role image')
 				})
 			}
-			sql = `UPDATE station_roles SET role_name = ?, capacity = ?, durationInMins = ?, imagepath=? WHERE role_id = ?`
+			sql = `UPDATE station_roles SET role_name=?, capacity=?, durationInMins=?, imagepath=? WHERE role_id=?`
 			let role_val = [roleData.roleName, roleData.capacity, roleData.duration, imagepath, req.params.roleID]
 			return connection.query(sql, role_val)
 		})

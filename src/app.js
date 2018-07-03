@@ -13,6 +13,7 @@ const sessionRouter = require('../routes/sessionRouter')
 const bookingRouter = require('../routes/bookingRouter')
 const stationRouter = require('../routes/stationRouter')
 const roleRouter = require('../routes/roleRouter')
+const dashboardRouter = require('../routes/dashboardRouter')
 const hostname = 'localhost'
 const port = 8000
 
@@ -24,23 +25,10 @@ app.use('/stations', stationRouter)
 app.use('/roles', roleRouter)
 app.use('/sessions', sessionRouter)
 app.use('/bookings', bookingRouter)
-stationRouter.options('*', cors())
+app.use('/dashboard', dashboardRouter)
+// stationRouter.options('*', cors())
 
 const server = http.createServer(app)
-
-var deleteFolderRecursive = function(path) {
-  if (fs.existsSync(path)) {
-    fs.readdirSync(path).forEach(function(file, index){
-      var curPath = path + "/" + file;
-      if (fs.lstatSync(curPath).isDirectory()) { // recurse
-        deleteFolderRecursive(curPath);
-      } else { // delete file
-        fs.unlinkSync(curPath);
-      }
-    });
-    fs.rmdirSync(path);
-  }
-}
 
 // const io = socketIo(server)
 
@@ -64,9 +52,9 @@ var deleteFolderRecursive = function(path) {
 // }
 
 server.listen(port, hostname, () => {
-	// seedData.seedSessions()
-	// .then(() => {
-	// 	seedData.seedAvailableSessions()
-	// })
+	seedData.seedSessions()
+	.then(() => {
+		seedData.seedAvailableSessions()
+	})
 	console.log(`Server running at http://${hostname}:${port}`);
 })
