@@ -1,10 +1,11 @@
+const escpos = require('escpos');
 const express = require('express')
 const bodyParser = require('body-parser')
 const moment = require('moment')
 const cors = require('cors')
 const db = require('../src/databasePool')
 const pool = db.getPool()
-const escpos = require('escpos');
+
 //console.log(escpos.USB.findPrinter());
 
 const device = new escpos.USB(0x04B8,0x0E02);
@@ -50,7 +51,7 @@ router.get('/:bookingid', function (req, res) {
             let queue_no = rows[0].queue_no
             let session_date = rows[0].session_date
             let start_time = rows[0].session_start
-            let end_time = rows[0].session_end
+            let end_time = rows[0].session_end;
 
             escpos.Image.load("logo.png", function(image) {
                 device.open(function() {
