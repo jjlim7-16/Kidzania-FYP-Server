@@ -13,6 +13,7 @@ const sessionRouter = require('../routes/sessionRouter')
 const bookingRouter = require('../routes/bookingRouter')
 const stationRouter = require('../routes/stationRouter')
 const roleRouter = require('../routes/roleRouter')
+const printReceiptRouter = require('../routes/printReceiptRouter')
 const dashboardRouter = require('../routes/dashboardRouter')
 const hostname = 'localhost'
 const port = 8000
@@ -25,6 +26,7 @@ app.use('/stations', stationRouter)
 app.use('/roles', roleRouter)
 app.use('/sessions', sessionRouter)
 app.use('/bookings', bookingRouter)
+app.use('/print',printReceiptRouter)
 app.use('/dashboard', dashboardRouter)
 // stationRouter.options('*', cors())
 
