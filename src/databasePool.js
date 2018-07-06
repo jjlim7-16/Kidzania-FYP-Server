@@ -8,14 +8,14 @@ module.exports = {
 			multipleStatements: true,
 			host: 'localhost',
 			user: 'root',
-			password: '12345',
+			password: '',
 			database: 'kidzania_fyp_v2'
 		})
-		pool.on('release', function (connection) {
+		pool.on('release', function(connection) {
 			console.log('Connection %d released', connection.threadId);
 		})
-		
-		pool.on('acquire', function (connection) {
+
+		pool.on('acquire', function(connection) {
 			console.log('Connection %d acquired', connection.threadId);
 		})
 		return pool

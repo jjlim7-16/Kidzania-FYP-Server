@@ -30,31 +30,21 @@ app.use('/dashboard', dashboardRouter)
 
 const server = http.createServer(app)
 
-// const io = socketIo(server)
+const io = socketIo(server)
 
-// io.on("connection", socket => {
-// 	console.log("New client connected"), setInterval(
-// 		() => getApiAndEmit(socket),
-// 		10000
-// 	);
-// 	socket.on("disconnect", () => console.log("Client disconnected"));
-// })
-
-// const getApiAndEmit = async socket => {
-// 	try {
-// 		const res = await axios.get(
-// 			"https://api.darksky.net/forecast/PUT_YOUR_API_KEY_HERE/43.7695,11.2558"
-// 		);
-// 		socket.emit("FromAPI", res.data.currently.temperature);
-// 	} catch (error) {
-// 		console.error(`Error: ${error.code}`);
-// 	}
-// }
+io.on('connection', (socket) => {
+	console.log('New client connected')
+	socket.on('disconnect', () => console.log('Client disconnected'));
+	socket.on('makeBooking', (session_id) => {
+		console.log('A new booking has been made')
+		socket.broadcast.emit('newSlotBooked', session_id)
+	})
+})
 
 server.listen(port, hostname, () => {
 	seedData.seedSessions()
-	.then(() => {
-		seedData.seedAvailableSessions()
-	})
+		.then(() => {
+			seedData.seedAvailableSessions()
+		})
 	console.log(`Server running at http://${hostname}:${port}`);
 })
