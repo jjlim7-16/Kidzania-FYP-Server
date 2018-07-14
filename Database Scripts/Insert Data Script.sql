@@ -19,7 +19,8 @@ VALUES (current_date(), 1265, 2, 3, 'e0001', 1, 'Confirmed'), (current_date(), 1
 (current_date(), 1265, 2, 3, 'e0005', 5, 'Confirmed'),
 (current_date(), 1265, 2, 3, 'e0004', 6, 'Confirmed');
 
-INSERT INTO account_type VALUES ('Admin'), ('Crew');
+INSERT INTO account_type (account_type) VALUES ('Admin');
+INSERT INTO account_type (account_type) VALUES ('Crew');
 
 # Password: 123123
 INSERT INTO user_accounts (account_type_id, username, password_hash)
