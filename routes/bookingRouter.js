@@ -135,7 +135,7 @@ router.get('/getbookinglist/:stationId', function (req, res) {
 			connection.query(sql,numOfRoles)
 			.then((sessionids) => {
 				console.log(sessionids)
-				sql = 'SELECT se.session_start,r.role_name,b.booking_status,b.rfid,b.queue_no'+
+				sql = 'SELECT se.session_start,se.session_end,r.role_name,b.booking_status,b.rfid,b.queue_no'+
 				' FROM booking_details b,sessions se,station_roles r '+
 				' WHERE r.role_id = b.role_id AND'+
 				' se.session_id = b.session_id AND'+

@@ -59,6 +59,7 @@ CREATE TABLE `booking_details` (
   `station_id` int(11) NOT NULL,
   `role_id` int(11) NOT NULL,
   `rfid` varchar(45) NOT NULL,
+  `time_in` time NULL,
   `queue_no` int(11) ZEROFILL NOT NULL,
   `booking_status` varchar(45) NOT NULL,
   PRIMARY KEY (`booking_id`),
