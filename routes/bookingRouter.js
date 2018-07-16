@@ -115,6 +115,8 @@ router.get('/:rfid', function(req, res) {
 		connection.query(sql, rfid)
 			.then((rows) => {
 				console.log(rows)
+				rows[0].session_start = moment(rows[0].session_start, 'HH:mm:ss').format('LT')
+				rows[0].session_end = moment(rows[0].session_end, 'HH:mm:ss').format('LT')
 				res.json(rows)
 			})
 			.catch(err => {

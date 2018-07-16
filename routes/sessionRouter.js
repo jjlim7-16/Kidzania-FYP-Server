@@ -63,6 +63,8 @@ router.get('/:stationID/:roleID', (req, res) => {
 					let session_start = moment(rows[i].session_start, 'HH:mm:ss')
 					if (time.isSameOrAfter(session_start) && time.isBefore(session_start.add(duration, 'minutes'))) {
 						for (j = i; j < i + 6; j++) {
+							rows[j].session_start = moment(rows[j].session_start, 'HH:mm:ss').format('LT')
+							rows[j].session_end = moment(rows[j].session_end, 'HH:mm:ss').format('LT')
 							session_list.push(rows[j])
 						}
 						break
