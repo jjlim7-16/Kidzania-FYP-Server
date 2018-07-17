@@ -62,9 +62,5 @@ server.listen(port, hostname, () => {
 	// .then(() => {
 	// 	seedData.seedAvailableSessions()
 	// })
-	axios.get('http://localhost:8000/dashboard/getBookingByTime')
-	.then(res => {
-		console.log(res.data)
-	})
 	console.log(`Server running at http://${hostname}:${port}`);
 })
