@@ -76,8 +76,8 @@ router.post('/makeBooking', (req, res) => {
 		connection.query(sql)
 			.then((rows) => {
 				let qNum = parseInt(rows[0].qNum) + 1
-				sql = 'INSERT INTO booking_details (session_id, session_date, station_id, ' +
-					'role_id, rfid, queue_no, booking_status) VALUES ?'
+				sql = `INSERT INTO booking_details (session_id, session_date, station_id, 
+					role_id, rfid, queue_no, booking_status) VALUES ?`
 				let date = new Date()
 				date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
 				let bookingDetails_val = [parseInt(bookingData.session_id), date, parseInt(bookingData.station_id),
@@ -94,16 +94,17 @@ router.post('/makeBooking', (req, res) => {
 				res.statusMessage = err
 				res.status(400).end()
 			})
+			connection.release()
 	})
 })
 
 router.get('/:rfid', function (req, res) {
 	var rfid = req.params.rfid
-	let sql = 'SELECT bd.booking_id,bd.session_id, bd.session_date, bd.station_id, bd.role_id, ' +
-	'bd.rfid, bd.queue_no, bd.booking_status, s.station_name, ss.session_start,ss.session_end ' +
-	'FROM booking_details bd inner join stations s on bd.station_id = s.station_id ' +
-	'inner join sessions ss on bd.session_id = ss.session_id where bd.rfid = ? ' +
-	'AND session_date=current_date();'
+	let sql = `SELECT bd.booking_id,bd.session_id, bd.session_date, bd.station_id, bd.role_id, 
+	bd.rfid, bd.queue_no, bd.booking_status, s.station_name, ss.session_start, ss.session_end
+	FROM booking_details bd inner join stations s on bd.station_id = s.station_id
+	inner join sessions ss on bd.session_id = ss.session_id where bd.rfid = ?
+	AND session_date=current_date();`
 	//database query havent filter by date
 	pool.getConnection().then(function (connection) {
 		connection.query(sql, rfid)
@@ -114,23 +115,23 @@ router.get('/:rfid', function (req, res) {
 			res.statusMessage = err
 			res.status(400).end()
 		})
+		connection.release()
 	})
 })
 
 router.get('/getbookinglist/:stationId', function (req, res) {
 	var stationidStr = req.params.stationId
 	let stationid = parseInt(stationidStr)
-	let sql = 'select count(role_id) as numOfRoles from kidzania_fyp_v2.station_roles' +
-	' Where station_id = ? '+
-	' group by station_id'
+	let sql = `select count(role_id) as numOfRoles from station_roles 
+	Where station_id = ? group by station_id`
 	//get the nearest session's list of bookings for the station
 	pool.getConnection().then(function (connection) {
 		connection.query(sql,stationid)
 		.then((rows) => {
 			let numOfRoles = parseInt(rows[0].numOfRoles)
-			sql = 'SELECT session_id FROM kidzania_fyp_v2.sessions'+
-			' WHERE station_id = '+stationid+' AND'+
-			' session_start >  TIME(\'15:30:00\') ORDER BY session_start ASC limit ? '
+			sql = `SELECT session_id FROM sessions
+			WHERE station_id = stationid AND session_start > TIME('15:30:00') 
+			ORDER BY session_start ASC limit ?`
 			//replace the hardcode time to CURRENT_TIME();
 			connection.query(sql,numOfRoles)
 			.then((sessionids) => {
@@ -155,6 +156,7 @@ router.get('/getbookinglist/:stationId', function (req, res) {
 			res.statusMessage = err
 			res.status(400).end()
 		})
+		connection.release()
 	})
 })
 
