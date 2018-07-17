@@ -5,10 +5,13 @@ const bodyParser = require('body-parser')
 const mysql = require('mysql')
 const cors = require('cors')
 const socketIo = require('socket.io')
+const axios = require('axios')
 const router = express.Router()
 router.use(bodyParser.json())
 
 const seedData = require('./seedData')
+const dashboard = require('./dashboard')
+const limitRouter = require('../routes/limitRouter')
 const sessionRouter = require('../routes/sessionRouter')
 const bookingRouter = require('../routes/bookingRouter')
 const stationRouter = require('../routes/stationRouter')
@@ -26,35 +29,42 @@ app.use('/roles', roleRouter)
 app.use('/sessions', sessionRouter)
 app.use('/bookings', bookingRouter)
 app.use('/dashboard', dashboardRouter)
+app.use('/limit', limitRouter)
 // stationRouter.options('*', cors())
 
 const server = http.createServer(app)
 
-// const io = socketIo(server)
+const io = socketIo.listen(server)
 
-// io.on("connection", socket => {
-// 	console.log("New client connected"), setInterval(
-// 		() => getApiAndEmit(socket),
-// 		10000
-// 	);
-// 	socket.on("disconnect", () => console.log("Client disconnected"));
-// })
+io.on('connection', socket => {
+	console.log('Socket Connected')
+	
+	dashboard.getBookingCount(socket)
+	dashboard.getAvgBookings(socket)
+	dashboard.getBookingByDay(socket)
+	dashboard.getBookingByStation(socket)
+	dashboard.getBookingByTime(socket)
 
-// const getApiAndEmit = async socket => {
-// 	try {
-// 		const res = await axios.get(
-// 			"https://api.darksky.net/forecast/PUT_YOUR_API_KEY_HERE/43.7695,11.2558"
-// 		);
-// 		socket.emit("FromAPI", res.data.currently.temperature);
-// 	} catch (error) {
-// 		console.error(`Error: ${error.code}`);
-// 	}
-// }
+	setInterval(function() {
+		dashboard.getBookingCount(socket)
+		dashboard.getAvgBookings(socket)	
+		dashboard.getBookingByDay(socket)
+		dashboard.getBookingByStation(socket)
+		dashboard.getBookingByTime(socket)
+		// getBookingByDate(socket)
+	}, 100000)
+
+	socket.on("disconnect", () => console.log("Client disconnected"));
+})
 
 server.listen(port, hostname, () => {
-	seedData.seedSessions()
-	.then(() => {
-		seedData.seedAvailableSessions()
+	// seedData.seedSessions()
+	// .then(() => {
+	// 	seedData.seedAvailableSessions()
+	// })
+	axios.get('http://localhost:8000/dashboard/getBookingByTime')
+	.then(res => {
+		console.log(res.data)
 	})
 	console.log(`Server running at http://${hostname}:${port}`);
 })

@@ -25,8 +25,8 @@ router.use(bodyParser.json({
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		const dir = '/images/' + file.fieldname.split('-')[0]
-		mkdirp(dir, err => cb(err, dir))
+		const dir = '/images'
+		cb(null, dir)
 	},
 	filename: (req, file, cb) => {
 		cb(null, file.fieldname + '.' + file.mimetype.split('/')[1])
@@ -73,7 +73,7 @@ router.route('/')
 				connection.release()
 		})
 	})
-	.post((req, res) => {
+	.post(upload.any(), (req, res) => {
 		// console.log(req.files)
 		// console.log((req.body.webFormData))
 		let stationData = JSON.parse(req.body.webFormData)
@@ -157,6 +157,7 @@ router.route('/:stationID')
 	.put(upload.any(), (req, res) => {
 		let stationData = JSON.parse(req.body.webFormData)
 		console.log(stationData)
+		console.log(req.files)
 		let imagepath = req.files[0].destination + '/' + req.files[0].filename
 		let sql = `Update stations Set station_name=?, description=?, 
 		station_start=?, station_end=?, imagepath=? Where station_id = ?`

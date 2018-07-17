@@ -11,13 +11,12 @@ module.exports = {
 			password: '12345',
 			database: 'kidzania_fyp_v2'
 		})
-		pool.on('release', function (connection) {
-			console.log('Connection %d released', connection.threadId);
-		})
-		
-		pool.on('acquire', function (connection) {
-			console.log('Connection %d acquired', connection.threadId);
-		})
+		// pool.on('release', function (connection) {
+		// 	console.log('Connection %d released', connection.threadId);
+		// })
+		// pool.on('acquire', function (connection) {
+		// 	console.log('Connection %d acquired', connection.threadId);
+		// })
 		return pool
 	}
 }

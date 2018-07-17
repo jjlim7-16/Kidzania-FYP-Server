@@ -32,7 +32,7 @@ router.route('/')
 		st.station_id = sr.station_id and sr.role_id = b.role_id`
 	pool.getConnection().then(function (connection) {
 		connection.query(sql)
-			.then((rows) => {
+			.then(rows => {
 				res.json(rows)
 			})
 			.catch(err => {
