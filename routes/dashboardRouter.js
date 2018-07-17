@@ -64,15 +64,19 @@ router.get('/getAvgBookings', (req, res) => {
 })
 
 router.get('/getBookingByDay', (req, res) => {
-	let sql = `SELECT WEEKDAY(session_date) as weekday, COUNT(station_id) as count 
-		FROM booking_details b WHERE booking_status='Confirmed' GROUP BY weekday;`
+	let sql = `SELECT WEEKDAY(session_date) as weekday, FORMAT(COUNT(*)/noOfDays, 1) as total_per_day 
+	FROM booking_details b INNER JOIN (SELECT WEEKDAY(session_date) as weekday, COUNT(*) as noOfDays 
+	FROM (SELECT DISTINCT session_date FROM booking_details WHERE booking_status = 'Confirmed') a
+	GROUP BY WEEKDAY(session_date)) b2 ON b2.weekday = WEEKDAY(session_date)
+	WHERE booking_status = 'Confirmed' GROUP BY weekday;`
+
 	pool.getConnection().then(function (connection) {
 		connection.query(sql)
 			.then(results => {
 				// res.json(results)
 				let data = [0, 0, 0, 0, 0, 0, 0]
 				for(var i in results) {
-					data[results[i].weekday] = results[i].count
+					data[results[i].weekday] = results[i].total_per_day
 				}
 				res.json(data)
 			})

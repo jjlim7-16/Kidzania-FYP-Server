@@ -83,9 +83,7 @@ router.post('/makeBooking', (req, res) => {
 				let bookingDetails_val = [parseInt(bookingData.session_id), date, parseInt(bookingData.station_id),
 				bookingData.role_id, bookingData.rfid, qNum, bookingData.status
 				]
-				return connection.query(sql, [
-					[bookingDetails_val]
-				])
+				return connection.query(sql, [[bookingDetails_val]])
 			})
 			.then((rows) => {
 				res.status(200)
@@ -130,7 +128,7 @@ router.get('/getbookinglist/:stationId', function (req, res) {
 		.then((rows) => {
 			let numOfRoles = parseInt(rows[0].numOfRoles)
 			sql = `SELECT session_id FROM sessions
-			WHERE station_id = stationid AND session_start > TIME('15:30:00') 
+			WHERE station_id = ${stationid} AND session_start > TIME('15:30:00') 
 			ORDER BY session_start ASC limit ?`
 			//replace the hardcode time to CURRENT_TIME();
 			connection.query(sql,numOfRoles)
