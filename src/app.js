@@ -17,7 +17,7 @@ const bookingRouter = require('../routes/bookingRouter')
 const stationRouter = require('../routes/stationRouter')
 const roleRouter = require('../routes/roleRouter')
 const dashboardRouter = require('../routes/dashboardRouter')
-const hostname = 'localhost'
+const hostname = '0.0.0.0'
 const port = 8000
 
 const app = express()
