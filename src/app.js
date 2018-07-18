@@ -36,7 +36,10 @@ const server = http.createServer(app)
 
 const io = socketIo.listen(server)
 
-io.on('connection', socket => {
+const dashboardSocket = io.of('/dashboard')
+const userSocket = io.of('/user')
+
+dashboardSocket.on('connection', socket => {
 	console.log('Socket Connected')
 	
 	dashboard.getBookingCount(socket)
@@ -55,6 +58,15 @@ io.on('connection', socket => {
 	}, 100000)
 
 	socket.on("disconnect", () => console.log("Client disconnected"));
+})
+
+userSocket.on('connection', (socket) => {
+	console.log('New client connected')
+	socket.on('disconnect', () => console.log('Client disconnected'));
+	socket.on('makeBooking', (session_id) => {
+		console.log('A new booking has been made')
+		socket.broadcast.emit('newSlotBooked', session_id)
+	})
 })
 
 server.listen(port, hostname, () => {

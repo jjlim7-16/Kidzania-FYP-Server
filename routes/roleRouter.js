@@ -47,106 +47,106 @@ router.options('*', cors())
 router.use(cors())
 
 router.route('/')
-.all((req, res, next) => {
-	res.statusCode = 200
-	res.setHeader('Content-Type', 'text/plain')
-	next() //Continue on to the next method -> .get(...)
-})
-.get((req, res) => {
-	let sql = `Select st.station_id, st.station_name, role_id, role_name, durationInMins, capacity From station_roles sr, stations st 
+	.all((req, res, next) => {
+		res.statusCode = 200
+		res.setHeader('Content-Type', 'text/plain')
+		next() //Continue on to the next method -> .get(...)
+	})
+	.get((req, res) => {
+		let sql = `Select st.station_id, st.station_name, role_id, role_name, durationInMins, capacity, sr.imagepath From station_roles sr, stations st
 	Where st.station_id = sr.station_id; `
-	sql += `Select DISTINCT station_id, station_name from stations ORDER BY 1 ASC;`
-	pool.getConnection().then(function(connection) {
-		connection.query(sql)
-		.then(results => {
-			res.json(results)
+		sql += `Select DISTINCT station_id, station_name from stations ORDER BY 1 ASC;`
+		pool.getConnection().then(function(connection) {
+			connection.query(sql)
+				.then(results => {
+					res.json(results)
+				})
+			connection.release()
 		})
-		connection.release()
 	})
-})
-.post(upload.any(), (req, res) => {
-	console.log(req.files)
-	let roleData = JSON.parse(req.body.webFormData)
-	let imagepath = req.files[0].destination + '/' + req.files[0].filename
-	let sql = 'INSERT INTO station_roles (station_id, role_name, noOfReservedSlots, durationInMins, ' + 
-	'capacity, imagepath) VALUES ?'
-	let role_val = []
-	role_val.push([roleData.stationId, roleData.roleName, roleData.noOfRSlots, roleData.duration, roleData.capacity, imagepath])
-	pool.getConnection().then(function(connection) {
-		connection.query(sql, [role_val])
-		.then((results) => {
-			res.end('Role Added Successfully')
+	.post(upload.any(), (req, res) => {
+		console.log(req.files)
+		let roleData = JSON.parse(req.body.webFormData)
+		let imagepath = req.files[0].destination + '/' + req.files[0].filename
+		let sql = 'INSERT INTO station_roles (station_id, role_name, noOfReservedSlots, durationInMins, ' +
+			'capacity, imagepath) VALUES ?'
+		let role_val = []
+		role_val.push([roleData.stationId, roleData.roleName, roleData.noOfRSlots, roleData.duration, roleData.capacity, imagepath])
+		pool.getConnection().then(function(connection) {
+			connection.query(sql, [role_val])
+				.then((results) => {
+					res.end('Role Added Successfully')
+				})
+				.catch(err => {
+					res.statusMessage = err
+					res.status(400).end(err.code)
+				})
+			connection.release()
 		})
-		.catch(err => {
-			res.statusMessage = err
-			res.status(400).end(err.code)
-		})
-		connection.release()
 	})
-})
 
 router.route('/:roleID')
-.all((req, res, next) => {
-	res.statusCode = 200
-	res.setHeader('Content-Type', 'text/plain')
-	next() //Continue on to the next method -> .get(...)
-})
-.get((req, res) => {
-	let sql = 'SELECT * FROM station_roles where role_id = ?; '
-	sql += 'Select DISTINCT station_id, station_name from stations;'
-	pool.getConnection().then(function(connection) {
-		connection.query(sql, req.params.roleID)
-		.then(results => {
-			res.json(results)
-		})
-		connection.release()
+	.all((req, res, next) => {
+		res.statusCode = 200
+		res.setHeader('Content-Type', 'text/plain')
+		next() //Continue on to the next method -> .get(...)
 	})
-})
-.put(upload.any(), (req, res) => {
-	let imagepath = req.files[0].destination + '/' + req.files[0].filename
-	let roleData = JSON.parse(req.body.webFormData)
-	let sql = `Select imagepath from station_roles where role_id = ` + req.params.roleID
-	pool.getConnection().then(function(connection) {
-		connection.query(sql)
-		.then((results) => {
-			if (imagepath !== results[0].imagepath) {
-				fs.unlink(results[0].imagepath, (err) => {
-					if (err) throw err
-					console.log('Successfully deleted role image')
+	.get((req, res) => {
+		let sql = 'SELECT * FROM station_roles where role_id = ?; '
+		sql += 'Select DISTINCT station_id, station_name from stations;'
+		pool.getConnection().then(function(connection) {
+			connection.query(sql, req.params.roleID)
+				.then(results => {
+					res.json(results)
 				})
-			}
-			sql = `UPDATE station_roles SET role_name=?, capacity=?, durationInMins=?, imagepath=? WHERE role_id=?`
-			let role_val = [roleData.roleName, roleData.capacity, roleData.duration, imagepath, req.params.roleID]
-			return connection.query(sql, role_val)
+			connection.release()
 		})
-		.then(results => {
-			res.end('Updated Successfully')
-		})
-		.catch(err => {
-			res.statusMessage = err
-			res.status(400).end()
-		})
-		connection.release()
 	})
-})
-.delete((req, res) => {
-	let sql = 'SELECT imagepath FROM station_roles WHERE role_id = ' + req.params.roleID + ';'
-	sql += 'DELETE FROM station_roles WHERE role_id = ' + req.params.roleID + ';'
-	pool.getConnection().then(function(connection) {
-		connection.query(sql)
-		.then((results) => {
-			fs.unlink(results[0].imagepath, (err) => {
-				if (err) throw err
-				console.log('Successfully deleted role image')
-			})
-			res.end('Deleted Role Successfully')
+	.put(upload.any(), (req, res) => {
+		let imagepath = req.files[0].destination + '/' + req.files[0].filename
+		let roleData = JSON.parse(req.body.webFormData)
+		let sql = `Select imagepath from station_roles where role_id = ` + req.params.roleID
+		pool.getConnection().then(function(connection) {
+			connection.query(sql)
+				.then((results) => {
+					if (imagepath !== results[0].imagepath) {
+						fs.unlink(results[0].imagepath, (err) => {
+							if (err) throw err
+							console.log('Successfully deleted role image')
+						})
+					}
+					sql = `UPDATE station_roles SET role_name=?, capacity=?, durationInMins=?, imagepath=? WHERE role_id=?`
+					let role_val = [roleData.roleName, roleData.capacity, roleData.duration, imagepath, req.params.roleID]
+					return connection.query(sql, role_val)
+				})
+				.then(results => {
+					res.end('Updated Successfully')
+				})
+				.catch(err => {
+					res.statusMessage = err
+					res.status(400).end()
+				})
+			connection.release()
 		})
-		.catch(err => {
-			res.statusMessage = err
-			res.status(400).end()
-		})
-		connection.release()
 	})
-})
+	.delete((req, res) => {
+		let sql = 'SELECT imagepath FROM station_roles WHERE role_id = ' + req.params.roleID + ';'
+		sql += 'DELETE FROM station_roles WHERE role_id = ' + req.params.roleID + ';'
+		pool.getConnection().then(function(connection) {
+			connection.query(sql)
+				.then((results) => {
+					fs.unlink(results[0].imagepath, (err) => {
+						if (err) throw err
+						console.log('Successfully deleted role image')
+					})
+					res.end('Deleted Role Successfully')
+				})
+				.catch(err => {
+					res.statusMessage = err
+					res.status(400).end()
+				})
+			connection.release()
+		})
+	})
 
 module.exports = router
