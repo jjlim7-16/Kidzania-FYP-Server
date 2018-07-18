@@ -6,6 +6,7 @@ const mysql = require('mysql')
 const cors = require('cors')
 const socketIo = require('socket.io')
 const axios = require('axios')
+const os = require('os')
 const router = express.Router()
 router.use(bodyParser.json())
 
@@ -17,7 +18,7 @@ const bookingRouter = require('../routes/bookingRouter')
 const stationRouter = require('../routes/stationRouter')
 const roleRouter = require('../routes/roleRouter')
 const dashboardRouter = require('../routes/dashboardRouter')
-const hostname = '0.0.0.0'
+const hostname = '127.0.0.1'
 const port = 8000
 
 const app = express()
