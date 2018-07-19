@@ -25,15 +25,14 @@ module.exports = {
 						let duration = parseInt(role.durationInMins)
 						while (start.format('HH:mm') < end.format('HH:mm')) {
 							sessionList.push([role.station_id, role.role_id, start.format('HH:mm'),
-							start.add(duration, 'minutes').format('HH:mm'), role.capacity, date, date
-							])
+							start.add(duration, 'minutes').format('HH:mm'), role.capacity ])
 						}
 					}
 					sql = 'INSERT INTO sessions (station_id, role_id, session_start, ' +
-						'session_end, capacity, date_added, date_updated) VALUES ?'
+						'session_end, capacity) VALUES ?'
 					return connection.query(sql, [sessionList])
 				})
-				.then((results) => {
+				.then(() => {
 					console.log('Successfully Seed New Sessions Data')
 				})
 				.catch((err) => {
@@ -63,13 +62,12 @@ module.exports = {
 						let duration = parseInt(station.durationInMins)
 						while (start.format('HH:mm') < end.format('HH:mm')) {
 							sessionList.push([station.station_id, station.role_id, start.format('HH:mm'),
-							start.add(duration, 'minutes').format('HH:mm'), station.capacity, date, date
-							])
+							start.add(duration, 'minutes').format('HH:mm'), station.capacity])
 						}
 					}
 					// console.log(sessionList)
 					sql = 'INSERT INTO sessions (station_id, role_id, session_start, ' +
-						'session_end, capacity, date_added, date_updated) VALUES ?'
+						'session_end, capacity) VALUES ?'
 					return connection.query(sql, [sessionList])
 				})
 				.then(() => {
@@ -92,8 +90,11 @@ module.exports = {
 					}
 					let date = new Date()
 					date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-					sql = 'INSERT INTO available_sessions (session_date, session_id, station_id, role_id, noBooked) '
-						+ 'SELECT current_date(), session_id, station_id, role_id, 0 FROM sessions'
+					sql = `INSERT INTO available_sessions 
+					(session_date, session_id, station_id, role_id, noBooked, capacity)
+					SELECT current_date(), session_id, s.station_id, s.role_id, 0, capacity
+					FROM sessions s LEFT JOIN booking_limit b ON s.role_id = b.role_id 
+					AND b.session_date = current_date();`
 					return connection.query(sql)
 				})
 				.then((results) => {
