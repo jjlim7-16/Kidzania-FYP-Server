@@ -8,7 +8,7 @@ module.exports = {
 			multipleStatements: true,
 			host: 'localhost',
 			user: 'root',
-			password: '',
+			password: '12345',
 			database: 'kidzania_fyp_v2'
 		})
 		// pool.on('release', function (connection) {
