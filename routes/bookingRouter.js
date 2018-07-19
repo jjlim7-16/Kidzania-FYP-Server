@@ -191,4 +191,45 @@ router.get('/getbookinglist/:stationId', function(req, res) {
   })
 })
 
+router.get('/getbookinglist/:stationId', function (req, res) {
+	var stationidStr = req.params.stationId
+	let stationid = parseInt(stationidStr)
+	let sql = 'select count(role_id) as numOfRoles from kidzania_fyp_v2.station_roles' +
+	' Where station_id = ? '+
+	' group by station_id'
+	//get the nearest session's list of bookings for the station
+	pool.getConnection().then(function (connection) {
+		connection.query(sql,stationid)
+		.then((rows) => {
+			let numOfRoles = parseInt(rows[0].numOfRoles)
+			sql = 'SELECT session_id FROM kidzania_fyp_v2.sessions'+
+			' WHERE station_id = '+stationid+' AND'+
+			' session_start >  TIME(\'15:30:00\') ORDER BY session_start ASC limit ? '
+			//replace the hardcode time to CURRENT_TIME();
+			connection.query(sql,numOfRoles)
+			.then((sessionids) => {
+				console.log(sessionids)
+				sql = 'SELECT se.session_start,r.role_name,b.booking_status,b.rfid,b.queue_no'+
+				' FROM booking_details b,sessions se,station_roles r '+
+				' WHERE r.role_id = b.role_id AND'+
+				' se.session_id = b.session_id AND'+
+				' ('
+				for(i=0;i<sessionids.length;i++){
+					sql+="b.session_id = "+sessionids[i].session_id +" or "
+				}
+				sql = sql.substring(0, sql.length - 4);
+				sql += ')'
+				connection.query(sql)
+				.then((listOfBookings) => {
+					res.json(listOfBookings)
+				})
+			})
+		})
+		.catch(err => {
+			res.statusMessage = err
+			res.status(400).end()
+		})
+	})
+})
+
 module.exports = router
