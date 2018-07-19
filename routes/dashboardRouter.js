@@ -135,7 +135,7 @@ router.get('/getBookingByTime', (req, res) => {
 	FROM (SELECT * FROM booking_details WHERE booking_status='Confirmed' AND session_date = '2018-07-03') b
 	RIGHT JOIN sessions s ON s.session_id = b.session_id
 	RIGHT JOIN stations st ON s.station_id = st.station_id
-	WHERE st.station_name = 'Pizza Hut'
+	WHERE st.station_name = 'Aviation Academy'
 	GROUP BY b.session_date, session_start, st.station_id ORDER BY 1 ASC;`
 	
 	pool.getConnection().then(function (connection) {

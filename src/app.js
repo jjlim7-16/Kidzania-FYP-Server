@@ -43,7 +43,7 @@ const userSocket = io.of('/user')
 
 dashboardSocket.on('connection', socket => {
 	console.log('Socket Connected')
-	
+
 	dashboard.getBookingCount(socket)
 	dashboard.getAvgBookings(socket)
 	dashboard.getBookingByDay(socket)
@@ -52,7 +52,7 @@ dashboardSocket.on('connection', socket => {
 
 	setInterval(function() {
 		dashboard.getBookingCount(socket)
-		dashboard.getAvgBookings(socket)	
+		dashboard.getAvgBookings(socket)
 		dashboard.getBookingByDay(socket)
 		dashboard.getBookingByStation(socket)
 		dashboard.getBookingByTime(socket)
@@ -78,5 +78,5 @@ server.listen(port, hostname, () => {
 	})
 	// console.log(os.networkInterfaces())
 	console.log(os.hostname())
-	console.log(`Server running at http://${hostname}:${port}`);
+	console.log(`Server running at http://${hostname}:${port}`)
 })
