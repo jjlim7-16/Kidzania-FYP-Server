@@ -81,9 +81,9 @@ router.route('/')
 		let date = new Date()
 		date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
 		let sql = `INSERT INTO stations (station_name, description, station_start, station_end,
-			date_added, date_updated, imagepath) VALUES ?`
+			imagepath, is_active) VALUES ?`
 		let stationVal = [[stationData.name, stationData.description, 
-			stationData.startTime, stationData.endTime, date, date, imagepath
+			stationData.startTime, stationData.endTime, imagepath, 1
 		]]
 		let stationID
 		pool.getConnection().then(function(connection) {
@@ -94,11 +94,11 @@ router.route('/')
 					if (stationData.roles.length > 0) {
 						let rolesData = stationData.roles
 						sql = 'INSERT INTO station_roles (station_id, role_name, capacity, ' +
-							'durationInMins, noOfReservedSlots, date_added, date_updated, imagepath) VALUES ?'
+							'durationInMins, noOfReservedSlots, imagepath) VALUES ?'
 						for (var i=0; i<rolesData.length; i++) {
 							imagepath = req.files[i+1].destination + '/' + req.files[i+1].filename
 							rolesVal.push([stationID, rolesData[i].roleName, rolesData[i].capacity, 
-								rolesData[i].duration, rolesData[i].noOfRSlots, date, date, imagepath])
+								rolesData[i].duration, rolesData[i].noOfRSlots, imagepath])
 						}
 					}
 					return connection.query(sql, [rolesVal])
