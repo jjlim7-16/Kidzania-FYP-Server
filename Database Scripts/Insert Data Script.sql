@@ -1,11 +1,18 @@
-# INSERT - STATIONS & STATION_ROLES
-INSERT INTO stations (station_name, description, station_start, station_end, date_added, date_updated)
-VALUES ('Aviation', 'Flyyy!', '10:00', '18:00', current_date(), current_date()),
-('KFC', 'Good!', '10:00', '18:00', current_date(), current_date());
+# INSERT LIMIT
+/* INSERT INTO booking_limit (session_date, station_id, role_id, booking_limit) VALUES 
+(current_date(), 2, 3, 2), (current_date(), 5, 7, 2), (current_date(), 5, 8, 2);
 
-INSERT INTO station_roles (station_id, role_name, durationInMins, capacity, date_added, date_updated) 
-VALUES (1, 'Pilot', 30, 4, current_date(), current_date()), (1, 'Cabin Crew', 30, 4, current_date(), current_date()),
-(2, 'Chef', 20, 4, current_date(), current_date());
+INSERT INTO booking_limit (session_date, station_id, role_id, booking_limit) VALUES 
+('2018-07-03', 3, 4, 1); */
+
+# INSERT STATIONS & STATION_ROLES
+INSERT INTO stations (station_name, description, station_start, station_end, is_active, imagepath)
+VALUES ('Aviation', 'Flyyy!', '10:00', '18:00', 1, 'pic_plane.png'),
+('KFC', 'Good!', '10:00', '18:00', 1, 'pic_kfc.png');
+
+INSERT INTO station_roles (station_id, role_name, durationInMins, capacity, noOfReservedSlots, imagepath) 
+VALUES (1, 'Pilot', 30, 4, 2, 'pilot.png'), (1, 'Cabin Crew', 30, 4, 2, 'crew.png'),
+(2, 'Chef', 20, 4, 2, 'chef.png');
 
 # GENERATE SESSIONS & AVAILABLE_SESSIONS DETAILS BY RUNNING NODE.JS SERVER
 
