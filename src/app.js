@@ -32,7 +32,35 @@ const server = http.createServer(app)
 
 const io = socketIo(server)
 
+<<<<<<< Updated upstream
 io.on('connection', (socket) => {
+=======
+const dashboardSocket = io.of('/dashboard')
+const userSocket = io.of('/user')
+
+dashboardSocket.on('connection', socket => {
+	console.log('Socket Connected')
+
+	dashboard.getBookingCount(socket)
+	dashboard.getAvgBookings(socket)
+	dashboard.getBookingByDay(socket)
+	dashboard.getBookingByStation(socket)
+	dashboard.getBookingByTime(socket)
+
+	setInterval(function() {
+		dashboard.getBookingCount(socket)
+		dashboard.getAvgBookings(socket)
+		dashboard.getBookingByDay(socket)
+		dashboard.getBookingByStation(socket)
+		dashboard.getBookingByTime(socket)
+		// getBookingByDate(socket)
+	}, 100000)
+
+	socket.on("disconnect", () => console.log("Client disconnected"));
+})
+
+userSocket.on('connection', (socket) => {
+>>>>>>> Stashed changes
 	console.log('New client connected')
 	socket.on('disconnect', () => console.log('Client disconnected'));
 	socket.on('makeBooking', (session_id) => {
