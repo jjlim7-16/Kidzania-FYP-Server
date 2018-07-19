@@ -9,7 +9,7 @@ module.exports = {
 			host: 'localhost',
 			user: 'root',
 			password: 'P@ssw0rd',
-			database: 'kidzania_v1'
+			database: 'kidzania_v2'
 		})
 		// pool.on('release', function (connection) {
 		// 	console.log('Connection %d released', connection.threadId);

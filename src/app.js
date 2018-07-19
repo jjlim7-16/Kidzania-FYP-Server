@@ -18,7 +18,8 @@ const bookingRouter = require('../routes/bookingRouter')
 const stationRouter = require('../routes/stationRouter')
 const roleRouter = require('../routes/roleRouter')
 const dashboardRouter = require('../routes/dashboardRouter')
-const hostname = '127.0.0.1'
+
+const hostname = os.networkInterfaces()['Wi-Fi'][1].address
 const port = 8000
 
 const app = express()
@@ -71,9 +72,11 @@ userSocket.on('connection', (socket) => {
 })
 
 server.listen(port, hostname, () => {
-	// seedData.seedSessions()
-	// .then(() => {
-	// 	seedData.seedAvailableSessions()
-	// })
+	seedData.seedSessions()
+	.then(() => {
+		seedData.seedAvailableSessions()
+	})
+	// console.log(os.networkInterfaces())
+	console.log(os.hostname())
 	console.log(`Server running at http://${hostname}:${port}`);
 })
