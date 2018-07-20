@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const moment = require('moment')
 const cors = require('cors')
+const zerofill = require('zero-fill')
 const db = require('../src/databasePool')
 const pool = db.getPool()
 // Re-uses existing if already created, else creates a new one
@@ -41,44 +42,48 @@ router.route('/')
 				})
 			connection.release()
 		})
-	})
-	router.get('/:bookingID', function(req, res) {
-		var bookingID = parseInt(req.params.bookingID)
-		let sql = `Select booking_id, b.session_date, se.session_start, se.session_end, st.station_name,
-		sr.role_name From booking_details b, sessions se, stations st, station_roles sr
-		where b.session_id = se.session_id and b.station_id = st.station_id and
-		st.station_id = sr.station_id and sr.role_id = b.role_id and booking_id = ? `
-		pool.getConnection().then(function(connection) {
-			connection.query(sql, bookingID)
-			.then((rows) => {
-				res.json(rows)
-			})
-			.catch(err => {
+  })
 
-			})
-		})
-	})
-	.put('/:bookingID',  (req, res) => {
-		var bookingID = parseInt(req.params.bookingID)
-		let bookingData = JSON.parse(req.body.webFormData)
-		console.log(bookingData)
-		console.log(req.files)
-	
-		let sql = `update booking_details set time_in = ?, booking_status =? where booking_id = ?`
-		let val = [ bookingData.time_in, bookingData.booking_status, bookingID]
-		pool.getConnection().then(function(connection) {
-			connection.query(sql, val)
-				.then((rows) => {
-					// console.log(rows)
-					res.end('Success')
-				})
-				.catch((err) => {
-					res.statusMessage = err
-					res.status(400).end()
-				})
-				connection.release()
-		})
-	})
+router.get('/:bookingID', function(req, res) {
+    var bookingID = parseInt(req.params.bookingID)
+    let sql = `Select booking_id, b.session_date, se.session_start, se.session_end, st.station_name,
+    sr.role_name From booking_details b, sessions se, stations st, station_roles sr
+    where b.session_id = se.session_id and b.station_id = st.station_id and
+    st.station_id = sr.station_id and sr.role_id = b.role_id and booking_id = ? `
+    pool.getConnection().then(function(connection) {
+      connection.query(sql, bookingID)
+      .then((rows) => {
+        res.json(rows)
+      })
+      .catch(err => {
+        res.statusMessage = err
+        res.status(400).end()
+      })
+      connection.release()
+    })
+  })
+  .put('/:bookingID',  (req, res) => {
+    var bookingID = parseInt(req.params.bookingID)
+    let bookingData = JSON.parse(req.body.webFormData)
+    console.log(bookingData)
+    console.log(req.files)
+
+    let sql = `update booking_details set time_in = ?, booking_status =? where booking_id = ?`
+    let val = [ bookingData.time_in, bookingData.booking_status, bookingID]
+    pool.getConnection().then(function(connection) {
+      connection.query(sql, val)
+        .then((rows) => {
+          // console.log(rows)
+          res.end('Success')
+        })
+        .catch((err) => {
+          res.statusMessage = err
+          res.status(400).end()
+        })
+        connection.release()
+    })
+  })
+
 router.route('/getBookingDetails')
   .all((req, res, next) => {
     res.statusCode = 200
@@ -87,10 +92,10 @@ router.route('/getBookingDetails')
   })
   .get((req, res) => {
     let sql = `Select booking_id, b.session_date, se.session_start, se.session_end, st.station_name,
-	sr.role_name, queue_no From booking_details b, sessions se, stations st, station_roles sr
-	where b.session_id = se.session_id and b.station_id = st.station_id and
-	st.station_id = sr.station_id and sr.role_id = b.role_id and session_date = current_date()
-	and booking_status = 'Confirmed' and b.station_id = ?`
+    sr.role_name, queue_no From booking_details b, sessions se, stations st, station_roles sr
+    where b.session_id = se.session_id and b.station_id = st.station_id and
+    st.station_id = sr.station_id and sr.role_id = b.role_id and session_date = current_date()
+    and booking_status = 'Confirmed' and b.station_id = ?`
 
     pool.getConnection().then(function(connection) {
       connection.query(sql)
@@ -114,6 +119,8 @@ router.post('/makeBooking', (req, res) => {
     connection.query(sql)
       .then((rows) => {
         let qNum = parseInt(rows[0].qNum) + 1
+        let alphas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        qNum = alphas.charAt(parseInt(bookingData.station_id-1)) + zerofill(4, qNum)
         sql = `INSERT INTO booking_details (session_id, session_date, station_id,
 					role_id, rfid, queue_no, booking_status) VALUES ?`
         let date = new Date()
@@ -126,7 +133,8 @@ router.post('/makeBooking', (req, res) => {
         ])
       })
       .then((rows) => {
-        sql = 'UPDATE available_sessions SET noBooked = noBooked+1 WHERE session_id = ' + bookingData.session_id
+        sql = `UPDATE available_sessions SET noBooked = noBooked+1 
+        WHERE session_id = ${bookingData.session_id} AND session_date = current_date()`
         return connection.query(sql)
       })
       .then((rows) => {
@@ -177,47 +185,6 @@ router.get('/rfid/:rfid', function(req, res) {
         console.log(rows)
         rows[0].session_start = moment(rows[0].session_start, 'HH:mm:ss').format('LT')
         rows[0].session_end = moment(rows[0].session_end, 'HH:mm:ss').format('LT')
-        res.json(rows)
-      })
-      .catch(err => {
-        res.statusMessage = err
-        res.status(400).end()
-      })
-    connection.release()
-  })
-})
-
-router.get('/getbookinglist/:stationId', function(req, res) {
-  var stationidStr = req.params.stationId
-  let stationid = parseInt(stationidStr)
-  let sql = `select count(role_id) as numOfRoles from station_roles
-	Where station_id = ? group by station_id`
-  //get the nearest session's list of bookings for the station
-  pool.getConnection().then(function(connection) {
-    connection.query(sql, stationid)
-      .then((rows) => {
-        let numOfRoles = parseInt(rows[0].numOfRoles)
-        sql = `SELECT session_id FROM sessions
-			WHERE station_id = ${stationid} AND session_start > TIME('15:30:00')
-			ORDER BY session_start ASC limit ?`
-        //replace the hardcode time to CURRENT_TIME();
-        return connection.query(sql, numOfRoles)
-      })
-      .then(sessionids => {
-        console.log(sessionids)
-        sql = 'SELECT se.session_start,se.session_end,r.role_name,b.booking_status,b.rfid,b.queue_no' +
-          ' FROM booking_details b,sessions se,station_roles r ' +
-          ' WHERE r.role_id = b.role_id AND' +
-          ' se.session_id = b.session_id AND' +
-          ' ('
-        for (i = 0; i < sessionids.length; i++) {
-          sql += "b.session_id = " + sessionids[i].session_id + " or "
-        }
-        sql = sql.substring(0, sql.length - 4);
-        sql += ')'
-        return connection.query(sql)
-      })
-      .then((rows) => {
         res.json(rows)
       })
       .catch(err => {

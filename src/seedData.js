@@ -10,8 +10,8 @@ function delay(ms) {
 module.exports = {
 	seedNewSessions: function (stationID) {
 		let sql = `Select s.station_id, role_id, s.station_start, s.station_end, 
-			sr.durationInMins, capacity From stations s, station_roles sr where s.station_id = sr.station_id 
-			AND s.station_id = ?;`
+			sr.durationInMins, capacity From stations s, station_roles sr 
+			where s.station_id = sr.station_id AND s.station_id = ?;`
 		pool.getConnection().then(function (connection) {
 			connection.query(sql, stationID)
 				.then((results) => {

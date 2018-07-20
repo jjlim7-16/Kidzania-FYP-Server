@@ -68,7 +68,7 @@ CREATE TABLE `booking_details` (
   `station_id` int(11) NOT NULL,
   `role_id` int(11) NOT NULL,
   `rfid` varchar(45) NOT NULL,
-  `queue_no` int(11) ZEROFILL NOT NULL,
+  `queue_no` varchar(5) NOT NULL,
   `booking_status` varchar(45) NOT NULL,
   PRIMARY KEY (`booking_id`),
   KEY `available_sessions_fk_idx` (`session_date`,`session_id`),

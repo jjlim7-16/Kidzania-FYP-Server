@@ -155,18 +155,19 @@ router.route('/:stationID')
 		})
 	})
 	.put(upload.any(), (req, res) => {
+		// Have yet to update the web app form for activation/deactivation
 		let stationData = JSON.parse(req.body.webFormData)
 		console.log(stationData)
 		console.log(req.files)
 		let imagepath = req.files[0].destination + '/' + req.files[0].filename
 		let sql = `Update stations Set station_name=?, description=?, 
-		station_start=?, station_end=?, imagepath=? Where station_id = ?`
+		station_start=?, station_end=?, imagepath=?, is_active=? Where station_id = ?`
 		let val = [ stationData.name, stationData.description, stationData.startTime, 
-			stationData.endTime, imagepath, req.params.stationID
+			stationData.endTime, imagepath, stationData.isActive, req.params.stationID
 		]
 		pool.getConnection().then(function(connection) {
 			connection.query(sql, val)
-				.then((rows) => {
+				.then(() => {
 					// console.log(rows)
 					res.end('Success')
 				})
