@@ -19,12 +19,10 @@ VALUES (1, 'Pilot', 30, 4, 2, 'pilot.png'), (1, 'Cabin Crew', 30, 4, 2, 'crew.pn
 # AVAILABLE_SESSIONS DATA WILL BE GENERATED DAILY
 
 # INSERT - BOOKING_DETAILS
-INSERT INTO booking_details (session_date, session_id, station_id, role_id, rfid, queue_no, booking_status)
-VALUES (current_date(), 1265, 2, 3, 'e0001', 1, 'Confirmed'), (current_date(), 1265, 2, 3, 'e0002', 2, 'Confirmed'),
-(current_date(), 1265, 2, 3, 'e0003', 3, 'Confirmed'),
-(current_date(), 1265, 2, 3, 'e0004', 4, 'Cancelled'),
-(current_date(), 1265, 2, 3, 'e0005', 5, 'Confirmed'),
-(current_date(), 1265, 2, 3, 'e0004', 6, 'Confirmed');
+INSERT INTO booking_details (session_date, session_id, station_id, role_id, rfid, queue_no, booking_status) VALUES 
+(current_date(), 1, 1, 1, 'e0001', 'A0001', 'Confirmed'), (current_date(), 1, 1, 1, 'e0002', 'A0002', 'Confirmed'),
+(current_date(), 1, 1, 1, 'e0003', 'A0003', 'Confirmed'), (current_date(), 1, 1, 1, 'e0004', 'A0004', 'Confirmed'),
+(current_date(), 1, 1, 1, 'e0005', 'A0005', 'Confirmed');
 
 INSERT INTO account_type (account_type) VALUES ('Admin');
 INSERT INTO account_type (account_type) VALUES ('Crew');

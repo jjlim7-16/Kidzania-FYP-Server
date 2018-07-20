@@ -74,9 +74,9 @@ userSocket.on('connection', (socket) => {
 })
 
 server.listen(port, hostname, () => {
-	 seedData.seedSessions()
-	 .then(() => {
-	 	seedData.seedAvailableSessions()
-	 })
+	seedData.seedSessions()
+	.then(() => {
+	seedData.seedAvailableSessions()
+	})
 	console.log(`Server running at http://${hostname}:${port}`);
 })
