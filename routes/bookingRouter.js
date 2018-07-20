@@ -172,7 +172,7 @@ router.get('/rfid/:rfid', function(req, res) {
 	FROM booking_details bd inner join stations s on bd.station_id = s.station_id
 	inner join sessions ss on bd.session_id = ss.session_id where bd.rfid = ?
 	AND session_date=current_date() AND bd.booking_status = 'Confirmed';`
-  //database query havent filter by date
+  
   pool.getConnection().then(function(connection) {
     connection.query(sql, rfid)
       .then((rows) => {

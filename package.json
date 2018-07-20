@@ -21,7 +21,6 @@
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
-    "escpos": "^2.4.9",
     "express": "^4.16.3",
     "form-data": "^2.3.2",
     "mkdirp": "^0.5.1",
