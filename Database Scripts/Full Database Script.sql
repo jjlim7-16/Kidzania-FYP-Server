@@ -237,7 +237,7 @@ CREATE TABLE `station_roles` (
 
 LOCK TABLES `station_roles` WRITE;
 /*!40000 ALTER TABLE `station_roles` DISABLE KEYS */;
-INSERT INTO `station_roles` VALUES (1,1,'Pilot',2,4,30,'pilot.png'),(2,1,'Cabin Crew',2,4,30,'crew.png'),(6,3,'Chef',2,4,20,'chef.png');
+INSERT INTO `station_roles` VALUES (1,1,'Pilot',2,4,30,'pilot.png'),(2,1,'Cabin Crew',2,4,30,'crew.png'),(6,3,'Pizza Chef',2,4,20,'chef.png');
 /*!40000 ALTER TABLE `station_roles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -267,7 +267,7 @@ CREATE TABLE `stations` (
 
 LOCK TABLES `stations` WRITE;
 /*!40000 ALTER TABLE `stations` DISABLE KEYS */;
-INSERT INTO `stations` VALUES (1,'Aviation','Flyyy!','10:00:00','18:00:00','pic_plane.png',1),(3,'KFC','Good!','10:00:00','18:00:00','pic_kfc.png',1);
+INSERT INTO `stations` VALUES (1,'Aviation Academy','Get a rare opportunity to be inside a cockpit and have a taste of \nwhat it feels like to operate an aircraft! Work in the sky as you flash your brightest \nsmile and serve the passengers on board the flight as an esteemed Cabin Crew!','10:00:00','18:00:00','pic_plane.png',1),(3,'Pizza Shop','Create your own pizza, and have the freedom to arrange the delicious \npizza ingredients on it. Learn more about the ingredients and the dough, and \nwatch it all come together at the Pizza Shop.','10:00:00','18:00:00','pic_kfc.png',1);
 /*!40000 ALTER TABLE `stations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -333,4 +333,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-20 15:37:45
+-- Dump completed on 2018-07-20 15:51:02
