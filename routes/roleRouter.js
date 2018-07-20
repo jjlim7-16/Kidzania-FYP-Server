@@ -53,8 +53,9 @@ router.route('/')
 		next() //Continue on to the next method -> .get(...)
 	})
 	.get((req, res) => {
-		let sql = `Select st.station_id, st.station_name, role_id, role_name, durationInMins, capacity, sr.imagepath From station_roles sr, stations st
-	Where st.station_id = sr.station_id; `
+		let sql = `Select st.station_id, st.station_name, role_id, role_name, durationInMins, 
+		capacity, sr.imagepath From station_roles sr, stations st
+		Where st.station_id = sr.station_id; `
 		sql += `Select DISTINCT station_id, station_name from stations ORDER BY 1 ASC;`
 		pool.getConnection().then(function(connection) {
 			connection.query(sql)
@@ -65,7 +66,6 @@ router.route('/')
 		})
 	})
 	.post(upload.any(), (req, res) => {
-		console.log(req.files)
 		let roleData = JSON.parse(req.body.webFormData)
 		let imagepath = req.files[0].destination + '/' + req.files[0].filename
 		let sql = 'INSERT INTO station_roles (station_id, role_name, noOfReservedSlots, durationInMins, ' +

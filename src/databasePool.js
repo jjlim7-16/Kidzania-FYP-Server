@@ -9,11 +9,12 @@ module.exports = {
 			host: 'localhost',
 			user: 'root',
 			password: '12345',
-			database: 'kidzania_fyp_v2'
+			database: 'kidzania_v3'
 		})
 		// pool.on('release', function (connection) {
 		// 	console.log('Connection %d released', connection.threadId);
 		// })
+		
 		// pool.on('acquire', function (connection) {
 		// 	console.log('Connection %d acquired', connection.threadId);
 		// })
