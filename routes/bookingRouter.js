@@ -64,12 +64,12 @@ router.get('/:bookingID', function(req, res) {
   })
   .put('/:bookingID',  (req, res) => {
     var bookingID = parseInt(req.params.bookingID)
-    let bookingData = JSON.parse(req.body.webFormData)
+    let bookingData = req.booking_status;
     console.log(bookingData)
     console.log(req.files)
 
-    let sql = `update booking_details set time_in = ?, booking_status =? where booking_id = ?`
-    let val = [ bookingData.time_in, bookingData.booking_status, bookingID]
+    let sql = `update booking_details set booking_status =? where booking_id = ?`
+    let val = [ bookingData, bookingID]
     pool.getConnection().then(function(connection) {
       connection.query(sql, val)
         .then((rows) => {
