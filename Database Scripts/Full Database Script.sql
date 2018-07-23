@@ -25,9 +25,12 @@ DROP TABLE IF EXISTS `account_type`;
 CREATE TABLE `account_type` (
   `account_type_id` int(11) NOT NULL AUTO_INCREMENT,
   `account_type` varchar(45) NOT NULL,
+  `station_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`account_type_id`),
-  UNIQUE KEY `account_type` (`account_type`),
-  KEY `account_type_idx` (`account_type_id`)
+  UNIQUE KEY `account_type` (`account_type`,`station_id`),
+  KEY `account_type_idx` (`account_type_id`),
+  KEY `station_fk` (`station_id`),
+  CONSTRAINT `station_fk` FOREIGN KEY (`station_id`) REFERENCES `stations` (`station_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -37,7 +40,7 @@ CREATE TABLE `account_type` (
 
 LOCK TABLES `account_type` WRITE;
 /*!40000 ALTER TABLE `account_type` DISABLE KEYS */;
-INSERT INTO `account_type` VALUES (1,'Admin'),(2,'Crew');
+INSERT INTO `account_type` VALUES (1,'Admin',NULL),(2,'Crew',1);
 /*!40000 ALTER TABLE `account_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -388,4 +391,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-23  9:57:39
+-- Dump completed on 2018-07-23 10:53:58
