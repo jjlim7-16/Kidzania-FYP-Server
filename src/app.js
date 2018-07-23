@@ -69,8 +69,7 @@ userSocket.on('connection', (socket) => {
 	socket.on('disconnect', () => console.log('Client disconnected'));
 	socket.on('makeBooking', (session_id) => {
 		console.log('A new booking is being made')
-		userSocket.emit('newSlotBooked', session_id)
-		// socket.broadcast.emit('newSlotBooked', session_id)
+		socket.broadcast.emit('newSlotBooked', session_id)
 	})
 })
 
