@@ -135,29 +135,22 @@ router.get('/getBookingByTime', (req, res) => {
 	FROM (SELECT * FROM booking_details WHERE booking_status='Confirmed' AND session_date = '2018-07-03') b
 	RIGHT JOIN sessions s ON s.session_id = b.session_id
 	RIGHT JOIN stations st ON s.station_id = st.station_id
-	WHERE st.station_name = 'Aviation Academy'
 	GROUP BY b.session_date, session_start, st.station_id ORDER BY 1 ASC;`
 	
 	pool.getConnection().then(function (connection) {
 		connection.query(sql)
 			.then(results => {
-				// if (results.length === 0) {
-				// 	res.json(0)
-				// }
-				// else {
-				// 	res.json(results[0].count)
-				// }
-				// let data = {}
-				// for (i in results) {
-				// 	if (!data[results[i].station_name]) {
-				// 		data[results[i].station_name] = []
-				// 	}
-				// 	data[results[i].station_name].push({
-				// 		x: results[i].x,
-				// 		y: results[i].y
-				// 	})
-				// }
-				res.json(results)
+				let data = {}
+				for (i in results) {
+					if (!data[results[i].station_name]) {
+						data[results[i].station_name] = []
+					}
+					data[results[i].station_name].push({
+						x: results[i].x,
+						y: results[i].y
+					})
+				}
+				res.json(data)
 			})
 			.catch(err => {
 				res.statusMessage = err

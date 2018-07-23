@@ -20,8 +20,8 @@ const roleRouter = require('../routes/roleRouter')
 const printReceiptRouter = require('../routes/printReceiptRouter')
 const dashboardRouter = require('../routes/dashboardRouter')
 
-// const hostname = os.networkInterfaces()['Wi-Fi'][1].address
-const hostname = '25.37.100.106'
+const hostname = os.networkInterfaces()['Wi-Fi'][1].address
+// const hostname = '25.37.100.106'
 const port = 8000
 
 const app = express()
@@ -77,7 +77,7 @@ userSocket.on('connection', (socket) => {
 server.listen(port, hostname, () => {
 	seedData.seedSessions()
 	.then(() => {
-	seedData.seedAvailableSessions()
+		seedData.seedAvailableSessions()
 	})
 	console.log(`Server running at http://${hostname}:${port}`);
 })
