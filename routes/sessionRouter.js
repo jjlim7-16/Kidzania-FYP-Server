@@ -37,7 +37,7 @@ router.route('/')
 	})
 
 
-	
+
 router.get('/:stationID/:roleID', (req, res) => {
 	// Get Today's Date & Time
 	let date = new Date()
@@ -72,7 +72,10 @@ router.get('/:stationID/:roleID', (req, res) => {
 				// 		break
 				// 	}
 				// }
-				console.log(rows)
+				for(let timeSlot of rows) {
+					timeSlot.session_start = moment(timeSlot.session_start, 'HH:mm:ss').format('LT')
+					timeSlot.session_end = moment(timeSlot.session_end, 'HH:mm:ss').format('LT')
+				}
 				res.json(rows)
 			})
 		connection.release()
@@ -80,7 +83,7 @@ router.get('/:stationID/:roleID', (req, res) => {
 })
 
 router.get('/:stationID', (req, res) => {
-	
+
 	let sql = `Select a.session_id, s.session_start, s.session_end, s.role_id, s.capacity
 	from available_sessions a, sessions s
 	where a.session_id = s.session_id and
