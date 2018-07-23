@@ -118,18 +118,33 @@ router.route('/')
 		})
 	})
 
-router.route('/image')
+router.route('/getImage/:stationID')
 .get((req, res) => {
-	let imagepath = '../images/Aviation Academy.png'
-	let filepath = path.join(__dirname, imagepath)
-	console.log(filepath)
-	let stat = fs.statSync(filepath)
-	res.writeHead(200, {
-		'Content-Type': 'image/png',
-		'Content-Length': stat.size
+	// let imagepath = 'images/Chicken Restaurant.png'
+	let sql = `Select imagepath From stations Where station_id = ?`
+	pool.getConnection().then(function(connection) {
+		connection.query(sql, [req.params.stationID])
+			.then(results => {
+				let data = fs.readFileSync('images/' + results[0].imagepath)
+				res.end(data)
+			})
+			.catch((err) => {
+				res.statusMessage = err
+				res.status(400).end()
+			})
+			connection.release()
 	})
-	let readstream = fs.createReadStream(filepath)
-	readstream.pipe(res)
+	// let imagepath = '../images/Chicken Restaurant.png'
+	// let filepath = path.join(__dirname, imagepath)
+	// console.log(filepath)
+	// let stat = fs.statSync(filepath)
+	// res.writeHead(200, {
+	// 	'Content-Type': 'image/png',
+	// 	'Content-Length': stat.size
+	// })
+	// let readstream = fs.createReadStream(filepath)
+	// readstream.pipe(res)
+
 	// let data = fs.readFileSync(imagepath)
 	// res.end(data)
 })

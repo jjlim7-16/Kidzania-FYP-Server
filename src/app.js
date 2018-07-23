@@ -59,7 +59,6 @@ dashboardSocket.on('connection', socket => {
 		dashboard.getBookingByDay(socket)
 		dashboard.getBookingByStation(socket)
 		dashboard.getBookingByTime(socket)
-		// getBookingByDate(socket)
 	}, 100000)
 
 	socket.on("disconnect", () => console.log("Client disconnected"));
@@ -70,7 +69,8 @@ userSocket.on('connection', (socket) => {
 	socket.on('disconnect', () => console.log('Client disconnected'));
 	socket.on('makeBooking', (session_id) => {
 		console.log('A new booking is being made')
-		socket.broadcast.emit('newSlotBooked', session_id)
+		userSocket.emit('newSlotBooked', session_id)
+		// socket.broadcast.emit('newSlotBooked', session_id)
 	})
 })
 
