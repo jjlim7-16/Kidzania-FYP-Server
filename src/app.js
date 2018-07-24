@@ -36,6 +36,7 @@ app.use('/bookings', bookingRouter)
 // app.use('/print',printReceiptRouter)
 app.use('/user', accountRouter)
 app.use('/dashboard', dashboardRouter)
+app.use('/user', accountRouter)
 app.use('/limit', limitRouter)
 // stationRouter.options('*', cors())
 

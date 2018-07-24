@@ -206,7 +206,7 @@ router.get('/getbookinglist/:stationId', function (req, res) {
 			b.role_id = sr.role_id AND
 			b.booking_status = "Confirmed" AND
 			b.station_id = s.station_id AND
-            ase.session_date = current_date() AND
+      ase.session_date = current_date() AND
 			se.session_start = (SELECT distinct session_start FROM sessions
 	WHERE station_id = ?
 	AND ADDTIME(current_time(),'0:5:00') >= session_start 
@@ -215,11 +215,6 @@ router.get('/getbookinglist/:stationId', function (req, res) {
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, stationid)
 			.then((rows) => {
-				 //for(var i=0; j=rows.length,i<j;i++){
-				 	//rows[i].session_start = moment(rows[i].session_start, 'HH:mm:ss').format('LL');
-					//rows[i].session_end = moment(rows[i].session_end, 'HH:mm:ss').format('LL');
-					
-			//	 }
 				res.json(rows)
 			})
 		connection.release()

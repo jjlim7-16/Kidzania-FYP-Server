@@ -3,7 +3,6 @@ const bodyParser = require('body-parser')
 const mysql = require('mysql')
 const moment = require('moment')
 const cors = require('cors')
-const path = require('path')
 const db = require('../src/databasePool')
 const pool = db.getPool()
 
@@ -115,7 +114,6 @@ router.route('/')
     pool.getConnection().then(function(connection) {
       connection.query(sql)
         .then(results => {
-          deleteFolderRecursive(results[0][0].username + '/')
           res.json(results)
         })
         .catch(err => {
