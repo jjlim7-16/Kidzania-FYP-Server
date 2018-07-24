@@ -24,8 +24,9 @@ INSERT INTO booking_details (session_date, session_id, station_id, role_id, rfid
 (current_date(), 1, 1, 1, 'e0003', 'A0003', 'Confirmed'), (current_date(), 1, 1, 1, 'e0004', 'A0004', 'Confirmed'),
 (current_date(), 1, 1, 1, 'e0005', 'A0005', 'Confirmed');
 
-INSERT INTO account_type (account_type) VALUES ('Admin');
-INSERT INTO account_type (account_type) VALUES ('Crew');
+# INSERT USER_ACCOUNTS & ACCOUNT_TYPE
+INSERT INTO account_type (account_type, station_id) VALUES ('Admin', NULL);
+INSERT INTO account_type (account_type, station_id) VALUES ('Crew', 1);
 
 # Password: 123123
 INSERT INTO user_accounts (account_type_id, username, password_hash)
