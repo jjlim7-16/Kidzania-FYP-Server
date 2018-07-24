@@ -36,6 +36,8 @@ router.route('/')
 		})
 	})
 
+
+	
 router.get('/:stationID/:roleID', (req, res) => {
 	// Get Today's Date & Time
 	let date = new Date()
@@ -71,6 +73,22 @@ router.get('/:stationID/:roleID', (req, res) => {
 					}
 				}
 				res.json(session_list)
+			})
+		connection.release()
+	})
+})
+
+router.get('/:stationID', (req, res) => {
+	
+	let sql = `Select a.session_id, s.session_start, s.session_end, s.role_id, s.capacity
+	from available_sessions a, sessions s
+	where a.session_id = s.session_id and
+	 a.station_id = ? and session_date = current_date()`
+	let stationID = [parseInt(req.params.stationID)]
+	pool.getConnection().then(function(connection) {
+		connection.query(sql, stationID)
+			.then((rows) => {
+				res.json(rows)
 			})
 		connection.release()
 	})

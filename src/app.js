@@ -6,6 +6,7 @@ const mysql = require('mysql')
 const cors = require('cors')
 const socketIo = require('socket.io')
 const axios = require('axios')
+const os = require('os')
 const router = express.Router()
 router.use(bodyParser.json())
 
@@ -16,8 +17,11 @@ const sessionRouter = require('../routes/sessionRouter')
 const bookingRouter = require('../routes/bookingRouter')
 const stationRouter = require('../routes/stationRouter')
 const roleRouter = require('../routes/roleRouter')
+const accountRouter = require('../routes/accountRouter')
+const printReceiptRouter = require('../routes/printReceiptRouter')
 const dashboardRouter = require('../routes/dashboardRouter')
-const hostname = 'localhost'
+
+const hostname = os.networkInterfaces()['Wi-Fi'][1].address
 const port = 8000
 
 const app = express()
@@ -28,7 +32,9 @@ app.use('/stations', stationRouter)
 app.use('/roles', roleRouter)
 app.use('/sessions', sessionRouter)
 app.use('/bookings', bookingRouter)
+// app.use('/print',printReceiptRouter)
 app.use('/dashboard', dashboardRouter)
+app.use('/user', accountRouter)
 app.use('/limit', limitRouter)
 // stationRouter.options('*', cors())
 
@@ -41,7 +47,7 @@ const userSocket = io.of('/user')
 
 dashboardSocket.on('connection', socket => {
 	console.log('Socket Connected')
-	
+
 	dashboard.getBookingCount(socket)
 	dashboard.getAvgBookings(socket)
 	dashboard.getBookingByDay(socket)
@@ -50,7 +56,7 @@ dashboardSocket.on('connection', socket => {
 
 	setInterval(function() {
 		dashboard.getBookingCount(socket)
-		dashboard.getAvgBookings(socket)	
+		dashboard.getAvgBookings(socket)
 		dashboard.getBookingByDay(socket)
 		dashboard.getBookingByStation(socket)
 		dashboard.getBookingByTime(socket)
@@ -70,9 +76,9 @@ userSocket.on('connection', (socket) => {
 })
 
 server.listen(port, hostname, () => {
-	// seedData.seedSessions()
-	// .then(() => {
-	// 	seedData.seedAvailableSessions()
-	// })
+	 seedData.seedSessions()
+	 .then(() => {
+	 	seedData.seedAvailableSessions()
+	 })
 	console.log(`Server running at http://${hostname}:${port}`);
 })

@@ -215,11 +215,6 @@ router.get('/getbookinglist/:stationId', function (req, res) {
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, stationid)
 			.then((rows) => {
-				 //for(var i=0; j=rows.length,i<j;i++){
-				 	//rows[i].session_start = moment(rows[i].session_start, 'HH:mm:ss').format('LL');
-					//rows[i].session_end = moment(rows[i].session_end, 'HH:mm:ss').format('LL');
-					
-			//	 }
 				res.json(rows)
 			})
 		connection.release()
