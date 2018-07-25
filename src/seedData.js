@@ -102,9 +102,6 @@ module.exports = {
 					console.log(err)
 				})
 				connection.release()
-				// console.log(pool.pool._allConnections.length)
-				// console.log(pool.pool._acquiringConnections.length)
-				// console.log(pool.pool._freeConnections.length)
 		})
 	}
 }

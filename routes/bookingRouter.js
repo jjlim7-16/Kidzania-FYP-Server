@@ -112,9 +112,8 @@ router.route('/getBookingDetails')
 
 	
 router.post('/makeBooking', (req, res) => {
+  let sql = 'SELECT COUNT(booking_id) AS qNum FROM booking_details'
   let bookingData = req.body
-  let sql = `SELECT COUNT(booking_id) AS qNum FROM booking_details 
-    WHERE station_id = ${bookingData.station_id}`
   console.log(bookingData)
   pool.getConnection().then(function(connection) {
     connection.query(sql)
@@ -133,7 +132,13 @@ router.post('/makeBooking', (req, res) => {
           [bookingDetails_val]
         ])
       })
-      .then(() => {
+      .then((rows) => {
+        sql = `UPDATE available_sessions SET noBooked = noBooked+1 
+        WHERE session_id = ${bookingData.session_id} AND session_date = current_date()`
+        return connection.query(sql)
+      })
+      .then((rows) => {
+        res.json(rows)
         res.status(200).end()
       })
       .catch((err) => {
@@ -154,7 +159,8 @@ router.put('/cancelBooking', (req, res) => {
         sql = 'UPDATE available_sessions SET noBooked = noBooked-1 WHERE session_id = ' + details.session_id
         return connection.query(sql)
       })
-			.then(() => {
+			.then((rows) => {
+        res.json(rows)
         res.status(200).end()
       })
       .catch((err) => {
@@ -171,7 +177,7 @@ router.get('/rfid/:rfid', function(req, res) {
 	bd.rfid, bd.queue_no, bd.booking_status, s.station_name, ss.session_start, ss.session_end
 	FROM booking_details bd inner join stations s on bd.station_id = s.station_id
 	inner join sessions ss on bd.session_id = ss.session_id where bd.rfid = ?
-	AND session_date=current_date() AND bd.booking_status = 'Confirmed';`
+	AND session_date=current_date() AND bd.booking_status = 'Booked';`
   //database query havent filter by date
   pool.getConnection().then(function(connection) {
     connection.query(sql, rfid)

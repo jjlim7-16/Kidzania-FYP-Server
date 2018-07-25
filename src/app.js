@@ -21,7 +21,8 @@ const accountRouter = require('../routes/accountRouter')
 const printReceiptRouter = require('../routes/printReceiptRouter')
 const dashboardRouter = require('../routes/dashboardRouter')
 
-const hostname = os.networkInterfaces()['Wi-Fi'][1].address
+// const hostname = os.networkInterfaces()['Wi-Fi'][1].address
+const hostname = '25.37.100.106'
 const port = 8000
 
 const app = express()
@@ -33,6 +34,7 @@ app.use('/roles', roleRouter)
 app.use('/sessions', sessionRouter)
 app.use('/bookings', bookingRouter)
 // app.use('/print',printReceiptRouter)
+app.use('/user', accountRouter)
 app.use('/dashboard', dashboardRouter)
 app.use('/user', accountRouter)
 app.use('/limit', limitRouter)
@@ -46,7 +48,7 @@ const dashboardSocket = io.of('/dashboard')
 const userSocket = io.of('/user')
 
 dashboardSocket.on('connection', socket => {
-	console.log('Socket Connected')
+	console.log('New Admin Connected')
 
 	dashboard.getBookingCount(socket)
 	dashboard.getAvgBookings(socket)
@@ -60,7 +62,6 @@ dashboardSocket.on('connection', socket => {
 		dashboard.getBookingByDay(socket)
 		dashboard.getBookingByStation(socket)
 		dashboard.getBookingByTime(socket)
-		// getBookingByDate(socket)
 	}, 100000)
 
 	socket.on("disconnect", () => console.log("Client disconnected"));
@@ -70,7 +71,7 @@ userSocket.on('connection', (socket) => {
 	console.log('New client connected')
 	socket.on('disconnect', () => console.log('Client disconnected'));
 	socket.on('makeBooking', (session_id) => {
-		console.log('A new booking has been made')
+		console.log('A new booking is being made')
 		socket.broadcast.emit('newSlotBooked', session_id)
 	})
 })
@@ -78,7 +79,7 @@ userSocket.on('connection', (socket) => {
 server.listen(port, hostname, () => {
 	seedData.seedSessions()
 	.then(() => {
-	seedData.seedAvailableSessions()
+		seedData.seedAvailableSessions()
 	})
 	console.log(`Server running at http://${hostname}:${port}`);
 })

@@ -3,11 +3,6 @@ const bodyParser = require('body-parser')
 const mysql = require('mysql')
 const moment = require('moment')
 const cors = require('cors')
-// const stationData = require('form-data')
-const multer = require('multer')
-const mkdirp = require('mkdirp')
-const fs = require('fs')
-const path = require('path')
 const db = require('../src/databasePool')
 const pool = db.getPool()
 
@@ -76,7 +71,7 @@ router.route('/')
     let userData = JSON.parse(req.body.webFormData)
     date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
     let sql = `Insert into user_accounts( user_id, account_type_id, username, account_type,)
-     VALUES?`
+     VALUES ?`
 
     let stationVal = [[userData.user_id, userData.account_type_id, userData.username,
       userData.account_type,

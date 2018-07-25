@@ -54,25 +54,26 @@ router.get('/:stationID/:roleID', (req, res) => {
 			.then((rows) => {
 				//res.json(rows)
 				// console.log(moment(rows[0].session_date).format('YYYY-MM-DD'))
-				let duration = moment(rows[0].session_end, 'HH:mm:ss').diff(moment(rows[0].session_start, 'HH:mm:ss'), 'minutes')
-				time = moment(time, "HH:mm:ss")
-				if (time.minutes() >= 30) {
-					time.add(1, 'hour')
-					time.minutes(0)
-				}
-				let session_list = []
-				for (i = 0; i < rows.length; i += 6) {
-					let session_start = moment(rows[i].session_start, 'HH:mm:ss')
-					if (time.isSameOrAfter(session_start) && time.isBefore(session_start.add(duration, 'minutes'))) {
-						for (j = i; j < i + 6; j++) {
-							rows[j].session_start = moment(rows[j].session_start, 'HH:mm:ss').format('LT')
-							rows[j].session_end = moment(rows[j].session_end, 'HH:mm:ss').format('LT')
-							session_list.push(rows[j])
-						}
-						break
-					}
-				}
-				res.json(session_list)
+				// let duration = moment(rows[0].session_end, 'HH:mm:ss').diff(moment(rows[0].session_start, 'HH:mm:ss'), 'minutes')
+				// time = moment(time, "HH:mm:ss")
+				// if (time.minutes() >= 30) {
+				// 	time.add(1, 'hour')
+				// 	time.minutes(0)
+				// }
+				// let session_list = []
+				// for (i = 0; i < rows.length; i += 6) {
+				// 	let session_start = moment(rows[i].session_start, 'HH:mm:ss')
+				// 	if (time.isSameOrAfter(session_start) && time.isBefore(session_start.add(duration, 'minutes'))) {
+				// 		for (j = i; j < i + 6; j++) {
+				// 			rows[j].session_start = moment(rows[j].session_start, 'HH:mm:ss').format('LT')
+				// 			rows[j].session_end = moment(rows[j].session_end, 'HH:mm:ss').format('LT')
+				// 			session_list.push(rows[j])
+				// 		}
+				// 		break
+				// 	}
+				// }
+				console.log(rows)
+				res.json(rows)
 			})
 		connection.release()
 	})
