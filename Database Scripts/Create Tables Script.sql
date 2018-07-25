@@ -68,13 +68,14 @@ CREATE TABLE `booking_details` (
   `station_id` int(11) NOT NULL,
   `role_id` int(11) NOT NULL,
   `rfid` varchar(45) NOT NULL,
+  `time_in` time NOT NULL,
   `queue_no` varchar(5) NOT NULL,
-  `booking_status` varchar(45) NOT NULL,
+  `booking_status` varchar(45) NOT NULL, -- Confirmed | Cancelled | Not Admitted | Admitted
   PRIMARY KEY (`booking_id`),
   KEY `available_sessions_fk_idx` (`session_date`,`session_id`),
   CONSTRAINT `available_sessions_fk` FOREIGN KEY (`session_date`,`session_id`) REFERENCES `available_sessions` (`session_date`,`session_id`)
-  ON UPDATE CASCADE ON DELETE CASCADE
-  #,UNIQUE KEY `booking` (`session_id`, `session_date`, `rfid`, `queue_no`)
+  ON UPDATE CASCADE ON DELETE CASCADE,
+  UNIQUE KEY `booking` (`session_id`, `session_date`, `rfid`)
 );
 
 
