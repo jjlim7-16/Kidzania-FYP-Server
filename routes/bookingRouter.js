@@ -192,7 +192,7 @@ router.get('/rfid/:rfid', function(req, res) {
 router.get('/getbookinglist/:stationId', function (req, res) {
 	var stationidStr = req.params.stationId
 	let stationid = parseInt(stationidStr)
-	let sql = `SELECT b.booking_id,ase.session_id,s.station_name, sr.role_name,b.time_in, se.session_start, se.session_end,  b.booking_status, b.rfid,b.queue_no
+	let sql = `SELECT b.booking_id,ase.session_id,s.station_name, ase.session_date, sr.role_name, se.session_start, se.session_end,  b.booking_status, b.rfid,b.queue_no
 	FROM booking_details b, available_sessions ase, sessions se, station_roles sr,stations s
 	WHERE b.session_date = ase.session_date AND
 			b.session_id = ase.session_id AND
@@ -200,19 +200,15 @@ router.get('/getbookinglist/:stationId', function (req, res) {
 			b.role_id = sr.role_id AND
 			b.booking_status = "Confirmed" AND
 			b.station_id = s.station_id AND
+      ase.session_date = current_date() AND
 			se.session_start = (SELECT distinct session_start FROM sessions
-	WHERE station_id = ? 
-	AND ADDTIME('16:00:00','0:10:00') >= session_start 
-	AND ADDTIME('16:00:00','0:10:00') < session_end)`
+	WHERE station_id = ?
+	AND ADDTIME(current_time(),'0:5:00') >= session_start 
+	AND ADDTIME(current_time(),'0:5:00') < session_end)`
 	//get the nearest session's list of bookings for the station
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, stationid)
 			.then((rows) => {
-				 for(var i=0; j=rows.length,i<j;i++){
-				 	rows[i].session_start = moment(rows[i].session_start, 'HH:mm:ss').format('LT');
-					rows[i].session_end = moment(rows[i].session_end, 'HH:mm:ss').format('LT');
-					
-				 }
 				res.json(rows)
 			})
 		connection.release()
