@@ -1,10 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const formData = require('form-data')
-const multer = require('multer')
 const fs = require('fs')
-const mkdirp = require('mkdirp')
 const http = require('http')
 const db = require('../src/databasePool')
 const pool = db.getPool()
@@ -44,16 +41,16 @@ router.route('/')
 .post((req, res) => {
 	let form = req.body
 	console.log(form.date)
-	let sql = `INSERT INTO booking_limit (session_date, station_id, role_id, booking_limit) VALUES ?`
-	let formVal = [[form.date, form.stationId, form.roleId, parseInt(form.limit)]]
-	console.log(formVal)
-	pool.getConnection().then(function(connection) {
-		connection.query(sql, [formVal])
-		.then(results => {
-			res.json(results)
-		})
-		connection.release()
-	})
+	// let sql = `INSERT INTO booking_limit (session_date, station_id, role_id, booking_limit) VALUES ?`
+	// let formVal = [[form.date, form.stationId, form.roleId, parseInt(form.limit)]]
+	// console.log(formVal)
+	// pool.getConnection().then(function(connection) {
+	// 	connection.query(sql, [formVal])
+	// 	.then(results => {
+	// 		res.json(results)
+	// 	})
+	// 	connection.release()
+	// })
 })
 
 router.route('/:limitID')
@@ -61,6 +58,26 @@ router.route('/:limitID')
 	res.statusCode = 200
 	res.setHeader('Content-Type', 'text/plain')
 	next() //Continue on to the next method -> .get(...)
+})
+.get((req, res) => {
+	let sql = `SELECT b.* FROM booking_limit b WHERE limit_id = ?`
+	pool.getConnection().then(function(connection) {
+		connection.query(sql, req.params.limitID)
+		.then(results => {
+			res.json(results)
+		})
+		connection.release()
+	})
+})
+.put((req, res) => {
+	let sql = `UPDATE booking_limit SET session_date = ?, booking_limit = ? WHERE limit_id = ?`
+	pool.getConnection().then(function(connection) {
+		connection.query(sql, req.params.limitID)
+		.then(results => {
+			res.json(results)
+		})
+		connection.release()
+	})
 })
 .delete((req, res) => {
 	let sql = `DELETE FROM booking_limit WHERE limit_id = ?`
