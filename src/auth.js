@@ -5,11 +5,11 @@ const passport = require('passport')
 
 router.post('/login', function (req, res, next) {
 	passport.authenticate('local-login', {session: false}, (err, user, info) => {
-		console.log(err)
-		if (err || !user) {
-			return res.status(401).json({
-				message: 'ERROR'
-			})
+		if (err) {
+			return res.status(500).json({message: 'Internal Server Error'})
+		}
+		if (user.error && !user.user) {
+			return res.status(401).json({ message: user.error })
 		}
 		req.login(user, {session: false}, (err) => {
 			if (err) {

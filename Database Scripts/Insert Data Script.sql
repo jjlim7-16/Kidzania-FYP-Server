@@ -1,9 +1,9 @@
 # INSERT LIMIT
-/* INSERT INTO booking_limit (session_date, station_id, role_id, booking_limit) VALUES 
-(current_date(), 2, 3, 2), (current_date(), 5, 7, 2), (current_date(), 5, 8, 2);
+INSERT INTO booking_limit (session_date, station_id, role_id, booking_limit) VALUES 
+(current_date(), 1, 1, 2), (current_date(), 1, 2, 2);
 
 INSERT INTO booking_limit (session_date, station_id, role_id, booking_limit) VALUES 
-('2018-07-03', 3, 4, 1); */
+('2018-07-03', 3, 4, 1);
 
 # INSERT STATIONS & STATION_ROLES
 INSERT INTO stations (station_name, description, station_start, station_end, is_active, imagepath)
@@ -31,5 +31,8 @@ INSERT INTO account_type (account_type, station_id) VALUES ('Crew', 1);
 # Password: 123123
 INSERT INTO user_accounts (account_type_id, username, password_hash)
 VALUES (1, 'jj', '$2a$10$pyMYtPfIvE.PAboF3cIx9.IsyW73voMIRxFINohzgeV0I2BxwnrEu');
+
+INSERT INTO user_accounts (account_type_id, username, password_hash)
+VALUES (2, 'crew-aviation', '$2a$10$pyMYtPfIvE.PAboF3cIx9.IsyW73voMIRxFINohzgeV0I2BxwnrEu');
 
 SELECT * FROM user_accounts;
