@@ -1,10 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const formData = require('form-data')
-const multer = require('multer')
 const fs = require('fs')
-const mkdirp = require('mkdirp')
 const http = require('http')
 const db = require('../src/databasePool')
 const pool = db.getPool()
@@ -38,19 +35,26 @@ router.route('/')
 		.then(results => {
 			res.json(results)
 		})
+		.catch(err => {
+			res.statusMessage = err
+			res.status(400).end()
+		})
 		connection.release()
 	})
 })
 .post((req, res) => {
 	let form = req.body
-	console.log(form.date)
 	let sql = `INSERT INTO booking_limit (session_date, station_id, role_id, booking_limit) VALUES ?`
 	let formVal = [[form.date, form.stationId, form.roleId, parseInt(form.limit)]]
-	console.log(formVal)
+
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, [formVal])
 		.then(results => {
 			res.json(results)
+		})
+		.catch(err => {
+			res.statusMessage = err.code
+			res.status(400).end()
 		})
 		connection.release()
 	})
@@ -62,12 +66,53 @@ router.route('/:limitID')
 	res.setHeader('Content-Type', 'text/plain')
 	next() //Continue on to the next method -> .get(...)
 })
+.get((req, res) => {
+	let sql = `SELECT b.*, st.station_name, sr.role_name 
+		FROM booking_limit b
+		INNER JOIN stations st ON st.station_id = b.station_id
+		INNER JOIN station_roles sr ON b.role_id = sr.role_id
+		WHERE b.limit_id = ?;`
+	pool.getConnection().then(function(connection) {
+		connection.query(sql, req.params.limitID)
+		.then(results => {
+			res.json(results)
+		})
+		.catch(err => {
+			res.statusMessage = err
+			res.status(400).end()
+		})
+		connection.release()
+	})
+})
+.put((req, res) => {
+	let form = req.body
+	let sql = `UPDATE booking_limit SET session_date = ?, booking_limit = ? WHERE limit_id = ?`
+	let formVal = [form.date, form.limit, req.params.limitID]
+
+	pool.getConnection().then(function(connection) {
+		connection.query(sql, formVal)
+		.then(results => {
+			console.log(results)
+			res.json(results)
+		})
+		.catch(err => {
+			console.log(err)
+			res.statusMessage = err
+			res.status(400).end()
+		})
+		connection.release()
+	})
+})
 .delete((req, res) => {
 	let sql = `DELETE FROM booking_limit WHERE limit_id = ?`
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, req.params.limitID)
 		.then(results => {
 			res.json(results)
+		})
+		.catch(err => {
+			res.statusMessage = err
+			res.status(400).end()
 		})
 		connection.release()
 	})
