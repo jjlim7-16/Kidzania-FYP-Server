@@ -32,6 +32,16 @@ ON SCHEDULE
 # DELETE FROM available_sessions where session_date = current_date();
 SELECT * FROM available_sessions where session_date = current_date();
 
+
+CREATE EVENT IF NOT EXISTS `delete_past_limit_setting`
+ON SCHEDULE
+	EVERY 1 DAY
+    STARTS '2018-07-26 20:00:00' ON COMPLETION PRESERVE ENABLE
+  DO
+    DELETE FROM booking_limit WHERE session_date = current_date();
+
+
+
 SHOW PROCESSLIST;
 # DROP EVENT IF EXISTS `seed_daily_sessions_event`;
 # DROP EVENT IF EXISTS `seed_test`;

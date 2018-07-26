@@ -14,7 +14,7 @@ module.exports = {
 		// pool.on('release', function (connection) {
 		// 	console.log('Connection %d released', connection.threadId);
 		// })
-		
+
 		// pool.on('acquire', function (connection) {
 		// 	console.log('Connection %d acquired', connection.threadId);
 		// })
