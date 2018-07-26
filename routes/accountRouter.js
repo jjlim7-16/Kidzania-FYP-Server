@@ -11,9 +11,16 @@ const path = require('path')
 const db = require('../src/databasePool')
 const pool = db.getPool()
 
-
 const seedData = require('../src/seedData')
 const router = express.Router()
+router.use(bodyParser.urlencoded({
+  limit: '50mb',
+  extended: true,
+  parameterLimit: 100000
+}))
+router.use(bodyParser.json({
+  limit: '50mb'
+}))
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -41,10 +48,18 @@ var deleteFolderRecursive = function(path) {
     fs.rmdirSync(path);
   }
 }
+router.options('*', cors())
+router.use(cors())
 
+router.route('/')
+  .all((req, res, next) => {
+    res.statusCode = 200
+    res.setHeader('Content-Type', 'text/plain')
+    next()
+  })
 router.get('/:userID', function (req, res) {
   var userID = parseInt(req.params.userID)
-  let sql = `SELECT ua.user_id, ua.account_type_id, ua.username, acct.account_type,acct.station
+  let sql = `SELECT ua.user_id, ua.account_type_id, ua.username, acct.account_type,acct.station_id
   FROM user_accounts ua, account_type acct
   where ua.account_type_id = acct.account_type_id and ua.user_id = ?`
   //database query havent filter by date
@@ -59,6 +74,24 @@ router.get('/:userID', function (req, res) {
       })
   })
 })
+
+
+  .get((req, res) => {
+    let sql = ` SELECT ua.user_id, ua.account_type_id, ua.username, acct.account_type,acct.station_id, s.station_name
+FROM user_accounts ua
+LEFT JOIN account_type acct ON ua.account_type_id  = acct.account_type_id
+LEFT JOIN stations s ON s.station_id = acct.station_id `
+    pool.getConnection().then(function (connection) {
+      connection.query(sql)
+        .then((rows) => {
+          res.json(rows)
+        })
+        .catch(err => {
+          res.statusMessage = err
+          res.status(400).end()
+        })
+    })
+  })
 
 router.get('/getListOfAccountbyAccountTypeID/:accountTypeID', function (req, res) {
   var accountTypeID = parseInt(req.params.accountTypeID)
@@ -77,35 +110,15 @@ router.get('/getListOfAccountbyAccountTypeID/:accountTypeID', function (req, res
       })
   })
 })
-router.route('/')
-  .all((req, res, next) => {
-    res.statusCode = 200
-    res.setHeader('Content-Type', 'text/plain')
-    next()
-  })
-  .get((req, res) => {
-    let sql = `SELECT ua.user_id, ua.account_type_id, ua.username, acct.account_type,ua.station
- FROM user_accounts ua, account_type acct
- where ua.account_type_id = acct.account_type_id`
-    pool.getConnection().then(function (connection) {
-      connection.query(sql)
-        .then((rows) => {
-          res.json(rows)
-        })
-        .catch(err => {
-          res.statusMessage = err
-          res.status(400).end()
-        })
-    })
-  })
 
-  .post((req, res) => {
+
+
+  .post(upload.any(),(req, res) => {
     // console.log(req.files)
     // console.log((req.body.webFormData))
     let userData = JSON.parse(req.body.webFormData)
-    date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-    let sql = `Insert into user_accounts( user_id, account_type_id, username, account_type,)
-     VALUES?`
+    let sql = ` Insert into user_accounts(account_type_id,username,password_hash) values 
+    ((select account_type_id from account_type where station_id = ?), ?,?) `
 
     let stationVal = [[userData.user_id, userData.account_type_id, userData.username,
       userData.account_type,
@@ -141,21 +154,21 @@ router.route('/')
     })
   })
 
-
   .delete((req, res) => {
     let sql = 'Select username From user_accounts where user_id = ' + req.params.userID + ';'
     sql += 'Delete From user_accounts where user_id = ' + req.params.userID
     pool.getConnection().then(function(connection) {
       connection.query(sql)
-        .then(results => {
-          deleteFolderRecursive(results[0][0].username + '/')
-          res.json(results)
+        .then((results) => {
+          res.end('Deleted Role Successfully')
         })
         .catch(err => {
-          console.log(err)
+          res.statusMessage = err
+          res.status(400).end()
         })
       connection.release()
     })
   })
+
 
 module.exports = router
