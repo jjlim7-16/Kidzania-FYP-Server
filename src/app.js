@@ -48,39 +48,9 @@ app.use('/user', accountRouter)
 app.use('/dashboard', dashboardRouter)
 app.use('/user', accountRouter)
 app.use('/limit', limitRouter)
-// stationRouter.options('*', cors())
 
-// passportConfig(passport)
-
-// app.use(session({
-// 	secret: 'SECRET',
-// 	name:'cookie',
-// 	resave: false,
-// 	saveUninitialized:false
-// 	// cookie:{
-// 	// 	httponly, //put here some values
-// 	// 	maxAge,
-// 	// 	secure
-// 	// }
-// }))
 app.use(passport.initialize())
-app.use(passport.session())
-// app.use(flash())
-
-// app.post('/signup', passport.authenticate('local-signup'))
-
-// app.post('/login', passport.authenticate('local-login'), (req, res) =>{
-// 	console.log(req.session.passport.user)
-// 	if (!req.session.passport.user) {
-// 		res.status(401).end()
-// 	}
-// 	res.status(200).end()
-// })
-
-// app.get('/logout', (req, res) => {
-// 	req.logout()
-// 	return res.json({status:'success'})
-// })
+// app.use(passport.session())
 
 const server = http.createServer(app)
 

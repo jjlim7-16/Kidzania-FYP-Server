@@ -8,20 +8,15 @@ router.post('/login', function (req, res, next) {
 		if (err) {
 			return res.status(500).json({message: 'Internal Server Error'})
 		}
-		if (user.error && !user.user) {
-			return res.status(401).json({ message: user.error })
+		if (!user) {
+			return res.status(401).json({ message: info })
 		}
 		req.login(user, {session: false}, (err) => {
 			if (err) {
 				res.send(err)
 			}
 			// generate a signed son web token with the contents of user object and return it in the response
-			let userobj = {
-				user_id: user.user_id,
-				username: user.username,
-				password_hash: user.password_hash
-			}
-			const token = jwt.sign(userobj, 'SECRET')
+			const token = jwt.sign(user, 'SECRET')
 			return res.json({user, token})
 		})
 	})(req, res)
