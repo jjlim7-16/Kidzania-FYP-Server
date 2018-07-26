@@ -1,5 +1,4 @@
 const express = require('express')
-const session = require('express-session')
 const http = require('http')
 const morgan = require('morgan')
 const cors = require('cors')
@@ -10,7 +9,6 @@ const os = require('os')
 const passport = require('passport');
 const passportConfig = require('./passportConfig')
 const CookieParser = require('cookie-parser')
-const flash = require('flash')
 const router = express.Router()
 router.use(bodyParser.json())
 
