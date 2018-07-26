@@ -35,21 +35,6 @@ const storage = multer.diskStorage({
 const upload = multer({
 	storage: storage
 })
-// const upload = multer({dest: 'images/uploads'})
-
-var deleteFolderRecursive = function(path) {
-  if (fs.existsSync(path)) {
-    fs.readdirSync(path).forEach(function(file, index){
-      var curPath = path + "/" + file;
-      if (fs.lstatSync(curPath).isDirectory()) { // recurse
-        deleteFolderRecursive(curPath);
-      } else { // delete file
-        fs.unlinkSync(curPath);
-      }
-    });
-    fs.rmdirSync(path);
-  }
-}
 
 router.options('*', cors())
 router.use(cors())
@@ -134,19 +119,6 @@ router.route('/getImage/:stationID')
 			})
 			connection.release()
 	})
-	// let imagepath = '../images/Chicken Restaurant.png'
-	// let filepath = path.join(__dirname, imagepath)
-	// console.log(filepath)
-	// let stat = fs.statSync(filepath)
-	// res.writeHead(200, {
-	// 	'Content-Type': 'image/png',
-	// 	'Content-Length': stat.size
-	// })
-	// let readstream = fs.createReadStream(filepath)
-	// readstream.pipe(res)
-
-	// let data = fs.readFileSync(imagepath)
-	// res.end(data)
 })
 
 router.route('/:stationID')
