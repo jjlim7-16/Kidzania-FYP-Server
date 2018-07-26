@@ -1,5 +1,4 @@
 const express = require('express')
-const session = require('express-session')
 const http = require('http')
 const morgan = require('morgan')
 const cors = require('cors')
@@ -7,8 +6,7 @@ const bodyParser = require('body-parser')
 const socketIo = require('socket.io')
 const axios = require('axios')
 const os = require('os')
-const passport = require('passport');
-const passportConfig = require('./passportConfig')
+const passport = require('passport')
 const CookieParser = require('cookie-parser')
 const flash = require('flash')
 const router = express.Router()
@@ -28,8 +26,9 @@ const printReceiptRouter = require('../routes/printReceiptRouter')
 const dashboardRouter = require('../routes/dashboardRouter')
 const auth = require('./auth')
 
-const hostname = os.networkInterfaces()['Wi-Fi'][1].address
+// const hostname = os.networkInterfaces()['Wi-Fi'][1].address
 // const hostname = '0.0.0.0'
+const hostname = '25.37.100.106'
 const port = 8000
 
 const app = express()
