@@ -32,6 +32,10 @@ router.route('/')
 				.then(results => {
 					res.json(results)
 				})
+				.catch(err => {
+					res.statusMessage = err
+					res.status(400).end()
+				})
 			connection.release()
 		})
 	})
@@ -52,31 +56,15 @@ router.get('/:stationID/:roleID', (req, res) => {
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, val)
 			.then((rows) => {
-				//res.json(rows)
-				// console.log(moment(rows[0].session_date).format('YYYY-MM-DD'))
-				// let duration = moment(rows[0].session_end, 'HH:mm:ss').diff(moment(rows[0].session_start, 'HH:mm:ss'), 'minutes')
-				// time = moment(time, "HH:mm:ss")
-				// if (time.minutes() >= 30) {
-				// 	time.add(1, 'hour')
-				// 	time.minutes(0)
-				// }
-				// let session_list = []
-				// for (i = 0; i < rows.length; i += 6) {
-				// 	let session_start = moment(rows[i].session_start, 'HH:mm:ss')
-				// 	if (time.isSameOrAfter(session_start) && time.isBefore(session_start.add(duration, 'minutes'))) {
-				// 		for (j = i; j < i + 6; j++) {
-				// 			rows[j].session_start = moment(rows[j].session_start, 'HH:mm:ss').format('LT')
-				// 			rows[j].session_end = moment(rows[j].session_end, 'HH:mm:ss').format('LT')
-				// 			session_list.push(rows[j])
-				// 		}
-				// 		break
-				// 	}
-				// }
 				for(let timeSlot of rows) {
 					timeSlot.session_start = moment(timeSlot.session_start, 'HH:mm:ss').format('LT')
 					timeSlot.session_end = moment(timeSlot.session_end, 'HH:mm:ss').format('LT')
 				}
 				res.json(rows)
+			})
+			.catch(err => {
+				res.statusMessage = err
+				res.status(400).end()
 			})
 		connection.release()
 	})
@@ -93,6 +81,10 @@ router.get('/:stationID', (req, res) => {
 		connection.query(sql, stationID)
 			.then((rows) => {
 				res.json(rows)
+			})
+			.catch(err => {
+				res.statusMessage = err
+				res.status(400).end()
 			})
 		connection.release()
 	})

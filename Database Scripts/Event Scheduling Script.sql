@@ -14,7 +14,7 @@ ON SCHEDULE
 	AND b.session_date = current_date()
 	INNER JOIN stations st ON st.station_id = s.station_id AND st.is_active = true;
 
-# Create Event Schedule - Everyday at 15:00PM
+# Create Event Schedule - Everyday at 1PM
 # FOR TESTING PURPOSES
 CREATE EVENT IF NOT EXISTS `seed_test`
 ON SCHEDULE

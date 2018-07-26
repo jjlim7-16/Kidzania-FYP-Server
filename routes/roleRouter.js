@@ -111,7 +111,7 @@ router.route('/:roleID')
 					let role_val = [roleData.roleName, roleData.capacity, roleData.duration, imagepath, req.params.roleID]
 					return connection.query(sql, role_val)
 				})
-				.then(results => {
+				.then(() => {
 					res.end('Updated Successfully')
 				})
 				.catch(err => {

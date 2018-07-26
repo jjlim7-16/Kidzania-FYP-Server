@@ -64,12 +64,12 @@ router.get('/:bookingID', function(req, res) {
   })
   .put('/:bookingID',  (req, res) => {
     var bookingID = parseInt(req.params.bookingID)
-    let bookingData = JSON.parse(req.body.webFormData)
+    let bookingData = req.booking_status;
     console.log(bookingData)
     console.log(req.files)
 
-    let sql = `update booking_details set time_in = ?, booking_status =? where booking_id = ?`
-    let val = [ bookingData.time_in, bookingData.booking_status, bookingID]
+    let sql = `update booking_details set booking_status =? where booking_id = ?`
+    let val = [ bookingData, bookingID]
     pool.getConnection().then(function(connection) {
       connection.query(sql, val)
         .then((rows) => {
@@ -112,9 +112,8 @@ router.route('/getBookingDetails')
 
 	
 router.post('/makeBooking', (req, res) => {
+  let sql = 'SELECT COUNT(booking_id) AS qNum FROM booking_details'
   let bookingData = req.body
-  let sql = `SELECT COUNT(booking_id) AS qNum FROM booking_details 
-    WHERE station_id = ${bookingData.station_id}`
   console.log(bookingData)
   pool.getConnection().then(function(connection) {
     connection.query(sql)
@@ -133,7 +132,13 @@ router.post('/makeBooking', (req, res) => {
           [bookingDetails_val]
         ])
       })
-      .then(() => {
+      .then((rows) => {
+        sql = `UPDATE available_sessions SET noBooked = noBooked+1 
+        WHERE session_id = ${bookingData.session_id} AND session_date = current_date()`
+        return connection.query(sql)
+      })
+      .then((rows) => {
+        res.json(rows)
         res.status(200).end()
       })
       .catch((err) => {
@@ -154,7 +159,8 @@ router.put('/cancelBooking', (req, res) => {
         sql = 'UPDATE available_sessions SET noBooked = noBooked-1 WHERE session_id = ' + details.session_id
         return connection.query(sql)
       })
-			.then(() => {
+			.then((rows) => {
+        res.json(rows)
         res.status(200).end()
       })
       .catch((err) => {
@@ -171,8 +177,8 @@ router.get('/rfid/:rfid', function(req, res) {
 	bd.rfid, bd.queue_no, bd.booking_status, s.station_name, ss.session_start, ss.session_end
 	FROM booking_details bd inner join stations s on bd.station_id = s.station_id
 	inner join sessions ss on bd.session_id = ss.session_id where bd.rfid = ?
-	AND session_date=current_date() AND bd.booking_status = 'Confirmed';`
-  
+	AND session_date=current_date() AND bd.booking_status = 'Booked';`
+  //database query havent filter by date
   pool.getConnection().then(function(connection) {
     connection.query(sql, rfid)
       .then((rows) => {
@@ -192,7 +198,7 @@ router.get('/rfid/:rfid', function(req, res) {
 router.get('/getbookinglist/:stationId', function (req, res) {
 	var stationidStr = req.params.stationId
 	let stationid = parseInt(stationidStr)
-	let sql = `SELECT b.booking_id,ase.session_id,s.station_name, sr.role_name,b.time_in, se.session_start, se.session_end,  b.booking_status, b.rfid,b.queue_no
+	let sql = `SELECT b.booking_id,ase.session_id,s.station_name, ase.session_date, sr.role_name, se.session_start, se.session_end,  b.booking_status, b.rfid,b.queue_no
 	FROM booking_details b, available_sessions ase, sessions se, station_roles sr,stations s
 	WHERE b.session_date = ase.session_date AND
 			b.session_id = ase.session_id AND
@@ -200,19 +206,15 @@ router.get('/getbookinglist/:stationId', function (req, res) {
 			b.role_id = sr.role_id AND
 			b.booking_status = "Confirmed" AND
 			b.station_id = s.station_id AND
+      ase.session_date = current_date() AND
 			se.session_start = (SELECT distinct session_start FROM sessions
-	WHERE station_id = ? 
-	AND ADDTIME('16:00:00','0:10:00') >= session_start 
-	AND ADDTIME('16:00:00','0:10:00') < session_end)`
+	WHERE station_id = ?
+	AND ADDTIME(current_time(),'0:5:00') >= session_start 
+	AND ADDTIME(current_time(),'0:5:00') < session_end)`
 	//get the nearest session's list of bookings for the station
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, stationid)
 			.then((rows) => {
-				 for(var i=0; j=rows.length,i<j;i++){
-				 	rows[i].session_start = moment(rows[i].session_start, 'HH:mm:ss').format('LT');
-					rows[i].session_end = moment(rows[i].session_end, 'HH:mm:ss').format('LT');
-					
-				 }
 				res.json(rows)
 			})
 		connection.release()
