@@ -95,4 +95,19 @@ router.get('/:stationID', (req, res) => {
 	})
 })
 
+router.get('nextSession/:stationID', (req, res) => {
+
+	let sql = `SELECT distinct session_start, session_end FROM sessions
+	WHERE station_id = ?
+	AND current_time() <= ADDTIME(session_start,'0:5:00') order by session_start asc limit 1`;
+	let stationID = [parseInt(req.params.stationID)]
+	pool.getConnection().then(function (connection) {
+		connection.query(sql, stationID)
+			.then((rows) => {
+				res.json(rows)
+			})
+		connection.release()
+	})
+})
+
 module.exports = router
