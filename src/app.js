@@ -8,7 +8,6 @@ const axios = require('axios')
 const os = require('os')
 const passport = require('passport')
 const CookieParser = require('cookie-parser')
-const flash = require('flash')
 const router = express.Router()
 router.use(bodyParser.json())
 
