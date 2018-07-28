@@ -73,7 +73,7 @@ dashboardSocket.on('connection', socket => {
 		dashboard.getBookingByTime(socket)
 	}, 100000)
 
-	socket.on("disconnect", () => console.log("Client disconnected"));
+	socket.on("disconnect", () => console.log("Admin client disconnected"));
 })
 
 userSocket.on('connection', (socket) => {
