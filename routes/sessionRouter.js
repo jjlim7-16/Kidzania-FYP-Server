@@ -52,9 +52,9 @@ router.get('/:stationID/:roleID', (req, res) => {
 		FROM sessions s, available_sessions a, station_roles sr WHERE s.session_id = a.session_id
 		AND a.role_id = s.role_id AND sr.role_id = a.role_id AND a.role_id = ?
 		AND a.session_date = current_date() ORDER BY 2 ASC`
-	let val = [parseInt(req.params.roleID)]
-	pool.getConnection().then(function(connection) {
-		connection.query(sql, val)
+
+		pool.getConnection().then(function(connection) {
+		connection.query(sql, [parseInt(req.params.roleID)])
 			.then((rows) => {
 				for(let timeSlot of rows) {
 					timeSlot.session_start = moment(timeSlot.session_start, 'HH:mm:ss').format('LT')
@@ -75,10 +75,10 @@ router.get('/:stationID', (req, res) => {
 	let sql = `Select a.session_id, s.session_start, s.session_end, s.role_id, s.capacity
 	from available_sessions a, sessions s
 	where a.session_id = s.session_id and
-	 a.station_id = ? and session_date = current_date()`
-	let stationID = [parseInt(req.params.stationID)]
+	a.station_id = ? and session_date = current_date()`
+
 	pool.getConnection().then(function(connection) {
-		connection.query(sql, stationID)
+		connection.query(sql, [parseInt(req.params.stationID)])
 			.then((rows) => {
 				res.json(rows)
 			})
@@ -96,7 +96,7 @@ router.get('nextSession/:stationID', (req, res) => {
 	order by session_start asc limit 1`
 
 	pool.getConnection().then(function (connection) {
-		connection.query(sql, req.params.stationID)
+		connection.query(sql, [req.params.stationID])
 			.then((rows) => {
 				res.json(rows)
 			})

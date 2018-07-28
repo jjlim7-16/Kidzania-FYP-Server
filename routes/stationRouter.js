@@ -63,8 +63,6 @@ router.route('/')
 		// console.log((req.body.webFormData))
 		let stationData = JSON.parse(req.body.webFormData)
 		let imagepath = req.files[0].filename
-		let date = new Date()
-		date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
 		let sql = `INSERT INTO stations (station_name, description, station_start, station_end,
 			imagepath, is_active) VALUES ?`
 		let stationVal = [[stationData.name, stationData.description,
@@ -87,15 +85,14 @@ router.route('/')
 					}
 					return connection.query(sql, [rolesVal])
 				})
-				.then((rows) => {
+				.then(rows => {
 					console.log('Station-Roles Successfully Added')
 					return seedData.seedNewSessions(stationID)
 				})
-				.then((results) => {
+				.then(results => {
 					res.json(results)
 				})
-				.catch((err) => {
-					console.log(err)
+				.catch(err => {
 					res.statusMessage = err
 					res.status(400).end(err.code)
 				})
@@ -105,7 +102,6 @@ router.route('/')
 
 router.route('/getImage/:stationID')
 .get((req, res) => {
-	// let imagepath = 'images/Chicken Restaurant.png'
 	let sql = `Select imagepath From stations Where station_id = ?`
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, [req.params.stationID])
