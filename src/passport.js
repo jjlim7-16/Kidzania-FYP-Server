@@ -42,9 +42,8 @@ function(username, password, cb) {
 			INNER JOIN account_type a ON ua.account_type_id = a.account_type_id
 			WHERE username = ?`, username)
 		.then(rows => {
-			console.log(rows)
 			if (!rows.length) {
-				return cb(null, { user: null, error: 'User not found' }, {message: 'User not found'})
+				return cb(null, false, {message: 'Incorrect username or password. Please try again.'})
 			}
 			if (bcrypt.compareSync(password, rows[0].password_hash)) {
 				let user = {
@@ -55,7 +54,7 @@ function(username, password, cb) {
 				return cb(null, user, {message: 'Logged In Successfully'})
 			}
 			else {
-				return cb(null, { user: null, error: 'Incorrect password' }, {message: 'Incorrect password'})
+				return cb(null, false, {message: 'Incorrect username or password. Please try again.'})
 			}
 			// create the loginMessage and save it to session as flashdata
 			// all is well, return successful user
