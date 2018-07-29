@@ -23,20 +23,11 @@ router.use(bodyParser.json({
 let uploadpath = ''
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		const dir = '/images/' + file.fieldname.split('-')[0]
-		uploadpath = dir
-		mkdirp(dir, err => cb(err, dir))
+		const dir = 'images/'
+		cb(null, dir)
 	},
 	filename: (req, file, cb) => {
-		uploadpath += '/' + file.fieldname + '.' + file.mimetype.split('/')[1]
 		cb(null, file.fieldname + '.' + file.mimetype.split('/')[1])
-	},
-	onFileUploadStart: (req, file, cb) => {
-		fs.exists(uploadpath, function(exists) {
-			if (exists) {
-				return false
-			}
-		})
 	}
 })
 const upload = multer({
@@ -67,11 +58,12 @@ router.route('/')
 	})
 	.post(upload.any(), (req, res) => {
 		let roleData = JSON.parse(req.body.webFormData)
-		let imagepath = req.files[0].destination + '/' + req.files[0].filename
+		let filename = req.files[0].filename
 		let sql = 'INSERT INTO station_roles (station_id, role_name, noOfReservedSlots, durationInMins, ' +
 			'capacity, imagepath) VALUES ?'
 		let role_val = []
-		role_val.push([roleData.stationId, roleData.roleName, roleData.noOfRSlots, roleData.duration, roleData.capacity, imagepath])
+		role_val.push([roleData.stationId, roleData.roleName, roleData.noOfRSlots, 
+			roleData.duration, roleData.capacity, filename])
 		pool.getConnection().then(function(connection) {
 			connection.query(sql, [role_val])
 				.then((results) => {
@@ -103,7 +95,7 @@ router.route('/:roleID')
 		})
 	})
 	.put(upload.any(), (req, res) => {
-		let imagepath = req.files[0].destination + '/' + req.files[0].filename
+		let imagepath = 'images/' + req.files[0].filename
 		let roleData = JSON.parse(req.body.webFormData)
 		let sql = `Select imagepath from station_roles where role_id = ` + req.params.roleID
 		pool.getConnection().then(function(connection) {
@@ -119,7 +111,7 @@ router.route('/:roleID')
 					let role_val = [roleData.roleName, roleData.capacity, roleData.duration, imagepath, req.params.roleID]
 					return connection.query(sql, role_val)
 				})
-				.then(results => {
+				.then(() => {
 					res.end('Updated Successfully')
 				})
 				.catch(err => {

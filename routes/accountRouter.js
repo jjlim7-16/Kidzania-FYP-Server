@@ -3,18 +3,12 @@ const bodyParser = require('body-parser')
 const mysql = require('mysql')
 const moment = require('moment')
 const cors = require('cors')
-// const stationData = require('form-data')
-const multer = require('multer')
-const mkdirp = require('mkdirp')
-const fs = require('fs')
-const path = require('path')
 const db = require('../src/databasePool')
 const pool = db.getPool()
 
-
-const seedData = require('../src/seedData')
 const router = express.Router()
 
+<<<<<<< HEAD
 const storage = multer.diskStorage( {
   destination:(req, file, cb) =>  {
     const dir = '/images/' + file.fieldname.split('-')[0]
@@ -41,6 +35,8 @@ fs.unlinkSync(curPath);
     fs.rmdirSync(path); 
   }
 }
+=======
+>>>>>>> 402720f67d80784687b7e9f615f5369dca7f880f
 router.get('/:userID', function (req, res) {
   var userID = parseInt(req.params.userID)
   let sql = `SELECT ua.user_id, ua.account_type_id, ua.username, acct.account_type, acct.station_id
@@ -131,7 +127,17 @@ router.route('/')
     })
   })
 
+<<<<<<< HEAD
   .post((req, res) =>  {
+=======
+  .post((req, res) => {
+    // console.log(req.files)
+    // console.log((req.body.webFormData))
+    let userData = JSON.parse(req.body.webFormData)
+    date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+    let sql = `Insert into user_accounts( user_id, account_type_id, username, account_type,)
+     VALUES ?`
+>>>>>>> 402720f67d80784687b7e9f615f5369dca7f880f
 
     let userData = req.body; 
 
@@ -153,6 +159,23 @@ router.route('/')
   })
 
 
+<<<<<<< HEAD
 
+=======
+  .delete((req, res) => {
+    let sql = 'Select username From user_accounts where user_id = ' + req.params.userID + ';'
+    sql += 'Delete From user_accounts where user_id = ' + req.params.userID
+    pool.getConnection().then(function(connection) {
+      connection.query(sql)
+        .then(results => {
+          res.json(results)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      connection.release()
+    })
+  })
+>>>>>>> 402720f67d80784687b7e9f615f5369dca7f880f
 
 module.exports = router

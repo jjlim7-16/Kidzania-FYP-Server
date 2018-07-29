@@ -83,12 +83,10 @@ module.exports = {
 		let sql = 'Select max(session_date) as date from available_sessions where session_date = current_date()'
 		pool.getConnection().then(function (connection) {
 			connection.query(sql)
-				.then((results) => {
+				.then(results => {
 					if (results[0].date) {
 						return Promise.reject('Available Sessions Data Was Seeded')
 					}
-					let date = new Date()
-					date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
 					sql = `INSERT INTO available_sessions 
 					(session_date, session_id, station_id, role_id, noBooked, capacity)
 					SELECT current_date(), session_id, s.station_id, s.role_id, 0, capacity
@@ -104,9 +102,6 @@ module.exports = {
 					console.log(err)
 				})
 				connection.release()
-				// console.log(pool.pool._allConnections.length)
-				// console.log(pool.pool._acquiringConnections.length)
-				// console.log(pool.pool._freeConnections.length)
 		})
 	}
 }

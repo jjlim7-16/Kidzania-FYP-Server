@@ -29,7 +29,7 @@ CREATE TABLE `sessions` (
   `role_id` int(11) NOT NULL,
   `session_start` time NOT NULL,
   `session_end` time NOT NULL,
-  `capacity` int(11) DEFAULT NULL,
+  `capacity` int(11) NOT NULL,
   PRIMARY KEY (`session_id`),
   KEY `station_role_idx` (`station_id`,`role_id`),
   CONSTRAINT `station_role` FOREIGN KEY (`station_id`, `role_id`) REFERENCES `station_roles` (`station_id`, `role_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -68,22 +68,25 @@ CREATE TABLE `booking_details` (
   `station_id` int(11) NOT NULL,
   `role_id` int(11) NOT NULL,
   `rfid` varchar(45) NOT NULL,
+  `time_in` time NOT NULL,
   `queue_no` varchar(5) NOT NULL,
-  `booking_status` varchar(45) NOT NULL,
+  `booking_status` varchar(45) NOT NULL, -- Confirmed | Cancelled | Not Admitted | Admitted
   PRIMARY KEY (`booking_id`),
   KEY `available_sessions_fk_idx` (`session_date`,`session_id`),
   CONSTRAINT `available_sessions_fk` FOREIGN KEY (`session_date`,`session_id`) REFERENCES `available_sessions` (`session_date`,`session_id`)
-  ON UPDATE CASCADE ON DELETE CASCADE
-  #,UNIQUE KEY `booking` (`session_id`, `session_date`, `rfid`, `queue_no`)
+  ON UPDATE CASCADE ON DELETE CASCADE,
+  UNIQUE KEY `booking` (`session_id`, `session_date`, `rfid`)
 );
 
 
 CREATE TABLE `account_type` (
   `account_type_id` int(11) NOT NULL AUTO_INCREMENT,
   `account_type` varchar(45) NOT NULL,
+  `station_id` int(11) NULL,
   primary key (`account_type_id`),
   KEY `account_type_idx` (`account_type_id`),
-  UNIQUE KEY `account_type` (`account_type`)
+  CONSTRAINT `station_fk` FOREIGN KEY (`station_id`) REFERENCES `stations` (`station_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  UNIQUE KEY `account_type` (`account_type`, `station_id`)
 );
 
 CREATE TABLE `user_accounts` (
