@@ -62,7 +62,7 @@ router.get('/:bookingID', function(req, res) {
       connection.release()
     })
   })
-  .put('/:bookingID',  (req, res) => {
+  .put('updateStatus/:bookingID',  (req, res) => {
     var bookingID = parseInt(req.params.bookingID)
     let bookingData = req.booking_status;
     console.log(bookingData)
