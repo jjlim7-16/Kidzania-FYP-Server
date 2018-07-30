@@ -38,7 +38,7 @@ ON SCHEDULE
 	EVERY 1 DAY
     STARTS '2018-07-26 20:00:00' ON COMPLETION PRESERVE ENABLE
   DO
-    DELETE FROM booking_limit WHERE current_date() >= session_date;
+    DELETE FROM `kidzania_v3`.booking_limit WHERE current_date() >= session_date;
 
 SHOW PROCESSLIST;
 # DROP EVENT IF EXISTS `seed_daily_sessions_event`;

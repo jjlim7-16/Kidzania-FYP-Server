@@ -96,20 +96,35 @@ router.route('/:roleID')
 	})
 })
 .put(upload.any(), (req, res) => {
-	let imagepath = 'images/' + req.files[0].filename
+	let filename = (req.files.length > 0) ? req.files[0].filename : null
 	let roleData = JSON.parse(req.body.webFormData)
-	let sql = `Select imagepath from station_roles where role_id = ` + req.params.roleID
+	let sql = `Select role_name, imagepath from station_roles where role_id = ${req.params.roleID}`
 	pool.getConnection().then(function(connection) {
 		connection.query(sql)
-			.then((results) => {
-				if (imagepath !== results[0].imagepath) {
-					fs.unlink(results[0].imagepath, (err) => {
-						if (err) throw err
-						console.log('Successfully deleted role image')
-					})
+			.then(results => {
+				if (filename) {
+					// If changed image and role name -> Delete original image
+					if (filename.split('.')[0] !== results[0].imagepath.split('.')[0]) {
+						fs.unlinkSync('images/' + results[0].imagepath)
+					}
+					else {
+						// If changed role name but original image is of different file type
+						if (filename.split('.')[1] !== results[0].imagepath.split('.')[1]) {
+							fs.unlinkSync('images/' + results[0].imagepath)
+						}
+					}
 				}
+				else {
+					filename = `Role-${roleData.roleName}.${results[0].imagepath.split('.')[1]}`
+					// If changed role name, with same image --> rename original image
+					if (roleData.roleName !== results[0].role_name) {
+						console.log('Renaming File...')
+						fs.renameSync('images/' + results[0].imagepath, `images/${filename}`)
+					}
+				}
+				
 				sql = `UPDATE station_roles SET role_name=?, capacity=?, durationInMins=?, imagepath=? WHERE role_id=?`
-				let role_val = [roleData.roleName, roleData.capacity, roleData.duration, imagepath, req.params.roleID]
+				let role_val = [roleData.roleName, roleData.capacity, roleData.duration, filename, req.params.roleID]
 				return connection.query(sql, role_val)
 			})
 			.then(() => {

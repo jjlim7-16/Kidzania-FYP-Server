@@ -37,7 +37,7 @@ app.use(bodyParser.json())
 app.use(express.static(__dirname))
 app.use(CookieParser())
 app.use('/auth', auth)
-app.use('/stations', stationRouter)
+app.use('/stations', passport.authenticate('jwt', {session: false}), stationRouter)
 app.use('/roles', roleRouter)
 app.use('/sessions', sessionRouter)
 app.use('/bookings', bookingRouter)
@@ -48,6 +48,14 @@ app.use('/limit', limitRouter)
 
 app.use(passport.initialize())
 // app.use(passport.session())
+
+// Error handling
+app.use( function( error, request, response, next ) {
+	if(!error) {
+		return next()
+	}
+	response.send(error.msg, error.errorCode)
+})
 
 const server = http.createServer(app)
 
