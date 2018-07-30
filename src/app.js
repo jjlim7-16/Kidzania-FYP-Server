@@ -26,6 +26,7 @@ const dashboardRouter = require('../routes/dashboardRouter')
 const auth = require('./auth')
 
 // const hostname = os.networkInterfaces()['Wi-Fi'][1].address
+// const hostname = '25.37.100.106'
 const hostname = '0.0.0.0'
 const port = 8000
 
@@ -36,7 +37,7 @@ app.use(bodyParser.json())
 app.use(express.static(__dirname))
 app.use(CookieParser())
 app.use('/auth', auth)
-app.use('/stations', stationRouter)
+app.use('/stations', passport.authenticate('jwt', { session: false }), stationRouter)
 app.use('/roles', roleRouter)
 app.use('/sessions', sessionRouter)
 app.use('/bookings', bookingRouter)

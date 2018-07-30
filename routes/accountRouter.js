@@ -101,11 +101,6 @@ router.route('/')
   .post((req, res) => {
     // console.log(req.files)
     // console.log((req.body.webFormData))
-    let userData = JSON.parse(req.body.webFormData)
-    date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-    let sql = `Insert into user_accounts( user_id, account_type_id, username, account_type,)
-     VALUES ?`
-
     let userData = req.body; 
 
     let sql = `Insert into user_accounts(account_type_id, username, password_hash)VALUES (?)`
