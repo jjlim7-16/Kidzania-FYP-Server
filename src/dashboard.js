@@ -1,7 +1,7 @@
 const axios = require('axios')
 const os = require('os')
-// const hostname = os.networkInterfaces()['Wi-Fi'][1].address
-const hostname = '25.37.100.106'
+const hostname = os.networkInterfaces()['Wi-Fi'][1].address
+// const hostname = '25.37.100.106'
 // const hostname = 'localhost'
 
 module.exports = {

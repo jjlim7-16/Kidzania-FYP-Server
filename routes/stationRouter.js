@@ -97,6 +97,7 @@ router.route('/')
 				return seedData.seedNewSessions(stationID)
 			})
 			.then(results => {
+				console.log(results)
 				res.json(results)
 			})
 			.catch(err => {
