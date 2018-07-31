@@ -25,8 +25,8 @@ const printReceiptRouter = require('../routes/printReceiptRouter')
 const dashboardRouter = require('../routes/dashboardRouter')
 const auth = require('./auth')
 
-const hostname = os.networkInterfaces()['Wi-Fi'][1].address
-// const hostname = '0.0.0.0'
+// const hostname = os.networkInterfaces()['Wi-Fi'][1].address
+const hostname = '0.0.0.0'
 // const hostname = '25.37.100.106'
 const port = 8000
 
