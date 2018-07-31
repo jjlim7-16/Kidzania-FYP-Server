@@ -9,7 +9,7 @@ const pool = db.getPool()
 const router = express.Router()
 
 router.get('/:userID', function (req, res) {
-  var userID = parseInt(req.params.userID)
+  let userID = parseInt(req.params.userID)
   let sql = `SELECT ua.user_id, ua.account_type_id, ua.username, acct.account_type,acct.station
   FROM user_accounts ua, account_type acct
   where ua.account_type_id = acct.account_type_id and ua.user_id = ?`
@@ -27,7 +27,7 @@ router.get('/:userID', function (req, res) {
 })
 
 router.get('/getListOfAccountbyAccountTypeID/:accountTypeID', function (req, res) {
-  var accountTypeID = parseInt(req.params.accountTypeID)
+  let accountTypeID = parseInt(req.params.accountTypeID)
   let sql = `SELECT ua.user_id, ua.account_type_id, ua.username, acct.account_type,ua.station
  FROM user_accounts ua, account_type acct
  where ua.account_type_id = acct.account_type_id and ua.account_type_id = ?`

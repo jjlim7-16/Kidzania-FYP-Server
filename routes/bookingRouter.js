@@ -45,7 +45,7 @@ router.route('/')
   })
 
 router.get('/:bookingID', function(req, res) {
-    var bookingID = parseInt(req.params.bookingID)
+    let bookingID = parseInt(req.params.bookingID)
     let sql = `Select booking_id, b.session_date, se.session_start, se.session_end, st.station_name,
     sr.role_name From booking_details b, sessions se, stations st, station_roles sr
     where b.session_id = se.session_id and b.station_id = st.station_id and
@@ -63,7 +63,7 @@ router.get('/:bookingID', function(req, res) {
     })
   })
   .put('/:bookingID',  (req, res) => {
-    var bookingID = parseInt(req.params.bookingID)
+    let bookingID = parseInt(req.params.bookingID)
     let bookingData = req.booking_status;
     console.log(bookingData)
     console.log(req.files)
@@ -110,7 +110,7 @@ router.route('/getBookingDetails')
     })
   })
 
-	
+
 router.post('/makeBooking', (req, res) => {
   let sql = 'SELECT COUNT(booking_id) AS qNum FROM booking_details'
   let bookingData = req.body
@@ -131,11 +131,6 @@ router.post('/makeBooking', (req, res) => {
         return connection.query(sql, [
           [bookingDetails_val]
         ])
-      })
-      .then((rows) => {
-        sql = `UPDATE available_sessions SET noBooked = noBooked+1 
-        WHERE session_id = ${bookingData.session_id} AND session_date = current_date()`
-        return connection.query(sql)
       })
       .then((rows) => {
         res.json(rows)
@@ -172,19 +167,21 @@ router.put('/cancelBooking', (req, res) => {
 })
 
 router.get('/rfid/:rfid', function(req, res) {
-	var rfid = req.params.rfid
-	let sql = `SELECT bd.booking_id,bd.session_id, bd.session_date, bd.station_id, bd.role_id, 
+	let rfid = req.params.rfid
+	let sql = `SELECT bd.booking_id,bd.session_id, bd.session_date, bd.station_id, bd.role_id,
 	bd.rfid, bd.queue_no, bd.booking_status, s.station_name, ss.session_start, ss.session_end
 	FROM booking_details bd inner join stations s on bd.station_id = s.station_id
 	inner join sessions ss on bd.session_id = ss.session_id where bd.rfid = ?
-	AND session_date=current_date() AND bd.booking_status = 'Booked';`
-  //database query havent filter by date
+	AND session_date=current_date() AND bd.booking_status = 'Confirmed';`
+  //database query havent filter by dates
   pool.getConnection().then(function(connection) {
     connection.query(sql, rfid)
       .then((rows) => {
         console.log(rows)
+        if(rows.length != 0) {
         rows[0].session_start = moment(rows[0].session_start, 'HH:mm:ss').format('LT')
         rows[0].session_end = moment(rows[0].session_end, 'HH:mm:ss').format('LT')
+      }
         res.json(rows)
       })
       .catch(err => {
@@ -196,7 +193,7 @@ router.get('/rfid/:rfid', function(req, res) {
 })
 
 router.get('/getbookinglist/:stationId', function (req, res) {
-	var stationidStr = req.params.stationId
+	let stationidStr = req.params.stationId
 	let stationid = parseInt(stationidStr)
 	let sql = `SELECT b.booking_id,ase.session_id,s.station_name, ase.session_date, sr.role_name, se.session_start, se.session_end,  b.booking_status, b.rfid,b.queue_no
 	FROM booking_details b, available_sessions ase, sessions se, station_roles sr,stations s
@@ -209,7 +206,7 @@ router.get('/getbookinglist/:stationId', function (req, res) {
       ase.session_date = current_date() AND
 			se.session_start = (SELECT distinct session_start FROM sessions
 	WHERE station_id = ?
-	AND ADDTIME(current_time(),'0:5:00') >= session_start 
+	AND ADDTIME(current_time(),'0:5:00') >= session_start
 	AND ADDTIME(current_time(),'0:5:00') < session_end)`
 	//get the nearest session's list of bookings for the station
 	pool.getConnection().then(function(connection) {

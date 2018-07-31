@@ -110,7 +110,7 @@ dashboardSocket.on('connection', socket => {
 })
 
 userSocket.on('connection', (socket) => {
-	console.log('New client connected')
+	console.log('New user client connected')
 	socket.on('disconnect', () => console.log('Client disconnected'));
 	socket.on('makeBooking', (session_id) => {
 		console.log('A new booking is being made')
