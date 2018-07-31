@@ -107,9 +107,9 @@ router.get('/getBookingByDate', (req, res) => {
 })
 
 router.get('/getBookingByStation', (req, res) => {
-	let sql = `SELECT st.station_name, count(*) as station_count 
-	FROM booking_details b, stations st, station_roles sr 
-	WHERE b.station_id = st.station_id AND b.role_id = sr.role_id AND booking_status='Confirmed' 
+	let sql = `SELECT st.station_name, count(b.booking_id) as station_count
+	FROM (SELECT * FROM booking_details WHERE booking_status='Confirmed') b
+	RIGHT JOIN stations st ON b.station_id = st.station_id
 	GROUP BY st.station_name;`
 
 	pool.getConnection().then(function (connection) {

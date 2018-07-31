@@ -5,7 +5,7 @@
   "author": "JJ",
   "license": "MIT",
   "scripts": {
-    "start": "node src/app.js",
+    "start": "nodemon src/app.js",
     "deploy": "set NODe_ENV=production&&node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

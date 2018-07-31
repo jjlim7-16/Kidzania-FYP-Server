@@ -40,9 +40,7 @@ router.route('/')
 		})
 	})
 
-
-
-router.get('/:stationID/:roleID', (req, res) =>  {
+router.get('/getSessionList/:roleID', (req, res) =>  {
 	// Get Today's Date & Time
 	let date = new Date()
 	let time = date.getHours() + ':' + date.getMinutes()
@@ -70,6 +68,23 @@ router.get('/:stationID/:roleID', (req, res) =>  {
 	})
 })
 
+router.get('/nextSession/:stationID', (req, res) => {
+	// let sql = `SELECT distinct session_start, session_end FROM sessions
+	// WHERE station_id = ? AND current_time() <= ADDTIME(session_start,'0:5:00') 
+	// order by session_start asc limit 1`
+	let sql = `SELECT distinct session_start, session_end FROM sessions
+	WHERE station_id = ? AND Time('14:20:00') <= ADDTIME(session_start,'0:5:00') 
+	order by session_start asc limit 1`
+
+	pool.getConnection().then(function (connection) {
+		connection.query(sql, parseInt(req.params.stationID))
+			.then((rows) => {
+				res.json(rows)
+			})
+		connection.release()
+	})
+})
+
 router.get('/:stationID', (req, res) => {
 
 	let sql = `Select a.session_id, s.session_start, s.session_end, s.role_id, s.capacity
@@ -85,21 +100,6 @@ router.get('/:stationID', (req, res) => {
 			.catch(err => {
 				res.statusMessage = err
 				res.status(400).end()
-			})
-		connection.release()
-	})
-})
-
-router.get('nextSession/:stationID', (req, res) => {
-	let sql = `SELECT distinct session_start, session_end FROM sessions
-	WHERE station_id = ? AND current_time() <= ADDTIME(session_start,'0:5:00') 
-	order by session_start asc limit 1`
-
-	pool.getConnection().then(function (connection) {
-		let stationID = parseInt([req.params.stationID]);
-		connection.query(sql, stationID)
-			.then((rows) => {
-				res.json(rows)
 			})
 		connection.release()
 	})
