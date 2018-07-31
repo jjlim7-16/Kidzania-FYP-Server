@@ -37,7 +37,7 @@ app.use(bodyParser.json())
 app.use(express.static(__dirname))
 app.use(CookieParser())
 app.use('/auth', auth)
-app.use('/stations', stationRouter)
+app.use('/stations', passport.authenticate('jwt', {session: false}), stationRouter)
 app.use('/roles', roleRouter)
 app.use('/sessions', sessionRouter)
 app.use('/bookings', bookingRouter)
@@ -104,9 +104,9 @@ crewSocket.on('connection', (socket) => {
 })
 
 server.listen(port, hostname, () => {
-	// seedData.seedSessions()
-	// .then(() => {
-	// 	seedData.seedAvailableSessions()
-	// })
+	seedData.seedSessions()
+	.then(() => {
+		seedData.seedAvailableSessions()
+	})
 	console.log(`Server running at http://${hostname}:${port}`);
 })
