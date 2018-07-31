@@ -7,32 +7,32 @@ const pool = db.getPool()
 // Re-uses existing if already created, else creates a new one
 
 const router = express.Router()
-router.use(bodyParser.urlencoded({
-	limit: '50mb',
-	extended: true,
-	parameterLimit: 100000
+router.use(bodyParser.urlencoded( {
+	limit:'50mb', 
+	extended:true, 
+	parameterLimit:100000
 }))
-router.use(bodyParser.json({
-	limit: '50mb'
+router.use(bodyParser.json( {
+	limit:'50mb'
 }))
 
 router.options('*', cors())
 router.use(cors())
 
 router.route('/')
-	.all((req, res, next) => {
+	.all((req, res, next) =>  {
 		res.statusCode = 200
 		res.setHeader('Content-Type', 'text/plain')
-		next() //Continue on to the next method -> .get(...)
+		next()//Continue on to the next method -> .get(...)
 	})
-	.get((req, res) => {
+	.get((req, res) =>  {
 		let sql = `Select * From sessions`
-		pool.getConnection().then(function(connection) {
+		pool.getConnection().then(function (connection) {
 			connection.query(sql)
-				.then(results => {
+				.then(results =>  {
 					res.json(results)
 				})
-				.catch(err => {
+				.catch(err =>  {
 					res.statusMessage = err
 					res.status(400).end()
 				})
@@ -42,12 +42,12 @@ router.route('/')
 
 
 
-router.get('/:stationID/:roleID', (req, res) => {
+router.get('/:stationID/:roleID', (req, res) =>  {
 	// Get Today's Date & Time
 	let date = new Date()
 	let time = date.getHours() + ':' + date.getMinutes()
 	time = "13:00"
-	date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+	date = date.getFullYear() + ' - ' + (date.getMonth() + 1) + ' - ' + date.getDate()
 	let sql = `SELECT a.session_id, session_start, session_end, sr.capacity, a.noBooked
 		FROM sessions s, available_sessions a, station_roles sr WHERE s.session_id = a.session_id
 		AND a.role_id = s.role_id AND sr.role_id = a.role_id AND a.role_id = ?
@@ -96,7 +96,8 @@ router.get('nextSession/:stationID', (req, res) => {
 	order by session_start asc limit 1`
 
 	pool.getConnection().then(function (connection) {
-		connection.query(sql, [req.params.stationID])
+		let stationID = parseInt([req.params.stationID]);
+		connection.query(sql, stationID)
 			.then((rows) => {
 				res.json(rows)
 			})
