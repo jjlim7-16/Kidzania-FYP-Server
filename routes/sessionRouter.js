@@ -8,8 +8,8 @@ const pool = db.getPool()
 
 const router = express.Router()
 router.use(bodyParser.urlencoded( {
-	limit:'50mb', 
-	extended:true, 
+	limit:'50mb',
+	extended:true,
 	parameterLimit:100000
 }))
 router.use(bodyParser.json( {
@@ -70,10 +70,10 @@ router.get('/getSessionList/:roleID', (req, res) =>  {
 
 router.get('/nextSession/:stationID', (req, res) => {
 	// let sql = `SELECT distinct session_start, session_end FROM sessions
-	// WHERE station_id = ? AND current_time() <= ADDTIME(session_start,'0:5:00') 
+	// WHERE station_id = ? AND current_time() <= ADDTIME(session_start,'0:5:00')
 	// order by session_start asc limit 1`
 	let sql = `SELECT distinct session_start, session_end FROM sessions
-	WHERE station_id = ? AND Time('14:20:00') <= ADDTIME(session_start,'0:5:00') 
+	WHERE station_id = ? AND Time('14:20:00') <= ADDTIME(session_start,'0:5:00')
 	order by session_start asc limit 1`
 
 	pool.getConnection().then(function (connection) {
