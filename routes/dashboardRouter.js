@@ -43,7 +43,7 @@ router.route('/count')
 router.get('/getAvgBookings', (req, res) => {
 	let sql = `SELECT FORMAT(SUM(bookings)/COUNT(rfid), 1) as avg_bookings 
 	FROM (SELECT rfid, COUNT(*) as bookings FROM booking_details b 
-	WHERE booking_status='Confirmed' AND session_date=current_date() 
+	WHERE booking_status!='Cancelled' AND session_date=current_date() 
 	GROUP BY rfid) x;`
 	pool.getConnection().then(function (connection) {
 		connection.query(sql)
@@ -52,7 +52,7 @@ router.get('/getAvgBookings', (req, res) => {
 					res.json(0.0.toFixed(1))
 				}
 				else {
-					res.json(results[0].avg_bookings.toFixed(1))
+					res.json(parseInt(results[0].avg_bookings).toFixed(1))
 				}
 			})
 			.catch(err => {
@@ -68,7 +68,7 @@ router.get('/getBookingByDay', (req, res) => {
 	FROM booking_details b INNER JOIN (SELECT WEEKDAY(session_date) as weekday, COUNT(*) as noOfDays 
 	FROM (SELECT DISTINCT session_date FROM booking_details WHERE booking_status = 'Confirmed') a
 	GROUP BY WEEKDAY(session_date)) b2 ON b2.weekday = WEEKDAY(session_date)
-	WHERE booking_status = 'Confirmed' GROUP BY weekday;`
+	WHERE booking_status != 'Cancelled' GROUP BY weekday;`
 
 	pool.getConnection().then(function (connection) {
 		connection.query(sql)
@@ -90,7 +90,7 @@ router.get('/getBookingByDay', (req, res) => {
 
 router.get('/getBookingByDate', (req, res) => {
 	let sql = `SELECT session_date, COUNT(*) as count FROM booking_details b
-		WHERE booking_status='Confirmed' GROUP BY session_date;`
+		WHERE booking_status!='Cancelled' GROUP BY session_date;`
 	pool.getConnection().then(function (connection) {
 		connection.query(sql)
 			.then(results => {
@@ -107,9 +107,9 @@ router.get('/getBookingByDate', (req, res) => {
 })
 
 router.get('/getBookingByStation', (req, res) => {
-	let sql = `SELECT st.station_name, count(*) as station_count 
-	FROM booking_details b, stations st, station_roles sr 
-	WHERE b.station_id = st.station_id AND b.role_id = sr.role_id AND booking_status='Confirmed' 
+	let sql = `SELECT st.station_name, count(b.booking_id) as station_count
+	FROM (SELECT * FROM booking_details WHERE booking_status='Confirmed') b
+	RIGHT JOIN stations st ON b.station_id = st.station_id
 	GROUP BY st.station_name;`
 
 	pool.getConnection().then(function (connection) {
@@ -132,10 +132,10 @@ router.get('/getBookingByStation', (req, res) => {
 
 router.get('/getBookingByTime', (req, res) => {
 	let sql = `SELECT st.station_name, session_start as x, FORMAT(COUNT(b.booking_id)/capacity * 100, 1) as y
-	FROM (SELECT * FROM booking_details WHERE booking_status='Confirmed' AND session_date = '2018-07-03') b
+	FROM (SELECT * FROM booking_details WHERE booking_status!='Cancelled' AND session_date = current_date()) b
 	RIGHT JOIN sessions s ON s.session_id = b.session_id
 	RIGHT JOIN stations st ON s.station_id = st.station_id
-	GROUP BY b.session_date, session_start, st.station_id ORDER BY 1 ASC;`
+	GROUP BY st.station_id, session_start;`
 	
 	pool.getConnection().then(function (connection) {
 		connection.query(sql)

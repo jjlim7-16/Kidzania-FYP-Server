@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "start": "nodemon src/app.js",
+    "deploy": "set NODe_ENV=production&&node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "description": "",
@@ -17,6 +18,7 @@
     "eslint-plugin-standard": "^3.1.0"
   },
   "dependencies": {
+    "acl": "^0.4.11",
     "axios": "^0.18.0",
     "bcrypt": "^3.0.0",
     "bluebird": "^3.5.1",

@@ -1,8 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const fs = require('fs')
-const http = require('http')
 const db = require('../src/databasePool')
 const pool = db.getPool()
 

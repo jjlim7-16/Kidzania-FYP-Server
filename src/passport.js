@@ -12,16 +12,15 @@ passport.use(new JWTStrategy({
 	secretOrKey   : 'SECRET'
 },
 function (jwtPayload, cb) {
-
 	//find the user in db if needed. This functionality may be omitted if you store everything you'll need in JWT payload.
 	pool.getConnection().then(function(connection) {
-		connection.query(`SELECT * FROM user_accounts WHERE user_id = ?`, jwtPayload.id)
+		connection.query(`SELECT * FROM user_accounts WHERE username = ?`, jwtPayload.username)
 		.then(results => {
 			// return user
-			cb(null, results[0])
+			return cb(null, results[0])
 		})
 		.catch(err => {
-			cb(err)
+			return cb(err)
 		})
 	})
 }

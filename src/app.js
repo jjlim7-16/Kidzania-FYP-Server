@@ -23,11 +23,10 @@ const roleRouter = require('../routes/roleRouter')
 const accountRouter = require('../routes/accountRouter')
 const printReceiptRouter = require('../routes/printReceiptRouter')
 const dashboardRouter = require('../routes/dashboardRouter')
+const reservationRouter = require('../routes/reservationRouter')
 const auth = require('./auth')
 
-// const hostname = os.networkInterfaces()['Wi-Fi'][1].address
-// const hostname = '25.37.100.106'
-const hostname = '0.0.0.0'
+const hostname = require('./config').hostname
 const port = 8000
 
 const app = express()
@@ -37,18 +36,26 @@ app.use(bodyParser.json())
 app.use(express.static(__dirname))
 app.use(CookieParser())
 app.use('/auth', auth)
-app.use('/stations', passport.authenticate('jwt', { session: false }), stationRouter)
+app.use('/stations', passport.authenticate('jwt', {session: false}), stationRouter)
 app.use('/roles', roleRouter)
 app.use('/sessions', sessionRouter)
 app.use('/bookings', bookingRouter)
 // app.use('/print',printReceiptRouter)
 app.use('/user', accountRouter)
 app.use('/dashboard', dashboardRouter)
-app.use('/user', accountRouter)
 app.use('/limit', limitRouter)
+app.use('/reservations', reservationRouter)
 
 app.use(passport.initialize())
 // app.use(passport.session())
+
+// Error handling
+app.use( function( error, request, response, next ) {
+	if(!error) {
+		return next()
+	}
+	response.send(error.msg, error.errorCode)
+})
 
 const server = http.createServer(app)
 
@@ -56,6 +63,7 @@ const io = socketIo.listen(server)
 
 const dashboardSocket = io.of('/dashboard')
 const userSocket = io.of('/user')
+const crewSocket = io.of('/crew')
 
 dashboardSocket.on('connection', socket => {
 	console.log('New Admin Connected')
@@ -74,7 +82,7 @@ dashboardSocket.on('connection', socket => {
 		dashboard.getBookingByTime(socket)
 	}, 100000)
 
-	socket.on("disconnect", () => console.log("Client disconnected"));
+	socket.on("disconnect", () => console.log("Admin client disconnected"));
 })
 
 userSocket.on('connection', (socket) => {
@@ -86,10 +94,19 @@ userSocket.on('connection', (socket) => {
 	})
 })
 
+crewSocket.on('connection', (socket) => {
+	console.log('New Crew Connected')
+	socket.on('disconnect', () => console.log('Client disconnected'))
+	socket.on('admitted', (booking_id) => {
+		console.log('New visitor admitted')
+		socket.broadcast.emit('newAdmission', booking_id)
+	})
+})
+
 server.listen(port, hostname, () => {
-	// seedData.seedSessions()
-	// .then(() => {
-	// 	seedData.seedAvailableSessions()
-	// })
+	seedData.seedSessions()
+	.then(() => {
+		seedData.seedAvailableSessions()
+	})
 	console.log(`Server running at http://${hostname}:${port}`);
 })
