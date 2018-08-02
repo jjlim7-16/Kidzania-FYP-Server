@@ -73,7 +73,7 @@ router.get('/nextSession/:stationID', (req, res) => {
 	// WHERE station_id = ? AND current_time() <= ADDTIME(session_start,'0:5:00') 
 	// order by session_start asc limit 1`
 	let sql = `SELECT distinct session_start, session_end FROM sessions
-	WHERE station_id = ? AND Time('14:20:00') <= ADDTIME(session_start,'0:5:00') 
+	WHERE station_id = ? AND Time('14:40:00') <= ADDTIME(session_start,'0:5:00') 
 	order by session_start asc limit 1`
 
 	pool.getConnection().then(function (connection) {

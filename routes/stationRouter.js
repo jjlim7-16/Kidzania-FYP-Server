@@ -30,12 +30,6 @@ const storage = multer.diskStorage({
 	},
 	filename: (req, file, cb) => {
 		let filename = file.fieldname + '.' + file.mimetype.split('/')[1]
-		// fs.exists(`images/${filename}`, function(exists) {
-		// 	if(exists) {
-		// 		cb(new Error('File Exists'))
-		// 	}
-		// 	cb(null, filename)
-		// })
 		cb(null, filename)
 	}
 })
@@ -115,6 +109,7 @@ router.route('/getImage/:stationID')
 		connection.query(sql, [req.params.stationID])
 		.then(results => {
 			let data = fs.readFileSync('images/' + results[0].imagepath)
+			res.contentType('image/*')
 			res.end(data)
 		})
 		.catch((err) => {

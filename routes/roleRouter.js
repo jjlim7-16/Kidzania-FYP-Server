@@ -164,6 +164,7 @@ router.route('/getImage/:roleID')
 		connection.query(sql, [req.params.roleID])
 			.then(results => {
 				let data = fs.readFileSync('images/' + results[0].imagepath)
+				res.contentType('image/*')
 				res.end(data)
 			})
 			.catch((err) => {

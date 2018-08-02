@@ -23,11 +23,10 @@ const roleRouter = require('../routes/roleRouter')
 const accountRouter = require('../routes/accountRouter')
 const printReceiptRouter = require('../routes/printReceiptRouter')
 const dashboardRouter = require('../routes/dashboardRouter')
+const reservationRouter = require('../routes/reservationRouter')
 const auth = require('./auth')
 
-const hostname = os.networkInterfaces()['Wi-Fi'][1].address
-// const hostname = '0.0.0.0'
-// const hostname = '25.37.100.106'
+const hostname = require('./config').hostname
 const port = 8000
 
 const app = express()
@@ -45,6 +44,7 @@ app.use('/bookings', bookingRouter)
 app.use('/user', accountRouter)
 app.use('/dashboard', dashboardRouter)
 app.use('/limit', limitRouter)
+app.use('/reservations', reservationRouter)
 
 app.use(passport.initialize())
 // app.use(passport.session())
