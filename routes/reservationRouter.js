@@ -165,5 +165,20 @@ router.route('/:reservationID')
 			connection.release()
 	})
 })
+.delete((req, res) => {
+	let sql = `DELETE FROM reservations WHERE reservation_id=${req.params.reservationID}`
+
+	pool.getConnection().then(function(connection) {
+		connection.query(sql)
+			.then(results => {
+				res.json(results)
+			})
+			.catch((err) => {
+				res.statusMessage = err
+				res.status(400).end()
+			})
+			connection.release()
+	})
+})
 
 module.exports = router
