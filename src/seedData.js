@@ -9,9 +9,9 @@ function delay(ms) {
 
 module.exports = {
 	seedNewSessions: function (stationID) {
-		let sql = `Select s.station_id, role_id, s.station_start, s.station_end, 
-			sr.durationInMins, capacity From stations s, station_roles sr 
-			where s.station_id = sr.station_id AND s.station_id = ?;`
+		let sql = `Select st.station_id, role_id, st.station_start, st.station_end, 
+			st.durationInMins, capacity From stations st, station_roles sr 
+			where st.station_id = sr.station_id AND st.station_id = ?;`
 		pool.getConnection().then(function (connection) {
 			connection.query(sql, stationID)
 				.then((results) => {
@@ -41,9 +41,43 @@ module.exports = {
 		})
 		return Promise.resolve('Success')
 	},
+	seedNewRoleSessions: function (roleID, durationChanged) {
+		let sql = `Select st.station_id, role_id, st.station_start, st.station_end, 
+		st.durationInMins, capacity From stations st, station_roles sr 
+		where st.station_id = sr.station_id AND sr.role_id = ?;`
+		if (durationChanged) {
+			sql += `DELETE FROM sessions WHERE role_id = ${roleID};`
+		}
+		pool.getConnection().then(function (connection) {
+			connection.query(sql, roleID)
+				.then((results) => {
+					let sessionList = []
+					let date = new Date()
+					date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+					let role = results[0][0]
+					let start = moment(role.station_start, 'HH:mm:ss')
+					let end = moment(role.station_end, 'HH:mm:ss')
+					let duration = parseInt(role.durationInMins)
+					while (start.format('HH:mm') < end.format('HH:mm')) {
+						sessionList.push([role.station_id, role.role_id, start.format('HH:mm'),
+						start.add(duration, 'minutes').format('HH:mm'), role.capacity ])
+					}
+					sql = `INSERT INTO sessions (station_id, role_id, session_start, session_end, capacity) VALUES ?`
+					return connection.query(sql, [sessionList])
+				})
+				.then(() => {
+					console.log('Successfully Seed New Role Sessions Data')
+				})
+				.catch((err) => {
+					console.log(err)
+				})
+				connection.release()
+		})
+		return Promise.resolve('Success')
+	},
 	seedSessions: function () {
-		let sql = `Select s.station_id, role_id, s.station_start, s.station_end, sr.durationInMins, 
-			capacity From stations s, station_roles sr where s.station_id = sr.station_id; `
+		let sql = `Select st.station_id, role_id, st.station_start, st.station_end, st.durationInMins, 
+			capacity From stations st, station_roles sr where st.station_id = sr.station_id; `
 		sql += 'Select min(session_id) as session from sessions;'
 		pool.getConnection().then(function (connection) {
 			connection.query(sql)
@@ -51,23 +85,24 @@ module.exports = {
 					if (results[1][0].session) {
 						return Promise.reject('Data Was Seeded')
 					}
-					let sessionList = []
-					let date = new Date()
-					date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-					for (var x in results[0]) {
-						let station = results[0][x]
-						let start = moment(station.station_start, 'HH:mm:ss')
-						let end = moment(station.station_end, 'HH:mm:ss')
-						let duration = parseInt(station.durationInMins)
-						while (start.format('HH:mm') < end.format('HH:mm')) {
-							sessionList.push([station.station_id, station.role_id, start.format('HH:mm'),
-							start.add(duration, 'minutes').format('HH:mm'), station.capacity])
+					else {
+						let sessionList = []
+						let date = new Date()
+						date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+						for (var x in results[0]) {
+							let station = results[0][x]
+							let start = moment(station.station_start, 'HH:mm:ss')
+							let end = moment(station.station_end, 'HH:mm:ss')
+							let duration = parseInt(station.durationInMins)
+							while (start.format('HH:mm') < end.format('HH:mm')) {
+								sessionList.push([station.station_id, station.role_id, start.format('HH:mm'),
+								start.add(duration, 'minutes').format('HH:mm'), station.capacity])
+							}
 						}
+						sql = 'INSERT INTO sessions (station_id, role_id, session_start, ' +
+							'session_end, capacity) VALUES ?'
+						return connection.query(sql, [sessionList])
 					}
-					// console.log(sessionList)
-					sql = 'INSERT INTO sessions (station_id, role_id, session_start, ' +
-						'session_end, capacity) VALUES ?'
-					return connection.query(sql, [sessionList])
 				})
 				.then(() => {
 					console.log('Sessions Data Is Seeded')

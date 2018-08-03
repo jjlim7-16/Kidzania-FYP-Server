@@ -61,13 +61,13 @@ router.route('/')
 })
 .post(upload.any(), (req, res) => {
 	// console.log(req.files)
-	console.log(req.body.webFormData)
+	// console.log(req.body.webFormData)
 	let stationData = JSON.parse(req.body.webFormData)
 	let imagepath = req.files[0].filename
 	let sql = `INSERT INTO stations (station_name, description, station_start, station_end,
-		imagepath, is_active) VALUES ?`
+		durationInMins, imagepath, is_active) VALUES ?`
 	let stationVal = [[stationData.name, stationData.description,
-		stationData.startTime, stationData.endTime, imagepath, 1
+		stationData.startTime, stationData.endTime, stationData.duration, imagepath, 1
 	]]
 	let stationID
 	pool.getConnection().then(function(connection) {
@@ -75,14 +75,11 @@ router.route('/')
 			.then((rows) => {
 				stationID = rows.insertId
 				let rolesVal = []
-				if (stationData.roles.length > 0) {
-					let rolesData = stationData.roles
-					sql = 'INSERT INTO station_roles (station_id, role_name, capacity, ' +
-						'durationInMins, noOfReservedSlots, imagepath) VALUES ?'
-					for (var i=0; i<rolesData.length; i++) {
-						rolesVal.push([stationID, rolesData[i].roleName, rolesData[i].capacity, rolesData[i].duration,
-							rolesData[i].noOfRSlots, req.files[i+1].filename])
-					}
+				let rolesData = stationData.roles
+				sql = `INSERT INTO station_roles (station_id, role_name, capacity, imagepath) VALUES ?`
+				for (var i=0; i<rolesData.length; i++) {
+					rolesVal.push([stationID, rolesData[i].roleName, rolesData[i].capacity, 
+						req.files[i+1].filename])
 				}
 				return connection.query(sql, [rolesVal])
 			})
@@ -143,10 +140,12 @@ router.route('/:stationID')
 .put(upload.any(), (req, res) => {
 	// Have yet to update the web app form for activation/deactivation
 	let stationData = JSON.parse(req.body.webFormData)
-	let sql = `SELECT station_name, imagepath FROM stations WHERE station_id = ${req.params.stationID};`
+	let sql = `SELECT station_name, station_start, station_end, imagepath 
+	FROM stations WHERE station_id = ${req.params.stationID};`
 	let changeName = false
 	let origFile = ''
 	let newFilename = ''
+	let durationChanged = false
 	pool.getConnection().then(function(connection) {
 		connection.query(sql)
 			.then(results => {
@@ -157,18 +156,27 @@ router.route('/:stationID')
 					newFilename = (req.files.length === 0) ? `${stationData.name}.${origFile.split('.')[1]}`
 						: req.files[0].filename
 					sql = `Update stations Set station_name=?, description=?,
-					station_start=?, station_end=?, imagepath=?  Where station_id = ?`
+					station_start=?, station_end=?, durationInMins=?, imagepath=?  Where station_id = ?;`
 					val = [ stationData.name, stationData.description, stationData.startTime,
-						stationData.endTime, newFilename, req.params.stationID
+						stationData.endTime, stationData.duration, newFilename, req.params.stationID
 					]
 				}
 				else if (req.files.length <= 0) {
 					sql = `Update stations Set station_name=?, description=?,
-					station_start=?, station_end=?  Where station_id = ?`
+					station_start=?, station_end=?, durationInMins=? Where station_id = ?;`
 					val = [ stationData.name, stationData.description, stationData.startTime,
-						stationData.endTime, req.params.stationID
+						stationData.endTime, stationData.duration, req.params.stationID
 					]
 				}
+				if (moment(results[0].station_start, 'HH:mm').format('HH:mm') !== 
+				moment(stationData.startTime, 'HH:mm').format('HH:mm') || 
+				moment(results[0].station_end, 'HH:mm').format('HH:mm') !== 
+				moment(stationData.endTime, 'HH:mm').format('HH:mm') || 
+				(stationData.duration != results[0].durationInMins)) {
+					sql += `DELETE FROM sessions WHERE station_id = ${req.params.stationID};`
+					durationChanged = true
+				}
+
 				return connection.query(sql, val)
 			})
 			.then(() => {
@@ -186,6 +194,9 @@ router.route('/:stationID')
 					// Rename original file if change station name
 					console.log('Renaming File...')
 					fs.renameSync('images/' + origFile, `images/${newFilename}`)
+				}
+				if (durationChanged) {
+					seedData.seedNewSessions(req.params.stationID)
 				}
 				res.end('Success')
 			})

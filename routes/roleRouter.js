@@ -10,6 +10,8 @@ const db = require('../src/databasePool')
 const pool = db.getPool()
 // Re-uses existing if already created, else creates a new one
 
+const seedData = require('../src/seedData')
+
 const router = express.Router()
 router.use(bodyParser.urlencoded({
 	limit: '50mb',
@@ -59,11 +61,12 @@ router.route('/')
 .post(upload.any(), (req, res) => {
 	let roleData = JSON.parse(req.body.webFormData)
 	let filename = req.files[0].filename
-	let sql = 'INSERT INTO station_roles (station_id, role_name, noOfReservedSlots, durationInMins, ' +
+	let sql = 'INSERT INTO station_roles (station_id, role_name, ' +
 		'capacity, imagepath) VALUES ?'
+	// let sql = 'INSERT INTO station_roles (station_id, role_name, durationInMins, ' +
+	// 	'capacity, imagepath) VALUES ?'
 	let role_val = []
-	role_val.push([roleData.stationId, roleData.roleName, roleData.noOfRSlots, 
-		roleData.duration, parseInt(roleData.capacity), filename])
+	role_val.push([roleData.stationId, roleData.roleName, parseInt(roleData.capacity), filename])
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, [role_val])
 			.then((results) => {
@@ -99,6 +102,7 @@ router.route('/:roleID')
 	let filename = (req.files.length > 0) ? req.files[0].filename : null
 	let roleData = JSON.parse(req.body.webFormData)
 	let sql = `Select role_name, imagepath from station_roles where role_id = ${req.params.roleID}`
+	let durationChanged = false
 	pool.getConnection().then(function(connection) {
 		connection.query(sql)
 			.then(results => {
@@ -122,12 +126,18 @@ router.route('/:roleID')
 						fs.renameSync('images/' + results[0].imagepath, `images/${filename}`)
 					}
 				}
-				
-				sql = `UPDATE station_roles SET role_name=?, capacity=?, durationInMins=?, imagepath=? WHERE role_id=?`
-				let role_val = [roleData.roleName, roleData.capacity, roleData.duration, filename, req.params.roleID]
+				// if (roleData.duration != results[0].durationInMins) {
+				// 	durationChanged = true
+				// }
+
+				sql = `UPDATE station_roles SET role_name=?, capacity=?, imagepath=? WHERE role_id=?`
+				let role_val = [roleData.roleName, roleData.capacity, filename, req.params.roleID]
 				return connection.query(sql, role_val)
 			})
 			.then(() => {
+				// if (durationChanged) {
+				// 	seedData.seedNewRoleSessions(req.params.roleID, durationChanged)
+				// }
 				res.end('Updated Successfully')
 			})
 			.catch(err => {
