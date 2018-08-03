@@ -86,7 +86,6 @@ router.route('/')
 })
 
 router.get('/getSessionList/:roleID', (req, res) => {
-
 	let sql = `SELECT * FROM sessions WHERE role_id = ?`
 
 	pool.getConnection().then(function(connection) {
