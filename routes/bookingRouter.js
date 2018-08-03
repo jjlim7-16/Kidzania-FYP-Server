@@ -112,7 +112,7 @@ router.route('/getBookingDetails')
 
 
 router.post('/makeBooking', (req, res) => {
-  let sql = 'SELECT COUNT(booking_id) AS qNum FROM booking_details'
+  let sql = 'SELECT COUNT(booking_id) AS qNum FROM booking_details WHERE session_date = current_date()'
   let bookingData = req.body
   console.log(bookingData)
   pool.getConnection().then(function(connection) {
@@ -174,8 +174,9 @@ router.get('/rfid/:rfid', function(req, res) {
     connection.query(sql, rfid)
       .then((rows) => {
         console.log(rows)
+        if(rows.length !== 0){
         rows[0].session_start = moment(rows[0].session_start, 'HH:mm:ss').format('LT')
-        rows[0].session_end = moment(rows[0].session_end, 'HH:mm:ss').format('LT')
+        rows[0].session_end = moment(rows[0].session_end, 'HH:mm:ss').format('LT')}
         res.json(rows)
       })
       .catch(err => {
