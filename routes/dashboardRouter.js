@@ -66,7 +66,7 @@ router.get('/getAvgBookings', (req, res) => {
 router.get('/getBookingByDay', (req, res) => {
 	let sql = `SELECT WEEKDAY(session_date) as weekday, FORMAT(COUNT(*)/noOfDays, 1) as total_per_day 
 	FROM booking_details b INNER JOIN (SELECT WEEKDAY(session_date) as weekday, COUNT(*) as noOfDays 
-	FROM (SELECT DISTINCT session_date FROM booking_details WHERE booking_status = 'Confirmed') a
+	FROM (SELECT DISTINCT session_date FROM booking_details WHERE booking_status != 'Cancelled') a
 	GROUP BY WEEKDAY(session_date)) b2 ON b2.weekday = WEEKDAY(session_date)
 	WHERE booking_status != 'Cancelled' GROUP BY weekday;`
 
@@ -107,8 +107,9 @@ router.get('/getBookingByDate', (req, res) => {
 })
 
 router.get('/getBookingByStation', (req, res) => {
-	let sql = `SELECT st.station_name, count(b.booking_id) as station_count
-	FROM (SELECT * FROM booking_details WHERE booking_status='Confirmed') b
+	let sql = `SELECT st.station_name, COUNT(b.booking_id) as pct
+	FROM (SELECT COUNT(*) as total FROM booking_details) t,
+	(SELECT * FROM booking_details WHERE booking_status!='Cancelled') b
 	RIGHT JOIN stations st ON b.station_id = st.station_id
 	GROUP BY st.station_name;`
 
@@ -118,7 +119,7 @@ router.get('/getBookingByStation', (req, res) => {
 				let data = { stations: [], data: [] }
 				for (var i in results) {
 					data['stations'].push(results[i].station_name)
-					data['data'].push(results[i].station_count)
+					data['data'].push(results[i].pct)
 				}
 				res.json(data)
 			})

@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "start": "nodemon src/app.js",
-    "deploy": "set NODe_ENV=production&&node src/app.js",
+    "deploy": "set NODE_ENV=production&&node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "description": "",
