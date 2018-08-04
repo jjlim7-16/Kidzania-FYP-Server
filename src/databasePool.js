@@ -8,13 +8,13 @@ module.exports = {
 			multipleStatements: true,
 			host: 'localhost',
 			user: 'root',
-			password: 'P@ssw0rd',
+			password: '',
 			database: 'kidzania_v3'
 		})
 		// pool.on('release', function (connection) {
 		// 	console.log('Connection %d released', connection.threadId);
 		// })
-		
+
 		// pool.on('acquire', function (connection) {
 		// 	console.log('Connection %d acquired', connection.threadId);
 		// })

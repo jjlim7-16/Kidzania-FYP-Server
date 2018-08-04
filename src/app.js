@@ -13,6 +13,9 @@ router.use(bodyParser.json())
 
 require('./passport')
 
+const {
+	requireRole
+} = require('../middleware/requireRole')
 const seedData = require('./seedData')
 const dashboard = require('./dashboard')
 const limitRouter = require('../routes/limitRouter')
@@ -36,22 +39,44 @@ app.use(bodyParser.json())
 app.use(express.static(__dirname))
 app.use(CookieParser())
 app.use('/auth', auth)
-app.use('/stations', passport.authenticate('jwt', {session: false}), stationRouter)
-app.use('/roles', roleRouter)
-app.use('/sessions', sessionRouter)
-app.use('/bookings', bookingRouter)
-// app.use('/print',printReceiptRouter)
-app.use('/user', accountRouter)
-app.use('/dashboard', dashboardRouter)
-app.use('/limit', limitRouter)
-app.use('/reservations', reservationRouter)
-
 app.use(passport.initialize())
-// app.use(passport.session())
+
+app.use('/stations', requireRole(['Guest', 'Crew', 'Admin']), passport.authenticate('jwt', {
+	session: false
+}), stationRouter)
+
+app.use('/roles', requireRole(['Guest', 'Crew', 'Admin']), passport.authenticate('jwt', {
+	session: false
+}), roleRouter)
+
+app.use('/sessions', requireRole(['Guest', 'Crew', 'Admin']), passport.authenticate('jwt', {
+	session: false
+}), sessionRouter)
+
+app.use('/bookings', requireRole(['Guest', 'Crew', 'Admin']), passport.authenticate('jwt', {
+	session: false
+}), bookingRouter)
+
+// app.use('/print',printReceiptRouter)
+app.use('/user', requireRole(['Crew', 'Admin']), passport.authenticate('jwt', {
+	session: false
+}), accountRouter)
+
+app.use('/dashboard', dashboardRouter)
+
+app.use('/limit', requireRole(['Admin']), passport.authenticate('jwt', {
+	session: false
+}), limitRouter)
+
+app.use('/reservations', requireRole(['Admin']), passport.authenticate('jwt', {
+	session: false
+}), reservationRouter)
+
+
 
 // Error handling
-app.use( function( error, request, response, next ) {
-	if(!error) {
+app.use(function(error, request, response, next) {
+	if (!error) {
 		return next()
 	}
 	response.send(error.msg, error.errorCode)
@@ -105,8 +130,8 @@ crewSocket.on('connection', (socket) => {
 
 server.listen(port, hostname, () => {
 	seedData.seedSessions()
-	.then(() => {
-		seedData.seedAvailableSessions()
-	})
+		.then(() => {
+			seedData.seedAvailableSessions()
+		})
 	console.log(`Server running at http://${hostname}:${port}`);
 })
