@@ -19,8 +19,8 @@ ON SCHEDULE
 CREATE EVENT IF NOT EXISTS `seed_test`
 ON SCHEDULE
 	EVERY 1 DAY
-    STARTS '2018-07-10 13:00:00' 
-    ENDS '2018-07-30 13:00:00' ON COMPLETION PRESERVE ENABLE
+    STARTS '2018-06-25 13:30:00' 
+    ENDS '2018-08-06 13:30:00' ON COMPLETION PRESERVE ENABLE
   DO
     INSERT INTO available_sessions 
 	(session_date, session_id, station_id, role_id, noBooked, capacity)
