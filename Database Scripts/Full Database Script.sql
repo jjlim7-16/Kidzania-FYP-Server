@@ -80,17 +80,17 @@ UNLOCK TABLES;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `kidzania_v3`.`check_reservation_BEFORE_INSERT` BEFORE INSERT ON `available_sessions` FOR EACH ROW
 BEGIN
 	DECLARE reservation_date DATE;
     SELECT session_date INTO reservation_date FROM reservations r
-	INNER JOIN sessions ss ON ss.session_start >= r.reservedFrom 
+	INNER JOIN sessions ss ON ss.session_start >= r.reservedFrom
 	AND ss.session_end <= r.reservedTo
 	AND session_id = NEW.session_id
 	WHERE session_date = NEW.session_date;
-    
+
     IF reservation_date IS NOT NULL THEN
 		SET NEW.noBooked = NEW.capacity;
 	END IF;
@@ -140,23 +140,23 @@ UNLOCK TABLES;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `kidzania_v3`.`check_booking_limit_BEFORE_INSERT` 
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `kidzania_v3`.`check_booking_limit_BEFORE_INSERT`
 BEFORE INSERT ON `booking_details` FOR EACH ROW
 BEGIN
 	DECLARE user_booking_count, booking_limit, numBooked, cap INT;
 	SELECT noBooked, capacity INTO numBooked, cap FROM available_sessions
 	WHERE session_id = NEW.session_id AND session_date = NEW.session_date;
-	
+
 	IF numBooked < cap THEN
 		SELECT b.booking_limit INTO booking_limit FROM booking_limit b
 		WHERE b.role_id = NEW.role_id AND b.session_date = NEW.session_date;
 		IF booking_limit is not null THEN
-			SELECT COUNT(*) INTO user_booking_count FROM booking_details 
+			SELECT COUNT(*) INTO user_booking_count FROM booking_details
 			WHERE session_date = NEW.session_date AND booking_status='Confirmed'
 			AND rfid = NEW.rfid AND role_id = NEW.role_id;
-			
+
 			IF user_booking_count IS NOT NULL AND user_booking_count > booking_limit THEN
 				# PREVENT BOOKING IF USER BOOKING IS PAST LIMIT
 				SIGNAL SQLSTATE '45000'
@@ -180,9 +180,9 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `kidzania_v3`.`booking_details_AFTER_INSERT` 
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `kidzania_v3`.`booking_details_AFTER_INSERT`
 AFTER INSERT ON `booking_details` FOR EACH ROW
 BEGIN
 	UPDATE available_sessions SET noBooked = noBooked + 1
@@ -200,7 +200,7 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `kidzania_v3`.`booking_details_AFTER_UPDATE` AFTER UPDATE ON `booking_details` FOR EACH ROW
 BEGIN
@@ -283,24 +283,24 @@ UNLOCK TABLES;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `kidzania_v3`.`reservations_BEFORE_INSERT` BEFORE INSERT ON `reservations` FOR EACH ROW
 BEGIN
 	DECLARE reservation INT;
     #SELECT reservation_id INTO reservation FROM reservations
-    #WHERE session_date = NEW.session_date 
-    #AND ((NEW.reservedFrom >= reservedFrom 
-    #AND NEW.reservedTo <= reservedTo) 
+    #WHERE session_date = NEW.session_date
+    #AND ((NEW.reservedFrom >= reservedFrom
+    #AND NEW.reservedTo <= reservedTo)
     #OR (NEW.reservedFrom < reservedFrom AND NEW.reservedTo > reservedTo));
-    
+
     SELECT reservation_id INTO reservation FROM reservations
-	WHERE session_date = current_date() AND role_id = NEW.role_id 
+	WHERE session_date = current_date() AND role_id = NEW.role_id
 	AND ((NEW.reservedFrom > reservedFrom AND NEW.reservedFrom < reservedTo)
     OR (NEW.reservedTo >= reservedFrom AND NEW.reservedTo <= reservedTo)
 	OR (NEW.reservedFrom <= reservedFrom AND NEW.reservedTo >= reservedTo))
     LIMIT 1;
-    
+
     IF reservation IS NOT NULL THEN
 		SIGNAL SQLSTATE '45000'
 		SET MESSAGE_TEXT = 'reservation exists';
@@ -410,7 +410,7 @@ UNLOCK TABLES;
 /*!50003 SET character_set_results = utf8 */ ;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `kidzania_v3`.`add_account_type_AFTER_INSERT` AFTER INSERT ON `stations` FOR EACH ROW
 BEGIN
@@ -465,7 +465,7 @@ DELIMITER ;;
 /*!50003 SET character_set_results = utf8 */ ;;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;;
 /*!50003 SET @saved_time_zone      = @@time_zone */ ;;
 /*!50003 SET time_zone             = 'SYSTEM' */ ;;
 /*!50106 CREATE*/ /*!50117 DEFINER=`root`@`localhost`*/ /*!50106 EVENT `delete_past_limit_setting` ON SCHEDULE EVERY 1 DAY STARTS '2018-07-26 20:00:00' ON COMPLETION PRESERVE ENABLE DO DELETE FROM booking_limit WHERE current_date() >= session_date */ ;;
@@ -483,13 +483,13 @@ DELIMITER ;;
 /*!50003 SET character_set_results = utf8 */ ;;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;;
 /*!50003 SET @saved_time_zone      = @@time_zone */ ;;
 /*!50003 SET time_zone             = 'SYSTEM' */ ;;
-/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`localhost`*/ /*!50106 EVENT `seed_daily_sessions_event` ON SCHEDULE EVERY 1 DAY STARTS '2018-06-25 09:00:00' ON COMPLETION PRESERVE ENABLE DO INSERT INTO available_sessions 
+/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`localhost`*/ /*!50106 EVENT `seed_daily_sessions_event` ON SCHEDULE EVERY 1 DAY STARTS '2018-06-25 09:00:00' ON COMPLETION PRESERVE ENABLE DO INSERT INTO available_sessions
 	(session_date, session_id, station_id, role_id, noBooked, capacity)
 	SELECT current_date(), session_id, s.station_id, s.role_id, 0, capacity
-	FROM sessions s LEFT JOIN booking_limit b ON s.role_id = b.role_id 
+	FROM sessions s LEFT JOIN booking_limit b ON s.role_id = b.role_id
 	AND b.session_date = current_date()
 	INNER JOIN stations st ON st.station_id = s.station_id AND st.is_active = true */ ;;
 /*!50003 SET time_zone             = @saved_time_zone */ ;;
@@ -506,13 +506,13 @@ DELIMITER ;;
 /*!50003 SET character_set_results = utf8 */ ;;
 /*!50003 SET collation_connection  = utf8_general_ci */ ;;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;;
 /*!50003 SET @saved_time_zone      = @@time_zone */ ;;
 /*!50003 SET time_zone             = 'SYSTEM' */ ;;
-/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`localhost`*/ /*!50106 EVENT `seed_test` ON SCHEDULE EVERY 1 DAY STARTS '2018-07-10 13:30:00' ENDS '2018-08-06 13:30:00' ON COMPLETION PRESERVE ENABLE DO INSERT INTO available_sessions 
+/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`localhost`*/ /*!50106 EVENT `seed_test` ON SCHEDULE EVERY 1 DAY STARTS '2018-07-10 13:30:00' ENDS '2018-08-06 13:30:00' ON COMPLETION PRESERVE ENABLE DO INSERT INTO available_sessions
 	(session_date, session_id, station_id, role_id, noBooked, capacity)
 	SELECT current_date(), session_id, s.station_id, s.role_id, 0, capacity
-	FROM sessions s LEFT JOIN booking_limit b ON s.role_id = b.role_id 
+	FROM sessions s LEFT JOIN booking_limit b ON s.role_id = b.role_id
 	AND b.session_date = current_date()
 	INNER JOIN stations st ON st.station_id = s.station_id AND st.is_active = true */ ;;
 /*!50003 SET time_zone             = @saved_time_zone */ ;;

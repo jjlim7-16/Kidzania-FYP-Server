@@ -13,6 +13,9 @@ router.use(bodyParser.json())
 
 require('./passport')
 
+const {
+	requireRole
+} = require('../middleware/requireRole')
 const seedData = require('./seedData')
 const dashboard = require('./dashboard')
 const limitRouter = require('../routes/limitRouter')
@@ -36,25 +39,40 @@ app.use(bodyParser.json())
 app.use(express.static(__dirname))
 app.use(CookieParser())
 app.use('/auth', auth)
-app.use('/stations', passport.authenticate('jwt', {session: false}), stationRouter)
-app.use('/roles', roleRouter)
-app.use('/sessions', sessionRouter)
-app.use('/bookings', bookingRouter)
-// app.use('/print',printReceiptRouter)
-app.use('/user', accountRouter)
-app.use('/dashboard', dashboardRouter)
-app.use('/limit', limitRouter)
-app.use('/reservations', reservationRouter)
-
 app.use(passport.initialize())
-// app.use(passport.session())
+
+app.use('/stations', passport.authenticate('jwt', { session: false }), 
+requireRole(['Guest', 'Crew', 'Admin']), stationRouter)
+
+app.use('/roles', passport.authenticate('jwt', { session: false }), 
+requireRole(['Guest', 'Crew', 'Admin']), roleRouter)
+
+app.use('/sessions', passport.authenticate('jwt', { session: false }), 
+requireRole(['Guest', 'Crew', 'Admin']), sessionRouter)
+
+app.use('/bookings', passport.authenticate('jwt', { session: false }), 
+requireRole(['Guest', 'Crew', 'Admin']), bookingRouter)
+
+// app.use('/print',printReceiptRouter)
+app.use('/user', passport.authenticate('jwt', { session: false }), 
+requireRole(['Crew', 'Admin']), accountRouter)
+
+app.use('/dashboard', dashboardRouter)
+
+app.use('/limit', passport.authenticate('jwt', { session: false }), 
+requireRole(['Admin']), limitRouter)
+
+app.use('/reservations', passport.authenticate('jwt', { session: false }), 
+requireRole(['Admin']), reservationRouter)
+
+
 
 // Error handling
-app.use( function( error, request, response, next ) {
-	if(!error) {
+app.use(function(error, request, response, next) {
+	if (!error) {
 		return next()
 	}
-	response.send(error.msg, error.errorCode)
+	response.status(error.errorCode).end(error.msg)
 })
 
 const server = http.createServer(app)
@@ -105,8 +123,8 @@ crewSocket.on('connection', (socket) => {
 
 server.listen(port, hostname, () => {
 	seedData.seedSessions()
-	.then(() => {
-		seedData.seedAvailableSessions()
-	})
+		.then(() => {
+			seedData.seedAvailableSessions()
+		})
 	console.log(`Server running at http://${hostname}:${port}`);
 })
