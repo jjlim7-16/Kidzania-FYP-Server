@@ -54,6 +54,7 @@ app.use('/bookings', passport.authenticate('jwt', { session: false }),
 requireRole(['Guest', 'Crew', 'Admin']), bookingRouter)
 
 // app.use('/print',printReceiptRouter)
+
 app.use('/user', passport.authenticate('jwt', { session: false }), 
 requireRole(['Crew', 'Admin']), accountRouter)
 
