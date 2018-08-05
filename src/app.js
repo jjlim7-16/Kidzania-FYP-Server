@@ -20,19 +20,24 @@ const roleRouter = require('../routes/roleRouter')
 const accountRouter = require('../routes/accountRouter')
 const printReceiptRouter = require('../routes/printReceiptRouter')
 const dashboardRouter = require('../routes/dashboardRouter')
+const bcrypt = require('bcrypt')
 
-const hostname = os.networkInterfaces()['Wi-Fi'][1].address
+
+// const hostname = os.networkInterfaces()['Wi-Fi'][1].address
+//const hostname = '25.37.100.106'
+const hostname = 'localhost'
 const port = 8000
 
 const app = express()
 app.use(morgan('dev'))
 app.use(bodyParser.json())
-app.use(express.static(__dirname + '/public'))
+app.use(express.static(__dirname))
 app.use('/stations', stationRouter)
 app.use('/roles', roleRouter)
 app.use('/sessions', sessionRouter)
 app.use('/bookings', bookingRouter)
 // app.use('/print',printReceiptRouter)
+app.use('/user', accountRouter)
 app.use('/dashboard', dashboardRouter)
 app.use('/user', accountRouter)
 app.use('/limit', limitRouter)
@@ -46,39 +51,38 @@ const dashboardSocket = io.of('/dashboard')
 const userSocket = io.of('/user')
 
 dashboardSocket.on('connection', socket => {
-	console.log('Socket Connected')
+  console.log('New Admin Connected')
 
-	dashboard.getBookingCount(socket)
-	dashboard.getAvgBookings(socket)
-	dashboard.getBookingByDay(socket)
-	dashboard.getBookingByStation(socket)
-	dashboard.getBookingByTime(socket)
+  dashboard.getBookingCount(socket)
+  dashboard.getAvgBookings(socket)
+  dashboard.getBookingByDay(socket)
+  dashboard.getBookingByStation(socket)
+  dashboard.getBookingByTime(socket)
 
-	setInterval(function() {
-		dashboard.getBookingCount(socket)
-		dashboard.getAvgBookings(socket)
-		dashboard.getBookingByDay(socket)
-		dashboard.getBookingByStation(socket)
-		dashboard.getBookingByTime(socket)
-		// getBookingByDate(socket)
-	}, 100000)
+  setInterval(function() {
+    dashboard.getBookingCount(socket)
+    dashboard.getAvgBookings(socket)
+    dashboard.getBookingByDay(socket)
+    dashboard.getBookingByStation(socket)
+    dashboard.getBookingByTime(socket)
+  }, 100000)
 
-	socket.on("disconnect", () => console.log("Client disconnected"));
+  socket.on("disconnect", () => console.log("Client disconnected"));
 })
 
 userSocket.on('connection', (socket) => {
-	console.log('New client connected')
-	socket.on('disconnect', () => console.log('Client disconnected'));
-	socket.on('makeBooking', (session_id) => {
-		console.log('A new booking has been made')
-		socket.broadcast.emit('newSlotBooked', session_id)
-	})
+  console.log('New client connected')
+  socket.on('disconnect', () => console.log('Client disconnected'));
+  socket.on('makeBooking', (session_id) => {
+    console.log('A new booking is being made')
+    socket.broadcast.emit('newSlotBooked', session_id)
+  })
 })
 
 server.listen(port, hostname, () => {
-	 seedData.seedSessions()
-	 .then(() => {
-	 	seedData.seedAvailableSessions()
-	 })
-	console.log(`Server running at http://${hostname}:${port}`);
+  // seedData.seedSessions()
+  // .then(() => {
+  // 	seedData.seedAvailableSessions()
+  // })
+  console.log(`Server running at http://${hostname}:${port}`);
 })
