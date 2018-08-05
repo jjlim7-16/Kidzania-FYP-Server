@@ -41,36 +41,29 @@ app.use(CookieParser())
 app.use('/auth', auth)
 app.use(passport.initialize())
 
-app.use('/stations', requireRole(['Guest', 'Crew', 'Admin']), passport.authenticate('jwt', {
-	session: false
-}), stationRouter)
+app.use('/stations', passport.authenticate('jwt', { session: false }), 
+requireRole(['Guest', 'Crew', 'Admin']), stationRouter)
 
-app.use('/roles', requireRole(['Guest', 'Crew', 'Admin']), passport.authenticate('jwt', {
-	session: false
-}), roleRouter)
+app.use('/roles', passport.authenticate('jwt', { session: false }), 
+requireRole(['Guest', 'Crew', 'Admin']), roleRouter)
 
-app.use('/sessions', requireRole(['Guest', 'Crew', 'Admin']), passport.authenticate('jwt', {
-	session: false
-}), sessionRouter)
+app.use('/sessions', passport.authenticate('jwt', { session: false }), 
+requireRole(['Guest', 'Crew', 'Admin']), sessionRouter)
 
-app.use('/bookings', requireRole(['Guest', 'Crew', 'Admin']), passport.authenticate('jwt', {
-	session: false
-}), bookingRouter)
+app.use('/bookings', passport.authenticate('jwt', { session: false }), 
+requireRole(['Guest', 'Crew', 'Admin']), bookingRouter)
 
 // app.use('/print',printReceiptRouter)
-app.use('/user', requireRole(['Crew', 'Admin']), passport.authenticate('jwt', {
-	session: false
-}), accountRouter)
+app.use('/user', passport.authenticate('jwt', { session: false }), 
+requireRole(['Crew', 'Admin']), accountRouter)
 
 app.use('/dashboard', dashboardRouter)
 
-app.use('/limit', requireRole(['Admin']), passport.authenticate('jwt', {
-	session: false
-}), limitRouter)
+app.use('/limit', passport.authenticate('jwt', { session: false }), 
+requireRole(['Admin']), limitRouter)
 
-app.use('/reservations', requireRole(['Admin']), passport.authenticate('jwt', {
-	session: false
-}), reservationRouter)
+app.use('/reservations', passport.authenticate('jwt', { session: false }), 
+requireRole(['Admin']), reservationRouter)
 
 
 
@@ -79,7 +72,7 @@ app.use(function(error, request, response, next) {
 	if (!error) {
 		return next()
 	}
-	response.send(error.msg, error.errorCode)
+	response.status(error.errorCode).end(error.msg)
 })
 
 const server = http.createServer(app)
