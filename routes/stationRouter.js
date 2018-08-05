@@ -99,24 +99,6 @@ router.route('/')
 	})
 })
 
-router.route('/getImage/:stationID')
-.get((req, res) => {
-	let sql = `Select imagepath From stations Where station_id = ?`
-	pool.getConnection().then(function(connection) {
-		connection.query(sql, [req.params.stationID])
-		.then(results => {
-			let data = fs.readFileSync('images/' + results[0].imagepath)
-			res.contentType('image/*')
-			res.end(data)
-		})
-		.catch((err) => {
-			res.statusMessage = err
-			res.status(400).end()
-		})
-		connection.release()
-	})
-})
-
 router.route('/:stationID')
 .all((req, res, next) => {
 	res.statusCode = 200

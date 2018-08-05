@@ -27,6 +27,7 @@ const accountRouter = require('../routes/accountRouter')
 const printReceiptRouter = require('../routes/printReceiptRouter')
 const dashboardRouter = require('../routes/dashboardRouter')
 const reservationRouter = require('../routes/reservationRouter')
+const imageRouter = require('../routes/imageRouter')
 const auth = require('./auth')
 
 const hostname = require('./config').hostname
@@ -66,7 +67,7 @@ requireRole(['Admin']), limitRouter)
 app.use('/reservations', passport.authenticate('jwt', { session: false }), 
 requireRole(['Admin']), reservationRouter)
 
-
+app.use('/image', imageRouter)
 
 // Error handling
 app.use(function(error, request, response, next) {
