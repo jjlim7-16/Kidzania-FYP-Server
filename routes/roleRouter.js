@@ -63,8 +63,6 @@ router.route('/')
 	let filename = req.files[0].filename
 	let sql = 'INSERT INTO station_roles (station_id, role_name, ' +
 		'capacity, imagepath) VALUES ?'
-	// let sql = 'INSERT INTO station_roles (station_id, role_name, durationInMins, ' +
-	// 	'capacity, imagepath) VALUES ?'
 	let role_val = []
 	role_val.push([roleData.stationId, roleData.roleName, parseInt(roleData.capacity), filename])
 	pool.getConnection().then(function(connection) {
@@ -126,18 +124,13 @@ router.route('/:roleID')
 						fs.renameSync('images/' + results[0].imagepath, `images/${filename}`)
 					}
 				}
-				// if (roleData.duration != results[0].durationInMins) {
-				// 	durationChanged = true
-				// }
 
-				sql = `UPDATE station_roles SET role_name=?, capacity=?, imagepath=? WHERE role_id=?`
-				let role_val = [roleData.roleName, roleData.capacity, filename, req.params.roleID]
+				sql = `UPDATE station_roles SET station_id=?, role_name=?, capacity=?, imagepath=? WHERE role_id=?`
+				let role_val = [parseInt(roleData.stationId), roleData.roleName, roleData.capacity, 
+					filename, parseInt(req.params.roleID)]
 				return connection.query(sql, role_val)
 			})
 			.then(() => {
-				// if (durationChanged) {
-				// 	seedData.seedNewRoleSessions(req.params.roleID, durationChanged)
-				// }
 				res.end('Updated Successfully')
 			})
 			.catch(err => {
@@ -153,7 +146,7 @@ router.route('/:roleID')
 	pool.getConnection().then(function(connection) {
 		connection.query(sql)
 			.then((results) => {
-				fs.unlink(results[0].imagepath, (err) => {
+				fs.unlink('images/' + results[0][0].imagepath, (err) => {
 					if (err) throw err
 					console.log('Successfully deleted role image')
 				})
@@ -164,24 +157,6 @@ router.route('/:roleID')
 				res.status(400).end()
 			})
 		connection.release()
-	})
-})
-
-router.route('/getImage/:roleID')
-.get((req, res) => {
-	let sql = `Select imagepath From station_roles Where role_id = ?`
-	pool.getConnection().then(function(connection) {
-		connection.query(sql, [req.params.roleID])
-			.then(results => {
-				let data = fs.readFileSync('images/' + results[0].imagepath)
-				res.contentType('image/*')
-				res.end(data)
-			})
-			.catch((err) => {
-				res.statusMessage = err
-				res.status(400).end()
-			})
-			connection.release()
 	})
 })
 

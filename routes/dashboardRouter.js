@@ -26,7 +26,7 @@ router.route('/count')
 	next() //Continue on to the next method -> .get(...)
 })
 .get((req, res) => {
-	let sql = 'SELECT COUNT(station_id) as count FROM booking_details WHERE session_date=current_date();'
+	let sql = 'SELECT COUNT(rfid) as count FROM booking_details WHERE session_date=current_date();'
 	pool.getConnection().then(function (connection) {
 		connection.query(sql)
 			.then(results => {
