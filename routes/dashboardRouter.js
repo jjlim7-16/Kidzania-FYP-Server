@@ -26,7 +26,9 @@ router.route('/count')
 	next() //Continue on to the next method -> .get(...)
 })
 .get((req, res) => {
-	let sql = 'SELECT COUNT(rfid) as count FROM booking_details WHERE session_date=current_date();'
+	let sql = `SELECT COUNT(booking_id) as count FROM booking_details 
+	WHERE session_date=current_date()
+	AND booking_status != 'Cancelled';`
 	pool.getConnection().then(function (connection) {
 		connection.query(sql)
 			.then(results => {
@@ -75,7 +77,7 @@ router.get('/getBookingByDay', (req, res) => {
 			.then(results => {
 				// res.json(results)
 				let data = [0, 0, 0, 0, 0, 0, 0]
-				for(var i in results) {
+				for (var i in results) {
 					data[results[i].weekday] = results[i].total_per_day
 				}
 				res.json(data)
@@ -89,7 +91,7 @@ router.get('/getBookingByDay', (req, res) => {
 })
 
 router.get('/getBookingByStation', (req, res) => {
-	let sql = `SELECT st.station_name, COUNT(b.booking_id) as pct
+	let sql = `SELECT st.station_name, COUNT(b.booking_id) as station_count
 	FROM (SELECT COUNT(*) as total FROM booking_details) t,
 	(SELECT * FROM booking_details WHERE booking_status!='Cancelled') b
 	RIGHT JOIN stations st ON b.station_id = st.station_id
@@ -101,7 +103,7 @@ router.get('/getBookingByStation', (req, res) => {
 				let data = { stations: [], data: [] }
 				for (var i in results) {
 					data['stations'].push(results[i].station_name)
-					data['data'].push(results[i].pct)
+					data['data'].push(results[i].station_count)
 				}
 				res.json(data)
 			})

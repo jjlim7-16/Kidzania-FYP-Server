@@ -34,6 +34,7 @@ router.route('/')
 	pool.getConnection().then(function(connection) {
 		connection.query(sql)
 			.then(results => {
+				console.log(results)
 				res.json(results)
 			})
 			.catch((err) => {
@@ -113,6 +114,7 @@ router.route('/:reservationID')
 	pool.getConnection().then(function(connection) {
 		connection.query(sql)
 			.then(results => {
+				console.log(results)
 				res.json(results)
 			})
 			.catch((err) => {

@@ -114,7 +114,7 @@ router.route('/getBookingDetails')
 
 	
 router.post('/makeBooking', (req, res) => {
-	let sql = 'SELECT COUNT(booking_id) AS qNum FROM booking_details'
+	let sql = `SELECT COUNT(booking_id) AS qNum FROM booking_details WHERE session_date=current_date()`
 	let bookingData = req.body
 	console.log(bookingData)
 	pool.getConnection().then(function(connection) {

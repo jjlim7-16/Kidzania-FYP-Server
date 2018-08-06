@@ -5,6 +5,7 @@ const passport = require('passport')
 
 router.post('/login', function (req, res, next) {
 	passport.authenticate('local-login', {session: false}, (err, user, info) => {
+		console.log(user)
 		if (err) {
 			return res.status(500).json({message: 'Internal Server Error'})
 		}
