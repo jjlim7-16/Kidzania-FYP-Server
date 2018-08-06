@@ -51,7 +51,7 @@ router.route('/')
 	sr.role_name FROM reservations r
 	INNER JOIN station_roles sr ON sr.role_id = r.role_id
 	WHERE session_date = current_date() AND r.role_id = ${resData.roleId} 
-	AND (('${resData.reservedFrom}' >= reservedFrom AND '${resData.reservedFrom}' <= reservedTo)
+	AND (('${resData.reservedFrom}' >= reservedFrom AND '${resData.reservedFrom}' < reservedTo)
   OR ('${resData.reservedTo}' > reservedFrom AND '${resData.reservedTo}' <= reservedTo)
 	OR ('${resData.reservedFrom}' <= reservedFrom AND '${resData.reservedTo}' >= reservedTo))
   LIMIT 1;`
@@ -76,6 +76,7 @@ router.route('/')
 				res.end()
 			})
 			.catch(err => {
+				console.log(err)
 				if (err.errno) {
 					res.status(400).json({message: 'Internal Server Error. Please Contact Administrator'})
 				} else {

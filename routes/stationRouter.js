@@ -67,7 +67,7 @@ router.route('/')
 	let sql = `INSERT INTO stations (station_name, description, station_start, station_end,
 		durationInMins, imagepath, is_active) VALUES ?`
 	let stationVal = [[stationData.name, stationData.description,
-		stationData.startTime, stationData.endTime, stationData.duration, imagepath, 1
+		stationData.startTime, stationData.endTime, stationData.duration, imagepath, 0
 	]]
 	let stationID
 	pool.getConnection().then(function(connection) {
@@ -88,8 +88,7 @@ router.route('/')
 				return seedData.seedNewSessions(stationID)
 			})
 			.then(results => {
-				console.log(results)
-				res.json(results)
+				res.json(stationID)
 			})
 			.catch(err => {
 				res.statusMessage = err

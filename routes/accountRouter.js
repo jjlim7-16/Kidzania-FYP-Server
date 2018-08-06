@@ -34,14 +34,16 @@ router.route('/')
     next()
   })
   .get((req, res) => {
-    let sql = ` SELECT ua.user_id, ua.account_type_id, ua.username, acct.account_type,acct.station_id, s.station_name
+    let userId = req.user.user_id
+    let sql = `SELECT ua.user_id, ua.account_type_id, ua.username, acct.account_type,acct.station_id, s.station_name
       FROM user_accounts ua
       LEFT JOIN account_type acct ON ua.account_type_id  = acct.account_type_id
-      LEFT JOIN stations s ON s.station_id = acct.station_id `
+      LEFT JOIN stations s ON s.station_id = acct.station_id
+      ORDER BY 4 ASC;`
     pool.getConnection().then(function (connection) {
       connection.query(sql)
-        .then((rows) => {
-          res.json(rows)
+        .then(results => {
+          res.json(results)
         })
         .catch(err => {
           res.statusMessage = err
@@ -53,7 +55,7 @@ router.route('/')
   .post((req, res) => {
     console.log(req.body)
     let data = req.body;
-    let sql =`insert into user_accounts( account_type_id,username,password_hash) values (?)`
+    let sql =`insert into user_accounts (account_type_id,username,password_hash) values (?)`
     var salt = bcrypt.genSaltSync(saltRounds)
     var passwordhash = bcrypt.hashSync(data.password, salt)
     let userData = [[data.account_type_id,data.username,passwordhash]]
@@ -72,10 +74,42 @@ router.route('/')
     })
   })
 
+router.get('/getFilteredUsers', (req, res) => {
+  let userId = req.user.user_id
+  let sql = `SELECT ua.user_id, ua.account_type_id, ua.username, acct.account_type,acct.station_id, s.station_name
+    FROM user_accounts ua
+    LEFT JOIN account_type acct ON ua.account_type_id  = acct.account_type_id
+    LEFT JOIN stations s ON s.station_id = acct.station_id
+    ORDER BY 4 ASC;`
+  pool.getConnection().then(function (connection) {
+    connection.query(sql)
+      .then(results => {
+        let data = []
+        if (req.user.account_type !== 'Master Admin') {
+          for (let i in results) {
+            if (results[i].user_id === userId) {
+              data.push(results[i])
+            }
+            else if (results[i].account_type !== 'Admin') {
+              data.push(results[i])
+            }
+          }
+          res.json(data)
+        }
+        res.json(results)
+      })
+      .catch(err => {
+        res.statusMessage = err
+        res.status(400).end()
+      })
+    connection.release()
+  })
+})
+
 router.get('/getAccountTypeCrewList', (req,res) => {
   let sql = `SELECT a.*, st.station_name FROM account_type a
-    INNER JOIN stations st ON st.station_id = a.station_id 
-    where a.account_type = 'Crew';`
+  LEFT JOIN stations st ON st.station_id = a.station_id;`
+  
   pool.getConnection().then(function (connection) {
     connection.query(sql)
       .then((rows) => {

@@ -97,7 +97,7 @@ router.route('/getBookingDetails')
 		sr.role_name, queue_no From booking_details b, sessions se, stations st, station_roles sr
 		where b.session_id = se.session_id and b.station_id = st.station_id and
 		st.station_id = sr.station_id and sr.role_id = b.role_id and session_date = current_date()
-		and booking_status = 'Confirmed' and b.station_id = ?`
+		and booking_status != 'Cancelled' and b.station_id = ?`
 
 		pool.getConnection().then(function(connection) {
 			connection.query(sql)
@@ -114,7 +114,7 @@ router.route('/getBookingDetails')
 
 	
 router.post('/makeBooking', (req, res) => {
-	let sql = `SELECT COUNT(booking_id) AS qNum FROM booking_details WHERE session_date=current_date()`
+	let sql = `SELECT COUNT(booking_id) AS qNum FROM booking_details WHERE session_date=current_date();`
 	let bookingData = req.body
 	console.log(bookingData)
 	pool.getConnection().then(function(connection) {
