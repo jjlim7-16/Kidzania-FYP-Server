@@ -40,6 +40,7 @@ function(username, password, cb) {
 			}
 			if (bcrypt.compareSync(password, rows[0].password_hash)) {
 				let user = {
+					user_id: rows[0].user_id,
 					username: rows[0].username,
 					account_type: rows[0].account_type,
 					station_id: rows[0].station_id

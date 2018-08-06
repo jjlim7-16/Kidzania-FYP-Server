@@ -224,7 +224,7 @@ router.get('/getbookinglist/:stationId', function (req, res) {
 			ase.session_date = current_date() AND
 			se.session_start = (SELECT distinct session_start FROM sessions
 	WHERE station_id = ?
-	AND Time('14:50:00') <= ADDTIME(session_start,'0:5:00') order by session_start asc limit 1)`;
+	AND Time('14:30:00') <= ADDTIME(session_start,'0:5:00') order by session_start asc limit 1)`;
 	//get the nearest session's list of bookings for the station
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, stationid)

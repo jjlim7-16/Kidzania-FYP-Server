@@ -88,24 +88,6 @@ router.get('/getBookingByDay', (req, res) => {
 	})
 })
 
-router.get('/getBookingByDate', (req, res) => {
-	let sql = `SELECT session_date, COUNT(*) as count FROM booking_details b
-		WHERE booking_status!='Cancelled' GROUP BY session_date;`
-	pool.getConnection().then(function (connection) {
-		connection.query(sql)
-			.then(results => {
-				// res.json(results)
-				console.log(results)
-				res.json(results)
-			})
-			.catch(err => {
-				res.statusMessage = err
-				res.status(400).end(err.code)
-			})
-		connection.release()
-	})
-})
-
 router.get('/getBookingByStation', (req, res) => {
 	let sql = `SELECT st.station_name, COUNT(b.booking_id) as pct
 	FROM (SELECT COUNT(*) as total FROM booking_details) t,

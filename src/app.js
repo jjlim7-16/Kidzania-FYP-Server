@@ -94,7 +94,7 @@ dashboardSocket.on('connection', socket => {
 	dashboard.getBookingByStation(socket)
 	dashboard.getBookingByTime(socket)
 
-	setInterval(function() {
+	let interval = setInterval(function() {
 		dashboard.getBookingCount(socket)
 		dashboard.getAvgBookings(socket)
 		dashboard.getBookingByDay(socket)
@@ -102,7 +102,10 @@ dashboardSocket.on('connection', socket => {
 		dashboard.getBookingByTime(socket)
 	}, 100000)
 
-	socket.on("disconnect", () => console.log("Admin client disconnected"));
+	socket.on("disconnect", () => {
+		console.log("Admin client disconnected")
+		clearInterval(interval)
+	});
 })
 
 userSocket.on('connection', (socket) => {
