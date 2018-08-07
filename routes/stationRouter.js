@@ -60,8 +60,6 @@ router.route('/')
 	})
 })
 .post(upload.any(), (req, res) => {
-	// console.log(req.files)
-	// console.log(req.body.webFormData)
 	let stationData = JSON.parse(req.body.webFormData)
 	let imagepath = req.files[0].filename
 	let sql = `INSERT INTO stations (station_name, description, station_start, station_end,

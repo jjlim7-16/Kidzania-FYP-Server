@@ -53,13 +53,11 @@ router.route('/')
     })
   })
   .post((req, res) => {
-    console.log(req.body)
     let data = req.body;
     let sql =`insert into user_accounts (account_type_id,username,password_hash) values (?)`
     var salt = bcrypt.genSaltSync(saltRounds)
     var passwordhash = bcrypt.hashSync(data.password, salt)
     let userData = [[data.account_type_id,data.username,passwordhash]]
-    console.log(userData)
     pool.getConnection().then(function(connection) {
       connection.query(sql, userData)
         .then((rows) => {
@@ -90,7 +88,7 @@ router.get('/getFilteredUsers', (req, res) => {
             if (results[i].user_id === userId) {
               data.push(results[i])
             }
-            else if (results[i].account_type !== 'Admin') {
+            else if (!results[i].account_type.includes('Admin')) {
               data.push(results[i])
             }
           }
@@ -108,7 +106,8 @@ router.get('/getFilteredUsers', (req, res) => {
 
 router.get('/getAccountTypeCrewList', (req,res) => {
   let sql = `SELECT a.*, st.station_name FROM account_type a
-  LEFT JOIN stations st ON st.station_id = a.station_id;`
+  LEFT JOIN stations st ON st.station_id = a.station_id
+  WHERE account_type = 'Crew';`
   
   pool.getConnection().then(function (connection) {
     connection.query(sql)

@@ -4,8 +4,6 @@ const morgan = require('morgan')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const socketIo = require('socket.io')
-const axios = require('axios')
-const os = require('os')
 const passport = require('passport')
 const CookieParser = require('cookie-parser')
 const router = express.Router()
@@ -128,8 +126,8 @@ crewSocket.on('connection', (socket) => {
 
 server.listen(port, hostname, () => {
 	seedData.seedSessions()
-		.then(() => {
-			seedData.seedAvailableSessions()
-		})
-	console.log(`Server running at http://${hostname}:${port}`);
+	.then(() => {
+		seedData.seedAvailableSessions()
+	})
+	console.log(`Server running at http://${hostname}:${port}`)
 })
