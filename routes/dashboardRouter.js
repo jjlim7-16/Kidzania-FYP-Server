@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const moment = require('moment')
 const cors = require('cors')
+const Excel = require('exceljs')
 const db = require('../src/databasePool')
 const pool = db.getPool()
 // Re-uses existing if already created, else creates a new one
@@ -155,19 +156,30 @@ router.get('/generateReport', (req, res) => {
 	WHERE booking_status!='Cancelled' AND session_date=current_date()
 	GROUP BY rfid) a
 	WHERE session_date = current_date() AND booking_status != 'Cancelled';`
+	sql += `Select booking_id, b.session_date, se.session_start, se.session_end, st.station_name,
+	sr.role_name From booking_details b, sessions se, stations st, station_roles sr
+	where b.session_id = se.session_id and b.station_id = st.station_id and b.session_date='2018-08-07' and
+	st.station_id = sr.station_id and sr.role_id = b.role_id;`
 	pool.getConnection().then(function (connection) {
 		connection.query(sql)
 			.then(results => {
-				let data = Object.values(results)
+				let report = Object.values(results[0][0])
 				let workbook = new Excel.Workbook()
 				workbook.xlsx.readFile('./report.xlsx')
 				.then(function() {
-					let worksheet = workbook.getWorksheet('Sheet 1')
+					let worksheet1 = workbook.getWorksheet('Daily Report')
+					let worksheet2 = workbook.getWorksheet('Booking Details')
+					worksheet1.addRows([report])
+					for (i in results[1]) {
+						worksheet2.addRow(Object.values(results[1][i]))
+					}
 					workbook.xlsx.writeFile('./report.xlsx')
 					.then(function() {
-							// done
-							console.log('Done')
+						console.log('File Written')
 					})
+				})
+				.catch(err => {
+					console.log(err)
 				})
 				res.end('Report Generated Successfully')
 			})

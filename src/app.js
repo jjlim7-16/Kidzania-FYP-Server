@@ -124,40 +124,10 @@ crewSocket.on('connection', (socket) => {
 	})
 })
 
-const Excel = require('exceljs')
-
 server.listen(port, hostname, () => {
 	seedData.seedSessions()
 	.then(() => {
 		seedData.seedAvailableSessions()
-	})
-	let arr = {'Date': '2018-08-08', 'Booking Count': 20, 'Cancellation': 15, 'Admission Rate': 12.5 }
-	let data = Object.values(arr)
-	console.log(data)
-	let workbook = new Excel.Workbook()
-	workbook.xlsx.readFile('./reporter.xlsx')
-	.then(function() {
-		let worksheet = workbook.getWorksheet('Sheet 1')
-		worksheet.addRows([data])
-		workbook.xlsx.writeFile('./report.xlsx')
-		.then(function() {
-				// done
-				console.log('Done')
-		})
-	})
-	.catch(err => {
-		// let worksheet = workbook.addWorksheet('Sheet 1')
-		// worksheet.columns = [{key: "name", header: "name"}, {key: "age", header: "age"}]
-		// let data = [{name:"Kalai", age: 24}, {name:"Vignesh", age:24}]
-		// for (i in data) {
-		// 	worksheet.addRow(data[i])
-		// }
-		// // worksheet.addRow({id: 1, name: 'xzc', date: new Date()})
-		// workbook.xlsx.writeFile('./report.xlsx')
-		// .then(function() {
-		// 		// done
-		// 		console.log('Done')
-		// })
 	})
 	console.log(`Server running at http://${hostname}:${port}`)
 })
