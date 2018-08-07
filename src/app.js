@@ -124,10 +124,14 @@ crewSocket.on('connection', (socket) => {
 	})
 })
 
+const xlsx = require('node-xlsx')
+const data = [[1, 2, 3], [true, false, null, 'sheetjs'], ['foo', 'bar', new Date(), '0.3'], ['baz', null, 'qux']]
+
 server.listen(port, hostname, () => {
 	seedData.seedSessions()
 	.then(() => {
 		seedData.seedAvailableSessions()
 	})
+	let buffer = xlsx.build([{name: 'sheet1', data: data}])
 	console.log(`Server running at http://${hostname}:${port}`)
 })

@@ -64,7 +64,7 @@ router.route('/')
 	let sql = 'INSERT INTO station_roles (station_id, role_name, ' +
 		'capacity, imagepath) VALUES ?'
 	let role_val = []
-	role_val.push([roleData.stationId, roleData.roleName, parseInt(roleData.capacity), filename])
+	role_val.push([parseInt(roleData.stationId), roleData.roleName, parseInt(roleData.capacity), filename])
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, [role_val])
 			.then((results) => {
@@ -141,8 +141,8 @@ router.route('/:roleID')
 	})
 })
 .delete((req, res) => {
-	let sql = 'SELECT imagepath FROM station_roles WHERE role_id = ' + req.params.roleID + ';'
-	sql += 'DELETE FROM station_roles WHERE role_id = ' + req.params.roleID + ';'
+	let sql = `SELECT imagepath FROM station_roles WHERE role_id = ${req.params.roleID};`
+	sql += `DELETE FROM station_roles WHERE role_id = ${req.params.roleID};`
 	pool.getConnection().then(function(connection) {
 		connection.query(sql)
 			.then((results) => {
