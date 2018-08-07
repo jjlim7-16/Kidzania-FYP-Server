@@ -65,12 +65,12 @@ router.get('/:bookingID', function(req, res) {
 	
 router.put('/updateStatus/:bookingID',  (req, res) => {
 	var bookingID = parseInt(req.params.bookingID)
-	let bookingData = req.body.booking_status;
+	let bookingData = req.body;
 	console.log(bookingData)
 	console.log(req.body)
 
-	let sql = `update booking_details set booking_status =? where booking_id = ?`
-	let val = [ bookingData, bookingID]
+	let sql = `update booking_details set booking_status =?, time_in = ? where booking_id = ?`
+	let val = [ bookingData.booking_status,bookingData.time_in, bookingID]
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, val)
 			.then((rows) => {
