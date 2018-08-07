@@ -124,14 +124,32 @@ crewSocket.on('connection', (socket) => {
 	})
 })
 
-const xlsx = require('node-xlsx')
-const data = [[1, 2, 3], [true, false, null, 'sheetjs'], ['foo', 'bar', new Date(), '0.3'], ['baz', null, 'qux']]
+const Excel = require('exceljs')
 
 server.listen(port, hostname, () => {
 	seedData.seedSessions()
 	.then(() => {
 		seedData.seedAvailableSessions()
 	})
-	let buffer = xlsx.build([{name: 'sheet1', data: data}])
+	let workbook = new Excel.Workbook()
+	workbook.xlsx.readFile('./report.xlsx')
+	.then(function() {
+		let worksheet = workbook.getWorksheet('Sheet 1')
+		worksheet.eachRow({ includeEmpty: true }, function(row, rowNumber) {
+			console.log("Row " + rowNumber + " = " + JSON.stringify(row.values))
+		})
+	})
+	// let worksheet = workbook.addWorksheet('Sheet 1')
+	// worksheet.columns = [{key: "name", header: "name"}, {key: "age", header: "age"}]
+	// let data = [{name:"Kalai", age: 24}, {name:"Vignesh", age:24}]
+	// for (i in data) {
+	// 	worksheet.addRow(data[i])
+	// }
+	// // worksheet.addRow({id: 1, name: 'xzc', date: new Date()})
+	// workbook.xlsx.writeFile('./report.xlsx')
+	// .then(function() {
+	// 		// done
+	// 		console.log('Done')
+	// })
 	console.log(`Server running at http://${hostname}:${port}`)
 })

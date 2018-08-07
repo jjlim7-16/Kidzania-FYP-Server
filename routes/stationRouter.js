@@ -208,15 +208,19 @@ router.route('/:stationID')
 
 router.put('/activate/:stationID', (req, res) => {
 	let newActiveStatus = req.body.newActiveStatus
-	console.log(newActiveStatus)
 	let sql = `Update stations Set is_active=? Where station_id = ?`
 	let val = [newActiveStatus, req.params.stationID]
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, val)
 			.then((rows) => {
-				// console.log(rows)
-				console.log(rows)
-				res.end('Success')
+				// if (newActiveStatus === 0) {
+				// 	sql = `DELETE FROM available_sessions WHERE station_id = ${req.params.stationID}`
+				// 	return connection.query(sql)
+				// }
+				// else {
+				// 	res.end('Activated/Deactivated Successfully')
+				// }
+				res.end('Activated/Deactivated Successfully')
 			})
 			.catch((err) => {
 				res.statusMessage = err

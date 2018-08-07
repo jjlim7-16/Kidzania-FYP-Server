@@ -94,7 +94,9 @@ router.get('/getFilteredUsers', (req, res) => {
           }
           res.json(data)
         }
-        res.json(results)
+        else {
+          res.json(results)
+        }
       })
       .catch(err => {
         res.statusMessage = err

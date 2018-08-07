@@ -57,6 +57,7 @@ CREATE TABLE `available_sessions` (
   `capacity` int(11) NOT NULL,
   #`booking_limit` int(11) NULL, -- NOT NULL REFERS TO NO. OF BOOKINGS ALLOWED || NULL - NO LIMITATION IMPOSED
   PRIMARY KEY (`session_date`,`session_id`),
+  UNIQUE KEY `available_sessions_idx` (`session_date`, `session_id`),
   KEY `sessions_idx` (`session_id`),
   CONSTRAINT `sessions` FOREIGN KEY (`session_id`) REFERENCES `sessions` (`session_id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -68,14 +69,14 @@ CREATE TABLE `booking_details` (
   `station_id` int(11) NOT NULL,
   `role_id` int(11) NOT NULL,
   `rfid` varchar(45) NOT NULL,
-  `time_in` time NOT NULL,
+  `time_in` time NULL,
   `queue_no` varchar(5) NOT NULL,
   `booking_status` varchar(45) NOT NULL, -- Confirmed | Cancelled | Not Admitted | Admitted
   PRIMARY KEY (`booking_id`),
+  UNIQUE KEY `booking` (`session_id`, `session_date`, `rfid`, `booking_status`),
   KEY `available_sessions_fk_idx` (`session_date`,`session_id`),
   CONSTRAINT `available_sessions_fk` FOREIGN KEY (`session_date`,`session_id`) REFERENCES `available_sessions` (`session_date`,`session_id`)
-  ON UPDATE CASCADE ON DELETE CASCADE,
-  UNIQUE KEY `booking` (`session_id`, `session_date`, `rfid`)
+  ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 

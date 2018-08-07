@@ -138,5 +138,32 @@ module.exports = {
 				})
 				connection.release()
 		})
+	},
+	seedNewAvailableSessions: function (station_id) {
+		let sql = `Select max(session_date) as date from available_sessions where session_date = current_date()
+		AND station_id = ${station_id}`
+		pool.getConnection().then(function (connection) {
+			connection.query(sql)
+				.then(results => {
+					if (results[0].date) {
+						return Promise.reject('Available Sessions Data Was Seeded')
+					}
+					sql = `INSERT INTO available_sessions 
+					(session_date, session_id, station_id, role_id, noBooked, capacity)
+					SELECT current_date(), session_id, s.station_id, s.role_id, 0, capacity
+					FROM sessions s LEFT JOIN booking_limit b ON s.role_id = b.role_id 
+					AND b.session_date = current_date()
+					INNER JOIN stations st ON st.station_id = s.station_id AND st.is_active = true
+					AND st.station_id = ${station_id};`
+					return connection.query(sql)
+				})
+				.then(() => {
+					console.log('Successfully Seed Available Sessions For Today')
+				})
+				.catch(err => {
+					console.log(err)
+				})
+				connection.release()
+		})
 	}
 }

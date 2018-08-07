@@ -34,7 +34,6 @@ router.route('/')
 	pool.getConnection().then(function(connection) {
 		connection.query(sql)
 			.then(results => {
-				console.log(results)
 				res.json(results)
 			})
 			.catch((err) => {
@@ -76,7 +75,6 @@ router.route('/')
 				res.end()
 			})
 			.catch(err => {
-				console.log(err)
 				if (err.errno) {
 					res.status(400).json({message: 'Internal Server Error. Please Contact Administrator'})
 				} else {
