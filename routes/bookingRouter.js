@@ -29,9 +29,8 @@ router.route('/')
 	.get((req, res) => {
 		let sql = `Select booking_id, b.session_date, se.session_start, se.session_end, st.station_name,
 		sr.role_name From booking_details b, sessions se, stations st, station_roles sr
-		where b.session_id = se.session_id and b.station_id = st.station_id and
-		b.session_date=current_date() and st.station_id = sr.station_id and sr.role_id = b.role_id;`
-		
+		where b.session_id = se.session_id and b.station_id = st.station_id and b.session_date=current_date() and
+		st.station_id = sr.station_id and sr.role_id = b.role_id;`
 		pool.getConnection().then(function(connection) {
 			connection.query(sql)
 				.then((rows) => {
@@ -66,12 +65,12 @@ router.get('/:bookingID', function(req, res) {
 	
 router.put('/updateStatus/:bookingID',  (req, res) => {
 	var bookingID = parseInt(req.params.bookingID)
-	let bookingData = req.body.booking_status;
+	let bookingData = req.body;
 	console.log(bookingData)
 	console.log(req.body)
 
-	let sql = `update booking_details set booking_status =? where booking_id = ?`
-	let val = [ bookingData, bookingID]
+	let sql = `update booking_details set booking_status =?, time_in = ? where booking_id = ?`
+	let val = [ bookingData.booking_status,bookingData.time_in, bookingID]
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, val)
 			.then((rows) => {
@@ -201,19 +200,19 @@ router.get('/rfid/:rfid', function(req, res) {
 router.get('/getbookinglist/:stationId', function (req, res) {
 	var stationidStr = req.params.stationId
 	let stationid = parseInt(stationidStr)
-	// let sql = `SELECT b.booking_id,ase.session_id,s.station_name, ase.session_date, sr.role_name, se.session_start, se.session_end,  b.booking_status, b.rfid,b.queue_no
-	// FROM booking_details b, available_sessions ase, sessions se, station_roles sr,stations s
-	// WHERE b.session_date = ase.session_date AND
-	// 		b.session_id = ase.session_id AND
-	// 		se.session_id = ase.session_id AND
-	// 		b.role_id = sr.role_id AND
-	// 		b.booking_status  != "Cancelled" AND
-	// 		b.station_id = s.station_id AND
-	//     ase.session_date = current_date() AND
-	// 		se.session_start = (SELECT distinct session_start FROM sessions
-	// WHERE station_id = ?
-	// AND current_time() <= ADDTIME(session_start,'0:5:00') order by session_start asc limit 1)`;
-	let sql = `SELECT b.booking_id,ase.session_id,s.station_name, ase.session_date, sr.role_name, se.session_start, se.session_end,  b.booking_status, b.rfid,b.queue_no
+  // let sql = `SELECT b.booking_id,ase.session_id,s.station_name, ase.session_date, sr.role_name, se.session_start, se.session_end,  b.booking_status, b.rfid,b.queue_no
+  // FROM booking_details b, available_sessions ase, sessions se, station_roles sr, stations s
+  // WHERE b.session_date = ase.session_date AND
+  // b.session_id = ase.session_id AND
+  // se.session_id = ase.session_id AND
+  // b.role_id = sr.role_id AND
+  // b.booking_status != "Cancelled" AND
+  // b.station_id = s.station_id AND
+  // ase.session_date = current_date() AND
+  // se.session_start = (SELECT distinct session_start FROM sessions s
+  // WHERE station_id = ? AND ADDTIME(current_time(), '0:5:00') >= session_start
+  // AND ADDTIME(current_time(), '0:5:00') < s.session_end)`;
+  let sql = ` SELECT b.booking_id,ase.session_id,s.station_name, ase.session_date, sr.role_name, se.session_start, se.session_end,  b.booking_status, b.rfid,b.queue_no
 	FROM booking_details b, available_sessions ase, sessions se, station_roles sr,stations s
 	WHERE b.session_date = ase.session_date AND
 			b.session_id = ase.session_id AND
@@ -221,11 +220,11 @@ router.get('/getbookinglist/:stationId', function (req, res) {
 			b.role_id = sr.role_id AND
 			b.booking_status != "Cancelled" AND
 			b.station_id = s.station_id AND
-			ase.session_date = current_date() AND
-			se.session_start = (SELECT distinct session_start FROM sessions
-	WHERE station_id = ?
-	AND Time('14:30:00') <= ADDTIME(session_start,'0:5:00') order by session_start asc limit 1)`;
-	//get the nearest session's list of bookings for the station
+      ase.session_date = current_date() AND
+			se.session_start = (SELECT distinct session_start FROM sessions s
+	    WHERE station_id = ? AND ADDTIME(Time('14:40:00'),'0:5:00') >= session_start 
+      AND ADDTIME(Time('14:40:00'),'0:5:00') < s.session_end);`
+	//get the curent session's list of bookings for the station
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, stationid)
 			.then((rows) => {
