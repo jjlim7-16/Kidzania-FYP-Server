@@ -145,4 +145,38 @@ router.get('/getBookingByTime', (req, res) => {
 	})
 })
 
+router.get('/generateReport', (req, res) => {
+	let sql = `SELECT b.session_date, COUNT(booking_id) as total_count, cancel_count, admission_count
+	FROM booking_details b, (SELECT COUNT(booking_id) as cancel_count
+	FROM booking_details b WHERE session_date=current_date() AND booking_status = 'Cancelled') x,
+	(SELECT COUNT(booking_id) as admission_count
+	FROM booking_details b WHERE session_date=current_date() AND booking_status = 'Admitted') n,
+	(SELECT rfid, COUNT(*) as bookings FROM booking_details
+	WHERE booking_status!='Cancelled' AND session_date=current_date()
+	GROUP BY rfid) a
+	WHERE session_date = current_date() AND booking_status != 'Cancelled';`
+	pool.getConnection().then(function (connection) {
+		connection.query(sql)
+			.then(results => {
+				let data = Object.values(results)
+				let workbook = new Excel.Workbook()
+				workbook.xlsx.readFile('./report.xlsx')
+				.then(function() {
+					let worksheet = workbook.getWorksheet('Sheet 1')
+					workbook.xlsx.writeFile('./report.xlsx')
+					.then(function() {
+							// done
+							console.log('Done')
+					})
+				})
+				res.end('Report Generated Successfully')
+			})
+			.catch(err => {
+				res.statusMessage = err
+				res.status(400).end(err.code)
+			})
+		connection.release()
+	})
+})
+
 module.exports = router

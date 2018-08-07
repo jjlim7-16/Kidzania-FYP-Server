@@ -38,7 +38,7 @@ function(username, password, cb) {
 	}
 	else {
 		pool.getConnection().then(function (connection) {
-			connection.query(`SELECT ua.*, a.account_type, a	.station_id FROM user_accounts ua
+			connection.query(`SELECT ua.*, a.account_type, a.station_id FROM user_accounts ua
 				INNER JOIN account_type a ON ua.account_type_id = a.account_type_id
 				WHERE username = ?`, username)
 			.then(rows => {

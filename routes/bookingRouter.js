@@ -212,7 +212,8 @@ router.get('/getbookinglist/:stationId', function (req, res) {
   // se.session_start = (SELECT distinct session_start FROM sessions s
   // WHERE station_id = ? AND ADDTIME(current_time(), '0:5:00') >= session_start
   // AND ADDTIME(current_time(), '0:5:00') < s.session_end)`;
-  let sql = ` SELECT b.booking_id,ase.session_id,s.station_name, ase.session_date, sr.role_name, se.session_start, se.session_end,  b.booking_status, b.rfid,b.queue_no
+	let sql = ` SELECT b.booking_id,ase.session_id,s.station_name, ase.session_date, sr.role_name, 
+	se.session_start, se.session_end,  b.booking_status, b.rfid, b.time_in, b.queue_no
 	FROM booking_details b, available_sessions ase, sessions se, station_roles sr,stations s
 	WHERE b.session_date = ase.session_date AND
 			b.session_id = ase.session_id AND
