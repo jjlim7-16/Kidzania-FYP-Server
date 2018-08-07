@@ -169,14 +169,15 @@ router.get('/rfid/:rfid', function(req, res) {
 	bd.rfid, bd.queue_no, bd.booking_status, s.station_name, ss.session_start, ss.session_end
 	FROM booking_details bd inner join stations s on bd.station_id = s.station_id
 	inner join sessions ss on bd.session_id = ss.session_id inner join station_roles sr on bd.role_id = sr.role_id where bd.rfid = ?
-	AND session_date=current_date() AND bd.booking_status = 'Confirmed';`
-	//database query havent filter by date
+	AND session_date=current_date()`
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, rfid)
 			.then((rows) => {
 				if (rows.length > 0) {
-					rows[0].session_start = moment(rows[0].session_start, 'HH:mm:ss').format('LT')
-					rows[0].session_end = moment(rows[0].session_end, 'HH:mm:ss').format('LT')
+					for (let row of rows) {
+						row.session_start = moment(row.session_start, 'HH:mm:ss').format('LT')
+						row.session_end = moment(row.session_end, 'HH:mm:ss').format('LT')
+					}
 				}
 				res.json(rows)
 			})
