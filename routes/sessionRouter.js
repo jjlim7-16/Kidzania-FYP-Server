@@ -44,26 +44,30 @@ router.get('/getSessionList/:roleID', (req, res) =>  {
 	// Get Today's Date & Time
 	let date = new Date()
 	let time = date.getHours() + ':' + date.getMinutes()
-	time = "13:00"
+	time = moment(time, 'HH:mm').add(5, 'minutes')
 	date = date.getFullYear() + ' - ' + (date.getMonth() + 1) + ' - ' + date.getDate()
 	let sql = `SELECT a.session_id, session_start, session_end, sr.capacity, a.noBooked
 		FROM sessions s, available_sessions a, station_roles sr WHERE s.session_id = a.session_id
 		AND a.role_id = s.role_id AND sr.role_id = a.role_id AND a.role_id = ?
-		AND a.session_date = current_date() ORDER BY 2 ASC`
+		AND a.session_date = current_date() ORDER BY 2 ASC;`
 
-		pool.getConnection().then(function(connection) {
+	pool.getConnection().then(function(connection) {
 		connection.query(sql, [parseInt(req.params.roleID)])
-			.then((rows) => {
-				for(let timeSlot of rows) {
+		.then((rows) => {
+			let timeSlots = []
+			for	(let timeSlot of rows) {
+				if (moment(timeSlot.session_start, 'HH:mm:ss').format('HH:mm').isAfter(time)) {
 					timeSlot.session_start = moment(timeSlot.session_start, 'HH:mm:ss').format('LT')
 					timeSlot.session_end = moment(timeSlot.session_end, 'HH:mm:ss').format('LT')
+					timeSlots.push(timeSlot)
 				}
-				res.json(rows)
-			})
-			.catch(err => {
-				res.statusMessage = err
-				res.status(400).end()
-			})
+			}
+			res.json(timeSlots)
+		})
+		.catch(err => {
+			res.statusMessage = err
+			res.status(400).end()
+		})
 		connection.release()
 	})
 })
