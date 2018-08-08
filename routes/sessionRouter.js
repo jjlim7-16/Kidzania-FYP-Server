@@ -73,13 +73,9 @@ router.get('/getSessionList/:roleID', (req, res) =>  {
 })
 
 router.get('/currentSession/:stationID', (req, res) => {
-	let sql = `SELECT distinct session_start, session_end FROM sessions
-	WHERE station_id = ? AND ADDTIME(current_time(),'0:5:00') >= session_start 
-	AND ADDTIME(current_time(), '0:5:00') < session_end `
-// 	let sql = `    SELECT distinct session_start, session_end FROM sessions
-// 	WHERE station_id = 1 AND ADDTIME(Time('14:40:00'),'0:5:00') >= session_start 
-//      AND ADDTIME(Time('14:40:00'),'0:5:00') < session_end `;
-
+	let sql = `SELECT distinct se.session_start, se.session_end, s.station_name FROM sessions se inner join stations s on se.station_id = s.station_id
+	WHERE se.station_id = 1 AND ADDTIME(Time('14:40:00'),'0:5:00') >= session_start 
+     AND ADDTIME(Time('14:40:00'),'0:5:00') < session_end`
 	pool.getConnection().then(function (connection) {
 		connection.query(sql, parseInt(req.params.stationID))
 			.then((rows) => {
