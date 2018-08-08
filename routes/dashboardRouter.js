@@ -153,9 +153,9 @@ router.get('/generateReport', (req, res) => {
 	(SELECT COUNT(booking_id) as admission_count
 	FROM booking_details b WHERE session_date=current_date() AND booking_status = 'Admitted') n,
 	(SELECT rfid, COUNT(*) as bookings FROM booking_details
-	WHERE booking_status!='Cancelled' AND session_date=current_date()
-	GROUP BY rfid) a
+	WHERE booking_status!='Cancelled' AND session_date=current_date() GROUP BY rfid) a
 	WHERE session_date = current_date() AND booking_status != 'Cancelled';`
+	
 	sql += `Select booking_id, b.session_date, se.session_start, se.session_end, st.station_name,
 	sr.role_name From booking_details b, sessions se, stations st, station_roles sr
 	where b.session_id = se.session_id and b.station_id = st.station_id and b.session_date='2018-08-07' and

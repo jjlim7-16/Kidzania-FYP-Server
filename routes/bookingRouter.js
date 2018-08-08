@@ -177,9 +177,9 @@ router.get('/rfid/:rfid', function(req, res) {
 	let sql = `SELECT bd.booking_id,sr.role_name,bd.session_id, bd.session_date, bd.station_id, bd.role_id, 
 	bd.rfid, bd.queue_no, bd.booking_status, s.station_name, ss.session_start, ss.session_end
 	FROM booking_details bd inner join stations s on bd.station_id = s.station_id
-	inner join sessions ss on bd.session_id = ss.session_id inner join station_roles sr on bd.role_id = sr.role_id where bd.rfid = ?
-	AND session_date=current_date() AND bd.booking_status = 'Confirmed';`
-	//database query havent filter by date
+	inner join sessions ss on bd.session_id = ss.session_id inner join station_roles sr on bd.role_id = sr.role_id 
+	where bd.rfid = ? AND session_date=current_date() AND bd.booking_status = 'Confirmed';`
+
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, rfid)
 			.then((rows) => {
