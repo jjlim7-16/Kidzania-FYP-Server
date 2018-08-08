@@ -194,7 +194,7 @@ router.get('/rfid/:rfid', function(req, res) {
 router.get('/getbookinglist/:stationId', function(req, res) {
 	var stationidStr = req.params.stationId
 	let stationid = parseInt(stationidStr)
-	let sql = `SELECT b.booking_id,ase.session_id,s.station_name, ase.session_date, sr.role_name, se.session_start, se.session_end,  b.booking_status, b.rfid,b.queue_no
+	let sql = `SELECT b.booking_id,ase.session_id,s.station_name, ase.session_date, sr.role_name,b.time_in, se.session_start, se.session_end,  b.booking_status, b.rfid,b.queue_no
   FROM booking_details b, available_sessions ase, sessions se, station_roles sr, stations s
   WHERE b.session_date = ase.session_date AND
   b.session_id = ase.session_id AND
