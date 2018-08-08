@@ -212,14 +212,18 @@ router.put('/activate/:stationID', (req, res) => {
 	let val = [newActiveStatus, req.params.stationID]
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, val)
-			.then((rows) => {
-				// if (newActiveStatus === 0) {
-				// 	sql = `DELETE FROM available_sessions WHERE station_id = ${req.params.stationID}`
-				// 	return connection.query(sql)
-				// }
-				// else {
-				// 	res.end('Activated/Deactivated Successfully')
-				// }
+			.then(results => {
+				if (newActiveStatus === 0) {
+					sql = `DELETE FROM available_sessions WHERE station_id = ${req.params.stationID}`
+					return connection.query(sql)
+				}
+				else {
+					// res.end('Activated/Deactivated Successfully')
+					return seedData.seedNewAvailableSessions(req.params.stationID)
+				}
+			})
+			.then(results => {
+				console.log(results)
 				res.end('Activated/Deactivated Successfully')
 			})
 			.catch((err) => {

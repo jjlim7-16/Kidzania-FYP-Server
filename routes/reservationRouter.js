@@ -68,6 +68,9 @@ router.route('/')
 						reservedFrom, reservedTo, remarks) VALUES ?;`
 					let resVal = [[ resData.date, resData.stationId, resData.roleId, 
 						resData.reservedFrom, resData.reservedTo, resData.remarks ]]
+					// if (moment(resData.date, 'YYYY-MM-DD').diff(moment(new Date(), 'YYYY-MM-DD') === 0)) {
+						
+					// }
 					return connection.query(sql, [resVal])
 				}
 			})

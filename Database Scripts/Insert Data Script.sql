@@ -22,8 +22,8 @@ SELECT * FROM booking_details;
 
 # INSERT - BOOKING_DETAILS
 INSERT INTO booking_details (session_date, session_id, station_id, role_id, rfid, queue_no, booking_status) VALUES 
-(current_date(), 337, 1, 1, 'e0004', 'A0001', 'Confirmed'), (current_date(), 337, 1, 1, 'e0001', 'A0002', 'Confirmed'),
-(current_date(), 337, 1, 1, 'e0003', 'A0003', 'Confirmed'), (current_date(), 337, 1, 1, 'e0002', 'A0004', 'Confirmed');
+(current_date(), 308, 1, 1, 'e0013', 'A0001', 'Confirmed'), (current_date(), 308, 1, 1, 'e00014', 'A0002', 'Confirmed'),
+(current_date(), 308, 1, 1, 'e0012', 'A0003', 'Confirmed'), (current_date(), 308, 1, 1, 'e00015', 'A0004', 'Confirmed');
 
 INSERT INTO booking_details (session_date, session_id, station_id, role_id, rfid, queue_no, booking_status) VALUES 
 ('2018-08-06', 57, 1, 1, 'e0001', 'A0001', 'Confirmed'), ('2018-08-06', 57, 1, 1, 'e0002', 'A0002', 'Confirmed'),

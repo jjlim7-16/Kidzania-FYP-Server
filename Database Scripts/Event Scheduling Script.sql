@@ -5,7 +5,7 @@ SET GLOBAL event_scheduler = ON;
 CREATE EVENT IF NOT EXISTS `seed_daily_sessions_event`
 ON SCHEDULE
 	EVERY 1 DAY
-    STARTS '2018-06-25 9:00:00' ON COMPLETION PRESERVE ENABLE 
+    STARTS '2018-06-25 9:30:00' ON COMPLETION PRESERVE ENABLE 
   DO
     INSERT INTO available_sessions 
 	(session_date, session_id, station_id, role_id, noBooked, capacity)

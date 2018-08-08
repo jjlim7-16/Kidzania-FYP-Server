@@ -67,7 +67,10 @@ router.route('/')
 	role_val.push([parseInt(roleData.stationId), roleData.roleName, parseInt(roleData.capacity), filename])
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, [role_val])
-			.then((results) => {
+			.then(results => {
+				return seedData.seedNewRoleSessions(results.insertId)
+			})
+			.then(() => {
 				res.end('Role Added Successfully')
 			})
 			.catch(err => {

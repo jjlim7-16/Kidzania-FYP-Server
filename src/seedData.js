@@ -130,7 +130,7 @@ module.exports = {
 					INNER JOIN stations st ON st.station_id = s.station_id AND st.is_active = true;`
 					return connection.query(sql)
 				})
-				.then(() => {
+				.then((results) => {
 					console.log('Successfully Seed Available Sessions For Today')
 				})
 				.catch(err => {
@@ -142,6 +142,7 @@ module.exports = {
 	seedNewAvailableSessions: function (station_id) {
 		let sql = `Select max(session_date) as date from available_sessions where session_date = current_date()
 		AND station_id = ${station_id}`
+		console.log(sql)
 		pool.getConnection().then(function (connection) {
 			connection.query(sql)
 				.then(results => {
@@ -159,6 +160,34 @@ module.exports = {
 				})
 				.then(() => {
 					console.log('Successfully Seed Available Sessions For Today')
+				})
+				.catch(err => {
+					console.log(err)
+				})
+				connection.release()
+		})
+	},
+	seedNewRoleAvailableSessions: function (role_id) {
+		let sql = `Select max(session_date) as date from available_sessions where session_date = current_date()
+		AND role_id = ${role_id}`
+		console.log(sql)
+		pool.getConnection().then(function (connection) {
+			connection.query(sql)
+				.then(results => {
+					if (results[0].date) {
+						return Promise.reject('Available Sessions Data Was Seeded')
+					}
+					sql = `INSERT INTO available_sessions 
+					(session_date, session_id, station_id, role_id, noBooked, capacity)
+					SELECT current_date(), session_id, s.station_id, s.role_id, 0, capacity
+					FROM sessions s LEFT JOIN booking_limit b ON s.role_id = b.role_id 
+					AND s.role_id = ${role_id}
+					AND b.session_date = current_date()
+					INNER JOIN stations st ON st.station_id = s.station_id AND st.is_active = true;`
+					return connection.query(sql)
+				})
+				.then(() => {
+					console.log('Successfully Seed Available Sessions For Role')
 				})
 				.catch(err => {
 					console.log(err)
