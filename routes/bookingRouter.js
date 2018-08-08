@@ -115,11 +115,12 @@ router.route('/getBookingDetails')
 router.post('/makeBooking', (req, res) => {
 	let sql = `SELECT COUNT(booking_id) AS qNum FROM booking_details WHERE session_date=current_date();`
 	let bookingData = req.body
+	let qNum = ''
 	console.log(bookingData)
 	pool.getConnection().then(function(connection) {
 		connection.query(sql)
 			.then((rows) => {
-				let qNum = parseInt(rows[0].qNum) + 1
+				qNum = parseInt(rows[0].qNum) + 1
 				let alphas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 				qNum = alphas.charAt(parseInt(bookingData.station_id - 1)) + zerofill(4, qNum)
 				sql = `INSERT INTO booking_details (session_id, session_date, station_id,
@@ -133,9 +134,9 @@ router.post('/makeBooking', (req, res) => {
 					[bookingDetails_val]
 				])
 			})
-			.then((rows) => {
-				res.json(rows)
-				res.status(200).end()
+			.then(() => {
+				console.log(qNum)
+				res.json({ queue_no: qNum })
 			})
 			.catch((err) => {
 				res.statusMessage = err
