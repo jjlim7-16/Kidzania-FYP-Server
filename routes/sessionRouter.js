@@ -56,7 +56,7 @@ router.get('/getSessionList/:roleID', (req, res) =>  {
 		.then((rows) => {
 			let timeSlots = []
 			for	(let timeSlot of rows) {
-				if (moment(timeSlot.session_start, 'HH:mm:ss').format('HH:mm').isAfter(time)) {
+				if (moment(timeSlot.session_start, 'HH:mm:ss').isAfter(time)) {
 					timeSlot.session_start = moment(timeSlot.session_start, 'HH:mm:ss').format('LT')
 					timeSlot.session_end = moment(timeSlot.session_end, 'HH:mm:ss').format('LT')
 					timeSlots.push(timeSlot)
