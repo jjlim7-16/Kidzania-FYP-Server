@@ -60,7 +60,7 @@ requireRole(['Crew', 'Admin', 'Master Admin']), accountRouter)
 app.use('/dashboard', dashboardRouter)
 
 app.use('/limit', passport.authenticate('jwt', { session: false }), 
-requireRole(['Admin', 'Master Admin']), limitRouter)
+requireRole(['Guest', 'Admin', 'Master Admin']), limitRouter)
 
 app.use('/reservations', passport.authenticate('jwt', { session: false }), 
 requireRole(['Admin', 'Master Admin']), reservationRouter)
