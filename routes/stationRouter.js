@@ -47,7 +47,9 @@ router.route('/')
 	next()
 })
 .get((req, res) => {
-	let sql = `Select * From stations`
+	let sql = `Select st.*, COUNT(role_id) as noOfRoles From stations st
+	INNER JOIN (SELECT station_id, role_id FROM station_roles) sr ON st.station_id = sr.station_id
+	GROUP BY st.station_id;`
 	pool.getConnection().then(function(connection) {
 		connection.query(sql)
 			.then(rows => {

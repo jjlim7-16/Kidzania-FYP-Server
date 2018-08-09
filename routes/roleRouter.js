@@ -64,16 +64,11 @@ router.route('/')
 	let sql = 'INSERT INTO station_roles (station_id, role_name, ' +
 		'capacity, imagepath) VALUES ?'
 	let role_val = []
-	let roleId
 	role_val.push([parseInt(roleData.stationId), roleData.roleName, parseInt(roleData.capacity), filename])
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, [role_val])
 			.then(results => {
-				roleId = results.insertId
-				return seedData.seedNewRoleSessions(roleId)
-			})
-			.then(() => {
-				return seedData.seedNewRoleAvailableSessions(roleId)
+				return seedData.seedNewRoleSessions(results.insertId)
 			})
 			.then(() => {
 				res.end('Role Added Successfully')

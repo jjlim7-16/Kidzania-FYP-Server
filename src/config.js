@@ -2,7 +2,7 @@ const os = require('os')
 
 module.exports = {
 	// Localhost
-	// hostname: '0.0.0.0'
+	// hostname: 'localhost'
 
 	// Hamachi
 	hostname: '25.37.100.106'

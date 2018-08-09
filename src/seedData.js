@@ -121,10 +121,12 @@ module.exports = {
 					}
 					sql = `INSERT INTO available_sessions 
 					(session_date, session_id, station_id, role_id, noBooked, capacity)
-					SELECT current_date(), session_id, s.station_id, s.role_id, 0, capacity
-					FROM sessions s LEFT JOIN booking_limit b ON s.role_id = b.role_id 
+					SELECT current_date(), ss.session_id, ss.station_id, ss.role_id, 
+					CASE WHEN noOfReservedSlots IS NULL THEN 0 ELSE noOfReservedSlots END as noBooked, capacity
+					FROM sessions ss LEFT JOIN booking_limit b ON ss.role_id = b.role_id 
 					AND b.session_date = current_date()
-					INNER JOIN stations st ON st.station_id = s.station_id AND st.is_active = true;`
+					INNER JOIN stations st ON st.station_id = ss.station_id AND st.is_active = true
+					LEFT JOIN reservations r ON r.session_id = ss.session_id AND r.session_date = current_date();`
 					return connection.query(sql)
 				})
 				.then((results) => {
@@ -135,7 +137,6 @@ module.exports = {
 				})
 				connection.release()
 		})
-		return delay(500)
 	},
 	seedNewAvailableSessions: function (station_id) {
 		let sql = `Select max(session_date) as date from available_sessions where session_date = current_date()
@@ -149,11 +150,13 @@ module.exports = {
 					}
 					sql = `INSERT INTO available_sessions 
 					(session_date, session_id, station_id, role_id, noBooked, capacity)
-					SELECT current_date(), session_id, s.station_id, s.role_id, 0, capacity
-					FROM sessions s LEFT JOIN booking_limit b ON s.role_id = b.role_id 
+					SELECT current_date(), ss.session_id, ss.station_id, ss.role_id, 
+					CASE WHEN noOfReservedSlots IS NULL THEN 0 ELSE noOfReservedSlots END as noBooked, capacity
+					FROM sessions ss LEFT JOIN booking_limit b ON ss.role_id = b.role_id 
 					AND b.session_date = current_date()
-					INNER JOIN stations st ON st.station_id = s.station_id AND st.is_active = true
-					AND st.station_id = ${station_id};`
+					INNER JOIN stations st ON st.station_id = ss.station_id AND st.is_active = true
+					AND st.station_id = ${station_id}
+					LEFT JOIN reservations r ON r.session_id = ss.session_id AND r.session_date = current_date();`
 					return connection.query(sql)
 				})
 				.then(() => {
@@ -164,7 +167,6 @@ module.exports = {
 				})
 				connection.release()
 		})
-		return delay(500)
 	},
 	seedNewRoleAvailableSessions: function (role_id) {
 		let sql = `Select max(session_date) as date from available_sessions where session_date = current_date()
@@ -179,10 +181,12 @@ module.exports = {
 					}
 					sql = `INSERT INTO available_sessions 
 					(session_date, session_id, station_id, role_id, noBooked, capacity)
-					SELECT current_date(), session_id, ss.station_id, ss.role_id, 0, ss.capacity
+					SELECT current_date(), ss.session_id, ss.station_id, ss.role_id, 
+					CASE WHEN noOfReservedSlots IS NULL THEN 0 ELSE noOfReservedSlots END as noBooked, ss.capacity
 					FROM sessions ss LEFT JOIN booking_limit b ON ss.role_id = b.role_id 
 					AND b.session_date = current_date()
 					INNER JOIN stations st ON st.station_id = ss.station_id AND st.is_active = true
+					LEFT JOIN reservations r ON r.session_id = ss.session_id AND r.session_date = current_date();
 					WHERE ss.role_id = ${role_id};`
 					return connection.query(sql)
 				})
@@ -194,26 +198,25 @@ module.exports = {
 				})
 				connection.release()
 		})
-		return delay(500)
-	},
-	updateReservation() {
-		let sql = `UPDATE available_sessions SET noBooked = capacity 
-		WHERE session_id IN (SELECT ss.session_id FROM reservations r
-		INNER JOIN sessions ss ON ss.session_start >= r.reservedFrom 
-		AND ss.session_end <= r.reservedTo
-		AND ss.role_id = r.role_id
-		WHERE r.session_date = current_date());`
-		
-		pool.getConnection().then(function(connection) {
-			connection.query(sql)
-			.then(() => {
-				console.log('Update Reservation')
-			})
-			.catch(err => {
-				console.log(err)
-			})
-			connection.release()
-		})
-		return Promise.resolve('Success')
 	}
+	// updateReservation() {
+	// 	let sql = `UPDATE available_sessions SET noBooked = capacity 
+	// 	WHERE session_id IN (SELECT ss.session_id FROM reservations r
+	// 	INNER JOIN sessions ss ON ss.session_start >= r.reservedFrom 
+	// 	AND ss.session_end <= r.reservedTo
+	// 	AND ss.role_id = r.role_id
+	// 	WHERE r.session_date = current_date());`
+		
+	// 	pool.getConnection().then(function(connection) {
+	// 		connection.query(sql)
+	// 		.then(() => {
+	// 			console.log('Update Reservation')
+	// 		})
+	// 		.catch(err => {
+	// 			console.log(err)
+	// 		})
+	// 		connection.release()
+	// 	})
+	// 	return Promise.resolve('Success')
+	// }
 }
