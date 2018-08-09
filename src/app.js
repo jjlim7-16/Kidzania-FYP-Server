@@ -129,8 +129,5 @@ server.listen(port, hostname, () => {
 	.then(() => {
 		seedData.seedAvailableSessions()
 	})
-	.then(() => {
-		seedData.updateReservation()
-	})
 	console.log(`Server running at http://${hostname}:${port}`)
 })
