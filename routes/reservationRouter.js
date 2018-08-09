@@ -84,6 +84,28 @@ router.get('/getSessionList/:roleID', (req, res) => {
 	})
 })
 
+router.get('/getCurrentReservation/:stationID', (req, res) => {
+	let sql = `select  sr.role_id,sr.role_name, r.noOfReservedSlots from reservations r
+inner join sessions se on se.session_id = r.session_id 
+inner join station_roles sr on se.role_id = sr.role_id 
+inner join stations s on s.station_id = se.station_id
+where s.station_id = ? and r.session_date = current_date()
+AND ADDTIME(current_time(), '0:5:00') >= se.session_start
+AND ADDTIME(current_time(), '0:5:00') < se.session_end`;
+
+	pool.getConnection().then(function (connection) {
+		connection.query(sql, [parseInt(req.params.roleID)])
+			.then((rows) => {
+				res.json(rows)
+			})
+			.catch(err => {
+				res.statusMessage = err
+				res.status(400).end()
+			})
+		connection.release()
+	})
+})
+
 router.route('/:reservationID')
 .all((req, res, next) => {
   res.statusCode = 200
