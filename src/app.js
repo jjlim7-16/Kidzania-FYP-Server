@@ -40,36 +40,36 @@ app.use(CookieParser())
 app.use('/auth', auth)
 app.use(passport.initialize())
 
-app.use('/stations', passport.authenticate('jwt', { session: false }),
+app.use('/stations', passport.authenticate('jwt',  {session:false }), 
 requireRole(['Guest', 'Crew', 'Admin', 'Master Admin']), stationRouter)
 
-app.use('/roles', passport.authenticate('jwt', { session: false }),
+app.use('/roles', passport.authenticate('jwt',  {session:false }), 
 requireRole(['Guest', 'Crew', 'Admin', 'Master Admin']), roleRouter)
 
-app.use('/sessions', passport.authenticate('jwt', { session: false }),
+app.use('/sessions', passport.authenticate('jwt',  {session:false }), 
 requireRole(['Guest', 'Crew', 'Admin', 'Master Admin']), sessionRouter)
 
-app.use('/bookings', passport.authenticate('jwt', { session: false }),
+app.use('/bookings', passport.authenticate('jwt',  {session:false }), 
 requireRole(['Guest', 'Crew', 'Admin', 'Master Admin']), bookingRouter)
 
 // app.use('/print',printReceiptRouter)
 
-app.use('/user', passport.authenticate('jwt', { session: false }),
+app.use('/user', passport.authenticate('jwt',  {session:false }), 
 requireRole(['Crew', 'Admin', 'Master Admin']), accountRouter)
 
 app.use('/dashboard', dashboardRouter)
 
-app.use('/limit', passport.authenticate('jwt', { session: false }),
+app.use('/limit', passport.authenticate('jwt',  {session:false }), 
 requireRole(['Guest', 'Admin', 'Master Admin']), limitRouter)
 
-app.use('/reservations', passport.authenticate('jwt', { session: false }),
-requireRole(['Admin', 'Master Admin']), reservationRouter)
+app.use('/reservations', passport.authenticate('jwt',  {session:false }), 
+requireRole(['Admin', 'Master Admin', 'Crew']), reservationRouter)
 
 app.use('/image', imageRouter)
 
 // Error handling
-app.use(function(error, request, response, next) {
-	if (!error) {
+app.use(function (error, request, response, next) {
+	if ( ! error) {
 		return next()
 	}
 	response.status(error.errorCode).end(error.msg)
@@ -83,7 +83,7 @@ const dashboardSocket = io.of('/dashboard')
 const userSocket = io.of('/user')
 const crewSocket = io.of('/crew')
 
-dashboardSocket.on('connection', socket => {
+dashboardSocket.on('connection', socket =>  {
 	console.log('New Admin Connected')
 
 	dashboard.getBookingCount(socket)
@@ -92,7 +92,7 @@ dashboardSocket.on('connection', socket => {
 	dashboard.getBookingByStation(socket)
 	dashboard.getBookingByTime(socket)
 
-	let interval = setInterval(function() {
+	let interval = setInterval(function () {
 		dashboard.getBookingCount(socket)
 		dashboard.getAvgBookings(socket)
 		dashboard.getBookingByDay(socket)
@@ -100,33 +100,33 @@ dashboardSocket.on('connection', socket => {
 		dashboard.getBookingByTime(socket)
 	}, 100000)
 
-	socket.on("disconnect", () => {
+	socket.on("disconnect", () =>  {
 		console.log("Admin client disconnected")
 		clearInterval(interval)
-	});
+	}); 
 })
 
-userSocket.on('connection', (socket) => {
+userSocket.on('connection', (socket) =>  {
 	console.log('New client connected')
-	socket.on('disconnect', () => console.log('Client disconnected'));
-	socket.on('makeBooking', (session_id) => {
+	socket.on('disconnect', () => console.log('Client disconnected')); 
+	socket.on('makeBooking', (session_id) =>  {
 		console.log('A new booking is being made')
 		socket.broadcast.emit('newSlotBooked', session_id)
 	})
 })
 
-crewSocket.on('connection', (socket) => {
+crewSocket.on('connection', (socket) =>  {
 	console.log('New Crew Connected')
 	socket.on('disconnect', () => console.log('Client disconnected'))
-	socket.on('admitted', (booking_id) => {
+	socket.on('admitted', (booking_id) =>  {
 		console.log('New visitor admitted')
 		socket.broadcast.emit('newAdmission', booking_id)
 	})
 })
 
-server.listen(port, hostname, () => {
+server.listen(port, hostname, () =>  {
 	seedData.seedSessions()
-	.then(() => {
+	.then(() =>  {
 		seedData.seedAvailableSessions()
 	})
 	console.log(`Server running at http://${hostname}:${port}`)
