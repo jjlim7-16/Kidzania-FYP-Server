@@ -47,11 +47,13 @@ router.route('/')
 .post((req, res) => {
 	let resData = req.body
 	let sql = `INSERT INTO reservations (session_date, session_id, noOfReservedSlots, remarks)
-	SELECT ${resData.date}, session_id, ${resData.noOfRSlots}, ${resData.remarks} FROM sessions
+	SELECT ?, session_id, ?, ? FROM sessions
 	WHERE role_id = ${resData.role_id} AND session_id = ${resData.session_id};`
+	
+	let resVal = [resData.date, resData.noOfRSlots, resData.remarks]
 
 	pool.getConnection().then(function(connection) {
-		connection.query(sql)
+		connection.query(sql, resVal)
 			.then(results => {
 				res.status(200).end()
 			})
@@ -60,6 +62,7 @@ router.route('/')
 					console.log(err)
 					res.status(400).json({message: err.sqlMessage})
 				} else {
+					console.log(err)
 					res.status(400).json({message: err})
 				}
 			})
@@ -84,7 +87,7 @@ router.get('/getSessionList/:roleID', (req, res) => {
 })
 
 router.get('/getCurrentReservation/:stationID', (req, res) => {
-	let sql = `select  sr.role_id,sr.role_name, r.noOfReservedSlots from reservations r
+	let sql = `select  s.station_name,r.session_date,se.session_start,se.session_end,sr.role_id,sr.role_name, r.noOfReservedSlots from reservations r
 inner join sessions se on se.session_id = r.session_id 
 inner join station_roles sr on se.role_id = sr.role_id 
 inner join stations s on s.station_id = se.station_id
