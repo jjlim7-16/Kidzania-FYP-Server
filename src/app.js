@@ -40,29 +40,29 @@ app.use(CookieParser())
 app.use('/auth', auth)
 app.use(passport.initialize())
 
-app.use('/stations', passport.authenticate('jwt', { session: false }), 
+app.use('/stations', passport.authenticate('jwt', { session: false }),
 requireRole(['Guest', 'Crew', 'Admin', 'Master Admin']), stationRouter)
 
-app.use('/roles', passport.authenticate('jwt', { session: false }), 
+app.use('/roles', passport.authenticate('jwt', { session: false }),
 requireRole(['Guest', 'Crew', 'Admin', 'Master Admin']), roleRouter)
 
-app.use('/sessions', passport.authenticate('jwt', { session: false }), 
+app.use('/sessions', passport.authenticate('jwt', { session: false }),
 requireRole(['Guest', 'Crew', 'Admin', 'Master Admin']), sessionRouter)
 
-app.use('/bookings', passport.authenticate('jwt', { session: false }), 
+app.use('/bookings', passport.authenticate('jwt', { session: false }),
 requireRole(['Guest', 'Crew', 'Admin', 'Master Admin']), bookingRouter)
 
 // app.use('/print',printReceiptRouter)
 
-app.use('/user', passport.authenticate('jwt', { session: false }), 
+app.use('/user', passport.authenticate('jwt', { session: false }),
 requireRole(['Crew', 'Admin', 'Master Admin']), accountRouter)
 
 app.use('/dashboard', dashboardRouter)
 
-app.use('/limit', passport.authenticate('jwt', { session: false }), 
-requireRole(['Admin', 'Master Admin']), limitRouter)
+app.use('/limit', passport.authenticate('jwt', { session: false }),
+requireRole(['Guest', 'Admin', 'Master Admin']), limitRouter)
 
-app.use('/reservations', passport.authenticate('jwt', { session: false }), 
+app.use('/reservations', passport.authenticate('jwt', { session: false }),
 requireRole(['Admin', 'Master Admin']), reservationRouter)
 
 app.use('/image', imageRouter)
