@@ -85,7 +85,7 @@ router.get('/getSessionList/:roleID', (req, res) => {
 })
 
 router.get('/getCurrentReservation/:stationID', (req, res) => {
-	let sql = `select  sr.role_id,sr.role_name, r.noOfReservedSlots from reservations r
+	let sql = `select  s.station_name,r.session_date,se.session_start,se.session_end,sr.role_id,sr.role_name, r.noOfReservedSlots from reservations r
 inner join sessions se on se.session_id = r.session_id 
 inner join station_roles sr on se.role_id = sr.role_id 
 inner join stations s on s.station_id = se.station_id
