@@ -94,7 +94,7 @@ AND ADDTIME(current_time(), '0:5:00') >= se.session_start
 AND ADDTIME(current_time(), '0:5:00') < se.session_end`;
 
 	pool.getConnection().then(function (connection) {
-		connection.query(sql, [parseInt(req.params.roleID)])
+		connection.query(sql, [parseInt(req.params.stationID)])
 			.then((rows) => {
 				res.json(rows)
 			})
