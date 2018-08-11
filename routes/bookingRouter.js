@@ -154,8 +154,7 @@ router.put('/cancelBooking', (req, res) => {
 	let val = [details.status, parseInt(details.session_id), details.rfid]
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, val)
-			.then((rows) => {
-				res.json(rows)
+			.then(() => {
 				res.status(200).end()
 			})
 			.catch((err) => {
