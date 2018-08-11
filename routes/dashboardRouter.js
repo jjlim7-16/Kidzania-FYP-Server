@@ -95,7 +95,8 @@ router.get('/getBookingByStation', (req, res) => {
 	let sql = `SELECT st.station_name, COUNT(b.booking_id) as station_count
 	FROM (SELECT COUNT(*) as total FROM booking_details) t,
 	(SELECT * FROM booking_details WHERE booking_status!='Cancelled' AND session_date=current_date()) b
-	LEFT JOIN stations st ON b.station_id = st.station_id AND is_active=1
+	RIGHT JOIN stations st ON b.station_id = st.station_id 
+	WHERE is_active=1
 	GROUP BY st.station_name;`
 
 	pool.getConnection().then(function (connection) {
@@ -120,7 +121,7 @@ router.get('/getBookingByTime', (req, res) => {
 	let sql = `SELECT st.station_name, session_start as x, capacity, COUNT(b.booking_id) as y
 	FROM (SELECT * FROM booking_details WHERE booking_status!='Cancelled' AND session_date = current_date()) b
 	RIGHT JOIN sessions s ON s.session_id = b.session_id
-	RIGHT JOIN stations st ON s.station_id = st.station_id
+	INNER JOIN stations st ON s.station_id = st.station_id AND is_active=1
 	GROUP BY st.station_id, session_start;`
 	
 	pool.getConnection().then(function (connection) {
