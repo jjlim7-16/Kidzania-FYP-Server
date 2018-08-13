@@ -110,7 +110,7 @@ router.get('/getAccountTypeCrewList', (req,res) => {
   let sql = `SELECT a.*, st.station_name FROM account_type a
   LEFT JOIN stations st ON st.station_id = a.station_id
   WHERE account_type = 'Crew';`
-  
+
   pool.getConnection().then(function (connection) {
     connection.query(sql)
       .then((rows) => {
@@ -149,12 +149,21 @@ router.route('/:userID')
   })
 })
 .put((req, res) => {
-  let userData = req.body;
-  var salt = bcrypt.genSaltSync(saltRounds);
-  var passwordhash = bcrypt.hashSync(userData.password, salt);
-  let sql = `update user_accounts set account_type_id = ?, username = ?, password_hash = ? 
-    where user_id = ?`
-  let userVal = [userData.account_type_id, userData.username, passwordhash, parseInt(req.params.userID)]
+  let userData = req.body
+  let sql
+  let userVal
+  if(userData.password) {
+    let salt = bcrypt.genSaltSync(saltRounds)
+    let passwordhash = bcrypt.hashSync(userData.password, salt)
+    sql = `update user_accounts set account_type_id = ?, username = ?, password_hash = ?
+      where user_id = ?`
+    userVal = [userData.account_type_id, userData.username, passwordhash, parseInt(req.params.userID)]
+  } else {
+    sql = `update user_accounts set account_type_id = ?, username = ? where user_id = ?`
+    userVal = [userData.account_type_id, userData.username, parseInt(req.params.userID)]
+  }
+
+
   pool.getConnection().then(function (connection) {
     connection.query(sql, userVal)
       .then((rows) => {
