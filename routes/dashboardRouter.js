@@ -55,7 +55,7 @@ router.get('/getAvgBookings', (req, res) => {
 					res.json(0.0.toFixed(1))
 				}
 				else {
-					res.json(parseInt(results[0].avg_bookings).toFixed(1))
+					res.json(results[0].avg_bookings)
 				}
 			})
 			.catch(err => {
@@ -118,11 +118,12 @@ router.get('/getBookingByStation', (req, res) => {
 })
 
 router.get('/getBookingByTime', (req, res) => {
-	let sql = `SELECT st.station_name, session_start as x, capacity, COUNT(b.booking_id) as y
-	FROM (SELECT * FROM booking_details WHERE booking_status!='Cancelled' AND session_date = current_date()) b
-	RIGHT JOIN sessions s ON s.session_id = b.session_id
-	INNER JOIN stations st ON s.station_id = st.station_id AND is_active=1
-	GROUP BY st.station_id, session_start;`
+	let sql = `SELECT st.station_name, ss.session_start as x, SUM(noBooked) as y, SUM(av.capacity) as capacity FROM available_sessions av
+	INNER JOIN sessions ss ON ss.session_id = av.session_id
+	INNER JOIN station_roles sr ON sr.role_id = av.role_id
+	INNER JOIN stations st ON av.station_id = st.station_id AND is_active=1
+	WHERE session_date = current_date()
+	GROUP BY av.station_id, ss.session_start;`
 	
 	pool.getConnection().then(function (connection) {
 		connection.query(sql)
