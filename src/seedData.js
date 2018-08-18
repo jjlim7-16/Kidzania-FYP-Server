@@ -112,7 +112,7 @@ module.exports = {
 		return delay(500)
 	},
 	seedAvailableSessions: function () {
-		let sql = 'Select max(session_date) as date from available_sessions where session_date = current_date()'
+		let sql = `Select max(session_date) as date from available_sessions where session_date = current_date()`
 		pool.getConnection().then(function (connection) {
 			connection.query(sql)
 				.then(results => {
@@ -121,12 +121,13 @@ module.exports = {
 					}
 					sql = `INSERT INTO available_sessions 
 					(session_date, session_id, station_id, role_id, noBooked, capacity)
-					SELECT current_date(), ss.session_id, ss.station_id, ss.role_id, 
+					SELECT date, session_id, station_id, role_id, SUM(noBooked) as noBooked, capacity 
+					FROM (SELECT current_date() as date, ss.session_id, ss.station_id, ss.role_id, 
 					CASE WHEN noOfReservedSlots IS NULL THEN 0 ELSE noOfReservedSlots END as noBooked, capacity
-					FROM sessions ss LEFT JOIN booking_limit b ON ss.role_id = b.role_id 
-					AND b.session_date = current_date()
+					FROM sessions ss
 					INNER JOIN stations st ON st.station_id = ss.station_id AND st.is_active = true
-					LEFT JOIN reservations r ON r.session_id = ss.session_id AND r.session_date = current_date();`
+					LEFT JOIN reservations r ON r.session_id = ss.session_id AND r.session_date = current_date()) x
+					GROUP BY session_id;`
 					return connection.query(sql)
 				})
 				.then((results) => {
@@ -152,8 +153,7 @@ module.exports = {
 					(session_date, session_id, station_id, role_id, noBooked, capacity)
 					SELECT current_date(), ss.session_id, ss.station_id, ss.role_id, 
 					CASE WHEN noOfReservedSlots IS NULL THEN 0 ELSE noOfReservedSlots END as noBooked, capacity
-					FROM sessions ss LEFT JOIN booking_limit b ON ss.role_id = b.role_id 
-					AND b.session_date = current_date()
+					FROM sessions ss
 					INNER JOIN stations st ON st.station_id = ss.station_id AND st.is_active = true
 					AND st.station_id = ${station_id}
 					LEFT JOIN reservations r ON r.session_id = ss.session_id AND r.session_date = current_date();`
@@ -183,8 +183,7 @@ module.exports = {
 					(session_date, session_id, station_id, role_id, noBooked, capacity)
 					SELECT current_date(), ss.session_id, ss.station_id, ss.role_id, 
 					CASE WHEN noOfReservedSlots IS NULL THEN 0 ELSE noOfReservedSlots END as noBooked, ss.capacity
-					FROM sessions ss LEFT JOIN booking_limit b ON ss.role_id = b.role_id 
-					AND b.session_date = current_date()
+					FROM sessions ss
 					INNER JOIN stations st ON st.station_id = ss.station_id AND st.is_active = true
 					LEFT JOIN reservations r ON r.session_id = ss.session_id AND r.session_date = current_date()
 					WHERE ss.role_id = ${role_id};`

@@ -219,7 +219,7 @@ router.put('/activate/:stationID', (req, res) => {
 		connection.query(sql, val)
 			.then(results => {
 				if (newActiveStatus === 0) {
-					sql = `DELETE FROM available_sessions WHERE station_id = ${req.params.stationID}`
+					sql = `DELETE FROM available_sessions WHERE station_id = ${req.params.stationID} AND session_date=current_date()`
 					return connection.query(sql)
 				}
 				else {
