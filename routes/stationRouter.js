@@ -199,7 +199,10 @@ router.route('/:stationID')
 				for (i in results[0]) {
 					fs.unlinkSync('images/' + results[0][i].imagepath)
 				}
-				res.json(results)
+				return connection.query(`ALTER TABLE stations AUTO_INCREMENT=${req.params.stationID}`)
+			})
+			.then(() => {
+				res.end()
 			})
 			.catch(err => {
 				console.log(err)
