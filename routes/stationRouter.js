@@ -199,7 +199,12 @@ router.route('/:stationID')
 				for (i in results[0]) {
 					fs.unlinkSync('images/' + results[0][i].imagepath)
 				}
-				return connection.query(`ALTER TABLE stations AUTO_INCREMENT=${req.params.stationID}`)
+				sql = `SELECT max(station_id) as id FROM stations;`
+				return connection.query(sql)
+			})
+			.then(results => {
+				sql = `ALTER TABLE stations AUTO_INCREMENT=${results[0].id}`
+				return connection.query(sql)
 			})
 			.then(() => {
 				res.end()
@@ -219,7 +224,7 @@ router.put('/activate/:stationID', (req, res) => {
 		connection.query(sql, val)
 			.then(results => {
 				if (newActiveStatus === 0) {
-					sql = `DELETE FROM available_sessions WHERE station_id = ${req.params.stationID} AND session_date=current_date()`
+					sql = `DELETE FROM available_sessions WHERE station_id = ${req.params.stationID}`
 					return connection.query(sql)
 				}
 				else {
