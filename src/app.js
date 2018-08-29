@@ -11,9 +11,7 @@ router.use(bodyParser.json())
 
 require('./passport')
 
-const {
-	requireRole
-} = require('../middleware/requireRole')
+const { requireRole } = require('../middleware/requireRole')
 const seedData = require('./seedData')
 const dashboard = require('./dashboard')
 const limitRouter = require('../routes/limitRouter')
@@ -22,7 +20,6 @@ const bookingRouter = require('../routes/bookingRouter')
 const stationRouter = require('../routes/stationRouter')
 const roleRouter = require('../routes/roleRouter')
 const accountRouter = require('../routes/accountRouter')
-const printReceiptRouter = require('../routes/printReceiptRouter')
 const dashboardRouter = require('../routes/dashboardRouter')
 const reservationRouter = require('../routes/reservationRouter')
 const imageRouter = require('../routes/imageRouter')

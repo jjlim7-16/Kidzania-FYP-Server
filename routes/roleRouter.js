@@ -49,7 +49,7 @@ router.route('/')
 	let sql = `Select st.station_id, st.station_name, role_id, role_name, durationInMins, 
 	capacity, sr.imagepath From station_roles sr, stations st
 	Where st.station_id = sr.station_id; `
-	sql += `Select DISTINCT station_id, station_name from stations ORDER BY 1 ASC;`
+	sql += `Select DISTINCT station_id, station_name, is_active from stations ORDER BY 1 ASC;`
 	pool.getConnection().then(function(connection) {
 		connection.query(sql)
 			.then(results => {

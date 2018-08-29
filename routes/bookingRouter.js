@@ -27,8 +27,8 @@ router.route('/')
 		next() //Continue on to the next method -> .get(...)
 	})
 	.get((req, res) => {
-		let sql = `Select booking_id, b.session_date, se.session_start, se.session_end, st.station_name,
-		sr.role_name From booking_details b, sessions se, stations st, station_roles sr
+		let sql = `Select booking_id, rfid, b.session_date, se.session_start, se.session_end, st.station_name,
+		sr.role_name, booking_status, queue_no From booking_details b, sessions se, stations st, station_roles sr
 		where b.session_id = se.session_id and b.station_id = st.station_id and b.session_date=current_date() and
 		st.station_id = sr.station_id and sr.role_id = b.role_id;`
 		pool.getConnection().then(function(connection) {

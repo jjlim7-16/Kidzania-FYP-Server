@@ -212,6 +212,10 @@ base@^0.11.1:
     mixin-deep "^1.2.0"
     pascalcase "^0.1.1"
 
+bash-deploy@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/bash-deploy/-/bash-deploy-3.1.0.tgz#629466aedd20b1952bd3b63db1409d85d9d01de5"
+
 basic-auth@~2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/basic-auth/-/basic-auth-2.0.0.tgz#015db3f353e02e56377755f962742e8981e7bbba"
