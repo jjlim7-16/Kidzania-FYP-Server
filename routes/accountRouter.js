@@ -108,8 +108,7 @@ router.get('/getFilteredUsers', (req, res) => {
 
 router.get('/getAccountTypeCrewList', (req,res) => {
   let sql = `SELECT a.*, st.station_name FROM account_type a
-  LEFT JOIN stations st ON st.station_id = a.station_id
-  WHERE account_type = 'Crew';`
+  LEFT JOIN stations st ON st.station_id = a.station_id;`
 
   pool.getConnection().then(function (connection) {
     connection.query(sql)
