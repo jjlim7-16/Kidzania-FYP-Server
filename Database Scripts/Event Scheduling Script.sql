@@ -9,12 +9,13 @@ ON SCHEDULE
   DO
     INSERT INTO available_sessions 
 	(session_date, session_id, station_id, role_id, noBooked, capacity)
-	SELECT current_date(), s.session_id, s.station_id, s.role_id, 
+	SELECT date, session_id, station_id, role_id, SUM(noBooked) as noBooked, capacity 
+	FROM (SELECT current_date() as date, ss.session_id, ss.station_id, ss.role_id, 
 	CASE WHEN noOfReservedSlots IS NULL THEN 0 ELSE noOfReservedSlots END as noBooked, capacity
-	FROM sessions s LEFT JOIN booking_limit b ON s.role_id = b.role_id 
-	AND b.session_date = current_date()
-	INNER JOIN stations st ON st.station_id = s.station_id AND st.is_active = true
-	LEFT JOIN reservations r ON r.session_id = s.session_id AND r.session_date = current_date();
+	FROM sessions ss
+	INNER JOIN stations st ON st.station_id = ss.station_id AND st.is_active = true
+	LEFT JOIN reservations r ON r.session_id = ss.session_id AND r.session_date = current_date()) x
+	GROUP BY session_id;
 
 # Create Event Schedule - Everyday at 1PM
 # FOR TESTING PURPOSES
@@ -26,12 +27,13 @@ ON SCHEDULE
   DO
     INSERT INTO available_sessions 
 	(session_date, session_id, station_id, role_id, noBooked, capacity)
-	SELECT current_date(), s.session_id, s.station_id, s.role_id, 
+	SELECT date, session_id, station_id, role_id, SUM(noBooked) as noBooked, capacity 
+	FROM (SELECT current_date() as date, ss.session_id, ss.station_id, ss.role_id, 
 	CASE WHEN noOfReservedSlots IS NULL THEN 0 ELSE noOfReservedSlots END as noBooked, capacity
-	FROM sessions s LEFT JOIN booking_limit b ON s.role_id = b.role_id 
-	AND b.session_date = current_date()
-	INNER JOIN stations st ON st.station_id = s.station_id AND st.is_active = true
-	LEFT JOIN reservations r ON r.session_id = s.session_id AND r.session_date = current_date();
+	FROM sessions ss
+	INNER JOIN stations st ON st.station_id = ss.station_id AND st.is_active = true
+	LEFT JOIN reservations r ON r.session_id = ss.session_id AND r.session_date = current_date()) x
+	GROUP BY session_id;
 
 # DELETE FROM available_sessions where session_date = current_date();
 SELECT * FROM available_sessions where session_date = current_date();
