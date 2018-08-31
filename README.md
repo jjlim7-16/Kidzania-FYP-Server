@@ -1,7 +1,6 @@
 # Q-zee Backend Server
 
 ## Project File Structure
-<<<<<<< HEAD
 ```bash
 ├── Database Scripts          # Database Scripts Directory
 ├── Images                    # Image Directory
@@ -106,7 +105,7 @@ $ yarn deploy
 ## Deployment
 ```bash
 # Clone project from Github Repository
-$ git clone 'https://'
+$ git clone 'https://github.com/jjlim7-16/Kidzania-FYP-Server/'
 
 # Install dependencies
 $ yarn install
@@ -115,8 +114,7 @@ $ yarn install
 $ SET NODE_ENV=production
 
 # Deploy Server
-$ yarn start
+$ yarn deploy
 ```
 
 For more details, or if any bugs are found, please contact...
->>>>>>> origin/FinalServer
