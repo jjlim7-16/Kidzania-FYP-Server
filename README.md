@@ -1,5 +1,5 @@
 # Q-zee Backend Server
-Backend Server of the queue management system. This includes a Node.js server-side application and the MySQL database used to power both the Administrative portal and User Booking Portal. Click here to find out more about the Administrative Portal [https://github.com/jjlim7-16/Admin-Nuxt] and User Booking Portal [https://github.com/Syoongy/kidzania-fyp-client]
+Backend Server of the queue management system. This includes a Node.js server-side application and the MySQL database used to power both the Administrative portal and User Booking Portal. Click here to find out more about the [Administrative Portal](https://github.com/jjlim7-16/Admin-Nuxt) and [User Booking Portal](https://github.com/Syoongy/kidzania-fyp-client)
 
 ## Project File Structure
 ```bash
