@@ -17,24 +17,6 @@ ON SCHEDULE
 	LEFT JOIN reservations r ON r.session_id = ss.session_id AND r.session_date = current_date()) x
 	GROUP BY session_id;
 
-# Create Event Schedule - Everyday at 1PM
-# FOR TESTING PURPOSES
-CREATE EVENT IF NOT EXISTS `seed_test`
-ON SCHEDULE
-	EVERY 1 DAY
-    STARTS '2018-06-25 13:30:00' 
-    ENDS '2018-08-06 13:30:00' ON COMPLETION PRESERVE ENABLE
-  DO
-    INSERT INTO available_sessions 
-	(session_date, session_id, station_id, role_id, noBooked, capacity)
-	SELECT date, session_id, station_id, role_id, SUM(noBooked) as noBooked, capacity 
-	FROM (SELECT current_date() as date, ss.session_id, ss.station_id, ss.role_id, 
-	CASE WHEN noOfReservedSlots IS NULL THEN 0 ELSE noOfReservedSlots END as noBooked, capacity
-	FROM sessions ss
-	INNER JOIN stations st ON st.station_id = ss.station_id AND st.is_active = true
-	LEFT JOIN reservations r ON r.session_id = ss.session_id AND r.session_date = current_date()) x
-	GROUP BY session_id;
-
 # DELETE FROM available_sessions where session_date = current_date();
 SELECT * FROM available_sessions where session_date = current_date();
 
