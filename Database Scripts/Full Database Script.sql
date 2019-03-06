@@ -1,10 +1,8 @@
-CREATE DATABASE  IF NOT EXISTS `kidzania_v3` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `kidzania_v3`;
--- MySQL dump 10.13  Distrib 5.7.9, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.23, for Win64 (x86_64)
 --
--- Host: localhost    Database: kidzania_v3
+-- Host: 127.0.0.1    Database: kidzania_v3
 -- ------------------------------------------------------
--- Server version	5.7.11-log
+-- Server version	5.7.23-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -565,57 +563,6 @@ LOCK TABLES `user_accounts` WRITE;
 INSERT INTO `user_accounts` VALUES (2,3,'crew-aviation','$2a$10$pyMYtPfIvE.PAboF3cIx9.IsyW73voMIRxFINohzgeV0I2BxwnrEu'),(7,2,'vincent','$2b$10$u0q0EM6iFIkTHYVApaPCeuhwALZciooF1cGWDI6S1oW571OuLcVz6'),(8,2,'kenneth','$2b$10$2N8v2A9xDQRqfYXpvCXs5e1MBoIxWGpozoD7heR1lyX5xtQzI5J9m'),(9,1,'master','$2b$10$2N8v2A9xDQRqfYXpvCXs5e1MBoIxWGpozoD7heR1lyX5xtQzI5J9m'),(11,19,'crew-pizza','$2b$10$3XtAVAA0v6xeDdo5unmLn.xWLf/38B6pMZwnH58Z901Vy47rGAnDa'),(18,21,'crew-chicken','$2b$10$QydlJAk8wrt85I4seqr7LOBzQAmLr9cv6eX9iOASlh.9ffC4b4x96');
 /*!40000 ALTER TABLE `user_accounts` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Dumping events for database 'kidzania_v3'
---
-/*!50106 SET @save_time_zone= @@TIME_ZONE */ ;
-/*!50106 DROP EVENT IF EXISTS `delete_past_limit_setting` */;
-DELIMITER ;;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;;
-/*!50003 SET character_set_client  = utf8 */ ;;
-/*!50003 SET character_set_results = utf8 */ ;;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;;
-/*!50003 SET @saved_time_zone      = @@time_zone */ ;;
-/*!50003 SET time_zone             = 'SYSTEM' */ ;;
-/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`localhost`*/ /*!50106 EVENT `delete_past_limit_setting` ON SCHEDULE EVERY 1 DAY STARTS '2018-07-26 20:00:00' ON COMPLETION PRESERVE ENABLE DO DELETE FROM booking_limit WHERE current_date() >= session_date */ ;;
-/*!50003 SET time_zone             = @saved_time_zone */ ;;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;;
-/*!50003 SET character_set_results = @saved_cs_results */ ;;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;;
-/*!50106 DROP EVENT IF EXISTS `seed_daily_sessions_event` */;;
-DELIMITER ;;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;;
-/*!50003 SET character_set_client  = utf8 */ ;;
-/*!50003 SET character_set_results = utf8 */ ;;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;;
-/*!50003 SET @saved_time_zone      = @@time_zone */ ;;
-/*!50003 SET time_zone             = 'SYSTEM' */ ;;
-/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`localhost`*/ /*!50106 EVENT `seed_daily_sessions_event` ON SCHEDULE EVERY 1 DAY STARTS '2018-06-25 09:30:00' ON COMPLETION PRESERVE ENABLE DO INSERT INTO available_sessions 
-	(session_date, session_id, station_id, role_id, noBooked, capacity)
-	SELECT date, session_id, station_id, role_id, SUM(noBooked) as noBooked, capacity 
-	FROM (SELECT current_date() as date, ss.session_id, ss.station_id, ss.role_id, 
-	CASE WHEN noOfReservedSlots IS NULL THEN 0 ELSE noOfReservedSlots END as noBooked, capacity
-	FROM sessions ss
-	INNER JOIN stations st ON st.station_id = ss.station_id AND st.is_active = true
-	LEFT JOIN reservations r ON r.session_id = ss.session_id AND r.session_date = current_date()) x
-	GROUP BY session_id */ ;;
-/*!50003 SET time_zone             = @saved_time_zone */ ;;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;;
-/*!50003 SET character_set_results = @saved_cs_results */ ;;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;;
-DELIMITER ;
-/*!50106 SET TIME_ZONE= @save_time_zone */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -626,4 +573,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-06 19:25:50
+-- Dump completed on 2019-03-06 21:14:44
