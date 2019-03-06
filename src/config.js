@@ -2,11 +2,11 @@ const os = require('os')
 
 module.exports = {
 	// Localhost
-	// hostname: 'localhost'
+	hostname: 'localhost'
 
 	// KidZania Server
 	// hostname: '152.10.0.239'
-	hostname: 'local.kidzania.com'
+	// hostname: 'local.kidzania.com'
 
 	// Hamachi
 	// hostname: '25.37.100.106'

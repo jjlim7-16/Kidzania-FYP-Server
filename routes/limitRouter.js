@@ -119,11 +119,13 @@ router.route('/:limitID')
 	})
 
 router.get('/checkRoleLimit/:stationID', (req, res) => {
-	let sql = `SELECT booking_limit, role_id FROM booking_limit WHERE station_id = ? && session_date = current_date()`
+	let sql = `SELECT role_id, booking_limit FROM stations st 
+	LEFT JOIN station_roles sr ON st.station_id = sr.station_id 
+	WHERE st.station_id = ?;`
 	pool.getConnection().then(function(connection) {
 		connection.query(sql, req.params.stationID)
 			.then(results => {
-				console.log(results)
+				// console.log(results)
 				res.json(results)
 			})
 			.catch(err => {

@@ -65,9 +65,9 @@ router.route('/')
 	let stationData = JSON.parse(req.body.webFormData)
 	let imagepath = req.files[0].filename
 	let sql = `INSERT INTO stations (station_name, description, station_start, station_end,
-		durationInMins, imagepath, is_active) VALUES ?`
-	let stationVal = [[stationData.name, stationData.description,
-		stationData.startTime, stationData.endTime, stationData.duration, imagepath, 0
+		durationInMins, booking_limit, imagepath, is_active) VALUES ?`
+	let stationVal = [[stationData.name, stationData.description, stationData.startTime, 
+		stationData.endTime, stationData.duration, stationData.limit, imagepath, 0
 	]]
 	let stationID
 	pool.getConnection().then(function(connection) {
@@ -121,7 +121,7 @@ router.route('/:stationID')
 .put(upload.any(), (req, res) => {
 	// Have yet to update the web app form for activation/deactivation
 	let stationData = JSON.parse(req.body.webFormData)
-	let sql = `SELECT station_name, station_start, station_end, imagepath 
+	let sql = `SELECT station_name, station_start, station_end, durationInMins, imagepath 
 	FROM stations WHERE station_id = ${req.params.stationID};`
 	let changeName = false
 	let origFile = ''
@@ -136,17 +136,17 @@ router.route('/:stationID')
 				if (req.files.length > 0 || changeName === true) {
 					newFilename = (req.files.length === 0) ? `${stationData.name}.${origFile.split('.')[1]}`
 						: req.files[0].filename
-					sql = `Update stations Set station_name=?, description=?,
-					station_start=?, station_end=?, durationInMins=?, imagepath=?  Where station_id = ?;`
-					val = [ stationData.name, stationData.description, stationData.startTime,
-						stationData.endTime, stationData.duration, newFilename, req.params.stationID
+					sql = `Update stations Set station_name=?, description=?, station_start=?, 
+					station_end=?, durationInMins=?, imagepath=?, booking_limit=? Where station_id = ?;`
+					val = [ stationData.name, stationData.description, stationData.startTime, stationData.endTime, 
+						stationData.duration, newFilename, stationData.limit, req.params.stationID
 					]
 				}
 				else if (req.files.length <= 0) {
-					sql = `Update stations Set station_name=?, description=?,
-					station_start=?, station_end=?, durationInMins=? Where station_id = ?;`
+					sql = `Update stations Set station_name=?, description=?, station_start=?, 
+					station_end=?, durationInMins=?, booking_limit=? Where station_id = ?;`
 					val = [ stationData.name, stationData.description, stationData.startTime,
-						stationData.endTime, stationData.duration, req.params.stationID
+						stationData.endTime, stationData.duration, stationData.limit, req.params.stationID
 					]
 				}
 				if (moment(results[0].station_start, 'HH:mm').format('HH:mm') !== 
@@ -157,6 +157,8 @@ router.route('/:stationID')
 					sql += `DELETE FROM sessions WHERE station_id = ${req.params.stationID};`
 					durationChanged = true
 				}
+				console.log(sql)
+				console.log(val)
 
 				return connection.query(sql, val)
 			})
