@@ -1,4 +1,6 @@
 const mysql = require('promise-mysql')
+// const password = 'P@ssw0rd'
+const password = '12345'
 let pool
 module.exports = {
 	getPool: function() {
@@ -8,7 +10,7 @@ module.exports = {
 			multipleStatements: true,
 			host: 'localhost',
 			user: 'root',
-			password: 'P@ssw0rd',
+			password: password,
 			database: 'kidzania_v3'
 		})
 		return pool

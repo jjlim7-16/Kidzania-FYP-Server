@@ -1,7 +1,7 @@
 # Q-zee Backend Server
+Backend Server of the queue management system. This includes a Node.js server-side application and the MySQL database used to power both the Administrative portal and User Booking Portal. Click here to find out more about the [Administrative Portal](https://github.com/jjlim7-16/Admin-Nuxt) and [User Booking Portal](https://github.com/Syoongy/kidzania-fyp-client)
 
 ## Project File Structure
-<<<<<<< HEAD
 ```bash
 ├── Database Scripts          # Database Scripts Directory
 ├── Images                    # Image Directory
@@ -106,7 +106,7 @@ $ yarn deploy
 ## Deployment
 ```bash
 # Clone project from Github Repository
-$ git clone 'https://'
+$ git clone 'https://github.com/jjlim7-16/Kidzania-FYP-Server/'
 
 # Install dependencies
 $ yarn install
@@ -115,8 +115,7 @@ $ yarn install
 $ SET NODE_ENV=production
 
 # Deploy Server
-$ yarn start
+$ yarn deploy
 ```
 
 For more details, or if any bugs are found, please contact...
->>>>>>> origin/FinalServer

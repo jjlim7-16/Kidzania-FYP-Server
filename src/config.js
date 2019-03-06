@@ -9,7 +9,7 @@ module.exports = {
 	// hostname: 'local.kidzania.com'
 
 	// Hamachi
-	// hostname: '25.37.100.106'
+	hostname: '25.30.64.144'
 
 	// Public IP Address
 	// hostname: os.networkInterfaces()['Wi-Fi'][1].address
